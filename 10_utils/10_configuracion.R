@@ -104,3 +104,45 @@ ETAPAS_EMBUDO <- c(
 # informacion, se agrega etiquetada y visible, jamas diluida ni descartada
 # (brief secciones 3 y 4).
 ETIQUETA_SIN_RBD_VIGENTE <- "Egresados de anios anteriores (sin RBD vigente)"
+
+# ============================================================================
+# Paleta PROPIA de slep_paes (fuente unica, espejo de INDICADOR_COLORS de idps)
+# ============================================================================
+# Decision y justificacion completas en:
+#   50_documentacion/activa/decisiones/20260630_decision_patron_comun_y_paleta.md
+# Las paletas NO son transversales: slep_paes NO hereda la de ningun hermano.
+# v1 de trabajo; contraste AA y revision visual pendientes para el paso 4.
+PALETA_PAES <- list(
+  # --- Chrome / identidad ---
+  chrome = c(
+    paper  = "#FBF7EF",  # fondo marfil calido (gobCL, propio)
+    tinta  = "#241B2E",  # texto base (tinta uva)
+    header = "#3B1D5E",  # header (uva profunda, sello PAES)
+    acento = "#C2410C",  # acento / activo (terracota PAES)
+    linea  = "#E6DECB"   # bordes y separadores
+  ),
+  # --- Foco COBERTURA: secuencial uva (atenuacion del embudo) ---
+  # Mismas llaves que ETAPAS_EMBUDO, en orden del proceso.
+  cobertura = c(
+    egresados   = "#EFE9F5",
+    inscripcion = "#D2C0E4",
+    rendicion   = "#AE92CE",
+    resultados  = "#8A65B5",
+    postulacion = "#653F99",
+    seleccion   = "#412072"
+  ),
+  # Rezagados (sin RBD vigente): neutro diferenciado, no es una etapa del embudo.
+  sin_rbd_vigente = "#9A8FA6",
+  # --- Foco RENDIMIENTO: categorico por prueba (llaves de PRUEBAS_PAES) ---
+  pruebas = c(
+    competencia_lectora = "#B45309",  # ambar terroso
+    m1                  = "#1F5C54",  # teal profundo
+    m2                  = "#5B3A9E",  # uva media
+    ciencias            = "#4D7C0F",  # oliva oscuro
+    historia            = "#B91C5C"   # frambuesa-burdeos
+  ),
+  # Divergente para tramos de puntaje (bajo -> alto), neutro al centro.
+  rendimiento_divergente = c(
+    "#B45309", "#D9A441", "#E6DECB", "#4C8C7D", "#1F5C54"
+  )
+)

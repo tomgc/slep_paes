@@ -24,5 +24,11 @@ Thumbs.db
 .claude/
 _archivo/
 
+# Gobernanza (defensa en profundidad): el directorio oficial CRUDO trae columnas
+# RUT_SOSTENEDOR y MRUN (identificadores de persona) y NO debe versionarse en un
+# repo publico. Solo se versiona el depurado (directorio_oficial_ee_publico.csv).
+# Si alguien deposita el crudo localmente para reprocesarlo, queda fuera de git.
+20_insumos/auxiliares/directorio_oficial_ee.csv
+
 # Reportes regenerables de la auditoria de cifras
 tests/reportes/
