@@ -69,10 +69,12 @@ estetico y arquitectonico de `slep_categoria_desempeno`, `slep_idps` y
 **RAMA A** (proyecto publico, datos PAES del DEMRE versionados en el repo). Raiz
 unificada, `.gitignore` estandar sin bloque de datos, sin data root externo.
 
-**Sesion 1 (scaffold):** Paso 1 del plan completado — estructura canonica Rama A,
-stubs de orquestador y escaner, `10_utils` con bootstrapping y configuracion,
-contrato copiado, README/CLAUDE/LICENSE, git local, primer escaneo. Pipeline aun
-sin pasos construidos.
+**Sesion 1 (scaffold):** Pasos 1-2 del plan completados — estructura canonica Rama
+A, stubs de orquestador y escaner, `10_utils` con bootstrapping y configuracion
+(incluida `PALETA_PAES`), contrato copiado, README/CLAUDE/LICENSE, git local,
+primer escaneo; reuso de d3/pako y auxiliares territoriales, nota de patron comun.
+Pipeline aun sin pasos construidos. Pendiente: 20_insumos por etapa + manifiesto +
+gobernanza + contexto_paes (paso 3); stubs de ETL y motor (paso 4).
 
 ## Pipeline
 
@@ -97,7 +99,15 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 ## Ultimos cambios
 
-1. **Sesion 1 — scaffold Rama A.** Estructura canonica por decenas, `00_run_all.R`
+1. **Sesion 1 (paso 2) — reuso y patron comun.** Reuso verbatim de d3/pako (md5
+   identicos a los hermanos) y de los auxiliares territoriales desde slep_idps
+   (directorio depurado SIN RUT/MRUN; .gitignore blinda el nombre del crudo). Nota
+   `decisiones/20260630_decision_patron_comun_y_paleta.md` con el patron de familia
+   (pipeline 30->33, JSON columnar gzip+base64+pako, motor autocontenido, Pages
+   docs/) y las divergencias de PAES (microdato por postulante -> SI suprime celdas
+   chicas; dos focos; agregacion en R). `PALETA_PAES` propia (uva/terracota), fuente
+   unica en `10_configuracion.R`, v1 a validar visualmente.
+2. **Sesion 1 (paso 1) — scaffold Rama A.** Estructura canonica por decenas, `00_run_all.R`
    y `00_escanear_proyecto.R`, `10_utils/10_utils.R` (bootstrapping) y
    `10_configuracion.R` (Rama A, vocabulario de dominio PAES sin congelar esquema),
    `.gitignore` publico, README, LICENSE (MIT + clausula de datos DEMRE), contrato
