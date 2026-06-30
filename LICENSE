@@ -1,0 +1,37 @@
+MIT License
+
+Copyright (c) 2026 Tomás Ignacio González Cifuentes — Servicio Local de Educación Pública Costa Central
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+NOTA SOBRE LOS DATOS
+
+Esta licencia MIT cubre EXCLUSIVAMENTE el código del repositorio (scripts R,
+template HTML, configuración y documentación de autoría propia).
+
+NO cubre los datos contenidos o procesados por el proyecto. Las bases de datos
+de la Prueba de Acceso a la Educación Superior (PAES), los directorios y los
+catálogos territoriales son producidos y difundidos por el Departamento de
+Evaluación, Medición y Registro Educacional (DEMRE) de la Universidad de Chile
+y se rigen por sus propias condiciones de uso de la información y por la
+normativa chilena aplicable. Su inclusión o procesamiento en este repositorio
+se ampara en su carácter de información pública (datos abiertos del DEMRE); la
+presente licencia no transfiere ni amplía derecho alguno sobre ellos.
