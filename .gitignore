@@ -1,0 +1,28 @@
+# R
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+.Rproj.user/
+.Renviron
+
+# Salidas intermedias del pipeline (regenerables)
+40_salidas/intermedios/*.parquet
+
+# Producto final HTML (regenerable; se publica por separado)
+40_salidas/motor_paes.html
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+*~
+
+# Logs
+*.log
+
+# Configuracion local de Claude Code
+.claude/
+_archivo/
+
+# Reportes regenerables de la auditoria de cifras
+tests/reportes/
