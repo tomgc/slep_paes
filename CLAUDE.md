@@ -81,9 +81,11 @@ por etapa + manifiesto + gobernanza + `contexto_paes.md`, y los cuatro scripts d
 catalogos (real), `33` genera un motor-esqueleto autocontenido (sin CDN) con
 el doble foco. Pendiente: validacion visual de la paleta; primer push.
 
-**Sesion 2:** `31_leer_normalizar.R` implementado y verificado contra las
-bases reales (ver Ultimos cambios). `32_agregar_territorial.R` sigue stub:
-diseño pendiente contra el esquema ya normalizado por 31.
+**Sesion 2:** `31_leer_normalizar.R` y `32_agregar_territorial.R` implementados
+y verificados contra las bases reales (ver Ultimos cambios). `run_all()` corre
+30->31->32 end-to-end sobre datos reales. Pendiente: `33_generar_html.R`
+todavia sirve el motor-esqueleto de sesion 1 (no consume los parquets
+territoriales de 32 aun).
 
 ## Pipeline
 
@@ -101,16 +103,52 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
   ArchivoC (prueba/tipo_rendicion/vigencia), unificacion wide/long de ArchivoD
   con atributos `*_solo2023` preservados, llaves character, manifiesto de
   archivos clasificado por nombre (ver decision 20260701).
-- `32_agregar_territorial.R` — agrega los dos focos: cobertura (embudo vs.
-  denominador de egresados, con la categoria de rezagados) y rendimiento (puntajes
-  por prueba/escala/NEM/Ranking).
+- `32_agregar_territorial.R` — agrega los dos focos al arbol territorial RBD ->
+  comuna -> SLEP -> region -> nacional (+ rezagados), con supresion de celdas
+  chicas (FUNCIONAL): cobertura (embudo egresados/marca_egreso==1 ->
+  inscripcion -> rendicion(vigencia=="actual") -> resultados(CLEC+M1) ->
+  postulacion -> seleccion(estado_pref 24/26); ArchivoD/Matr sin `rbd` propio,
+  ver decision 20260701) y rendimiento (puntaje por prueba/tipo_rendicion/
+  vigencia + NEM/Ranking, media enmascarada si la celda se suprime).
 - `33_generar_html.R` (+ `33_motor_template.html`) — motor HTML autocontenido,
   TODO CHILE, navegacion territorial, doble foco. Salida `40_salidas/motor_paes.html`
   (= `docs/index.html` para Pages).
 
 ## Ultimos cambios
 
-1. **Sesion 2 — `31_leer_normalizar.R` implementado (Fase B).** Diagnostico
+1. **Sesion 3 — `32_agregar_territorial.R` implementado.** Decision delegada
+   documentada en `decisiones/20260701_decision_territorializacion_d_matr.md`:
+   ArchivoD (postulacion/seleccion) se territorializa via join por
+   `(id_aux, anio_proceso)` contra `paes_inscripcion` (verificado: 100% de las
+   751.175 combinaciones de ArchivoD existen en inscripcion, sin duplicados de
+   llave); ArchivoMatr queda FUERA del arbol territorial en esta v1 (no es
+   etapa de `ETAPAS_EMBUDO` ni fue pedida). FOCO COBERTURA: embudo egresados
+   (`marca_egreso==1`, ver hallazgo abajo) -> inscripcion -> rendicion
+   (`vigencia=="actual"`) -> resultados (rindio CLEC+M1 este anio, sin el
+   umbral fino de 458 ptos/10% superior: `PORC_SUP_NOTAS` real es un decil sin
+   glosa que confirme el mapeo -> alcance documentado, no inventado) ->
+   postulacion -> seleccion (`estado_pref` 24/26; 25="lista de espera" no
+   cuenta). Rezagados visibles como `tipo_entidad` propio, nunca hueco.
+   Hallazgo real en egresados: el archivo trae ~4x mas filas que personas
+   (999.446 vs. ~254.750 en 2023) porque incluye un registro por grado
+   (1°-4° medio) por estudiante; `MARCA_EGRESO==1` identifica la fila de
+   egreso efectivo (verificado: tras filtrar, MRUN es unico por año y las
+   cardinalidades resultantes -254.750/257.261/281.356- calzan con cohortes
+   reales de egreso de EM en Chile; sin glosa oficial para esa columna, el
+   archivo MINEDUC no trae libro de codigos). FOCO RENDIMIENTO: puntaje por
+   prueba/tipo_rendicion/vigencia + NEM/Ranking (sentinela 0 excluido, mismo
+   patron que puntaje), deduplicando NEM/Ranking por persona antes de
+   promediar (son atributos por persona, no por fila pivoteada). Verificado
+   end-to-end: supresion de celdas aplicada (83 celdas de cobertura, 5.873 de
+   rendimiento, media enmascarada junto con n); embudo inscripcion->seleccion
+   100% monotonico a nivel nacional/region/SLEP y 99,7% a nivel comuna (4
+   excepciones puntuales: postulacion levemente > resultados donde el
+   postulante usa un puntaje `vigencia=="anterior"` sin re-rendir CLEC/M1 este
+   año, consistente con el mecanismo de "puntaje vigente" documentado).
+   `egresados` vs. `inscripcion` NO es monotonico por diseño (poblaciones
+   distintas: egresados = cohorte de ESE año; inscripcion incluye rezagados de
+   años previos) — esperado, no defecto.
+2. **Sesion 2 — `31_leer_normalizar.R` implementado (Fase B).** Diagnostico
    previo en `decisiones/20260701_decision_schema_31_leer_normalizar.md`
    (mapeo wide->long de ArchivoD 2023 + esquema LONG para ArchivoC),
    aprobado por el titular con dos resoluciones: `SITUACION_POSTULANTE[_BEA|
@@ -133,7 +171,13 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    causas de negocio conocidas — rezagados sin RBD vigente, preferencias
    rechazadas sin ponderado — no a fallas de parsing). `32_agregar_
    territorial.R` sigue como stub.
-2. **Sesion 1 (Fase A) — migracion Rama A -> B (codigo).** Diagnostico de las
+3. **Sesion 2 — `31_leer_normalizar.R`: limpieza MODULO_*.** Las columnas
+   crudas `modulo_{reg,inv}_{actual,anterior}` quedaban replicadas sin
+   pivotear en `paes_rendicion_resultados.parquet` (redundantes con
+   `modulo_ciencias`, ya derivada). Se excluyen del `df` base antes del pivot
+   de puntajes. Verificado: parquet regenerado con 4.845.570 filas (sin
+   cambio) y 22 columnas (antes 26); `modulo_ciencias` intacta.
+4. **Sesion 1 (Fase A) — migracion Rama A -> B (codigo).** Diagnostico de las
    bases reales: microdato por persona (~953 MB) con PII (`MRUN`/`MRUN_IPE` de NNA
    en egresados 2023-2025; `FECHA_NACIMIENTO` en ArchivoB) y `ArchivoD_2023`
    (104 MB) sobre el limite de GitHub. Se migra a DOS RAICES: `10_configuracion.R`
@@ -152,7 +196,7 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    actualizado. PENDIENTE: el titular debe vaciar la copia vieja que quedo en el
    repo (`~/Projects/slep_paes/20_insumos/`, gitignoreada pero con PII en disco);
    diseño de 31 contra el esquema real; egresados 2026.
-3. **Sesion 1 (paso 4) — stubs de ETL y motor.** Cuatro scripts en
+5. **Sesion 1 (paso 4) — stubs de ETL y motor.** Cuatro scripts en
    `30_procesamiento/`: `30_construir_auxiliares.R` (FUNCIONAL: catalogos
    territoriales desde el directorio publico + listado SLEP; 10.945 EE, 345
    comunas, Costa Central OK); `31_leer_normalizar.R` y `32_agregar_territorial.R`
@@ -164,21 +208,3 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    a `10_utils/`. `run_all()` corre end-to-end (0 refs de red en el motor). Fix:
    el comentario del template repetia el token `__JSON_DATA__` y `sub()` lo
    reemplazaba antes que el real; reescrito.
-4. **Sesion 1 (paso 3) — insumos, gobernanza y reseña.** Estructura de
-   `20_insumos/` por etapa (`demre/{inscripcion,rendicion_resultados,
-   postulacion_seleccion,glosas}` + `egresados_em/`) con README por carpeta y
-   nombres canonicos; `manifiesto_insumos.md` (mapa etapa->base->nombre->foco->glosa).
-   `gobernanza_datos.md` (datos abiertos DEMRE k-anonimizados con `ID_aux`;
-   supresion de celdas < 8 = k-anonimato del DEMRE, `UMBRAL_SUPRESION_CELDA` a 8L;
-   solo agregados en la web; terminologia SLEP). Reseña `Guia_Completa_de_la_PAES.docx`
-   convertida a `contexto_paes.md` (fuente unica de dominio; fórmulas IRT/NEM no
-   sobrevivieron la extraccion, se marcan, NO se rellenan). Guia de uso de datos
-   abiertos DEMRE movida a `auxiliares/`.
-5. **Sesion 1 (paso 2) — reuso y patron comun.** Reuso verbatim de d3/pako (md5
-   identicos a los hermanos) y de los auxiliares territoriales desde slep_idps
-   (directorio depurado SIN RUT/MRUN; .gitignore blinda el nombre del crudo). Nota
-   `decisiones/20260630_decision_patron_comun_y_paleta.md` con el patron de familia
-   (pipeline 30->33, JSON columnar gzip+base64+pako, motor autocontenido, Pages
-   docs/) y las divergencias de PAES (microdato por postulante -> SI suprime celdas
-   chicas; dos focos; agregacion en R). `PALETA_PAES` propia (uva/terracota), fuente
-   unica en `10_configuracion.R`, v1 a validar visualmente.
