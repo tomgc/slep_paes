@@ -1,0 +1,72 @@
+ESCANEO DE ESTRUCTURA — slep_paes
+Raiz   : /Users/tomgc/Projects/slep_paes
+Fecha  : 2026-07-01 11:28:34
+Totales: 12 carpetas, 43 archivos
+Nota   : todos los datos son publicos (bases PAES del DEMRE) y se versionan en el repo.
+
+slep_paes/
+├── 10_utils/
+│   ├── 10_configuracion.R  (7.39K)
+│   ├── 10_utils.R  (1.94K)
+│   ├── d3.min.js  (273K)
+│   ├── pako.min.js  (45.8K)
+│   ├── react-dom.production.min.js  (129K)
+│   └── react.production.min.js  (10.5K)
+├── 20_insumos/
+│   └── README.md  (1.28K)
+├── 30_procesamiento/
+│   ├── 30_construir_auxiliares.R  (8.22K)
+│   ├── 31_leer_normalizar.R  (5.13K)
+│   ├── 32_agregar_territorial.R  (7.01K)
+│   ├── 33_generar_html.R  (6.91K)
+│   └── 33_motor_template.html  (7.45K)
+├── 40_salidas/
+│   └── README.md  (530)
+├── 50_documentacion/
+│   ├── activa/
+│   │   ├── decisiones/
+│   │   │   ├── .gitkeep  (0)
+│   │   │   └── 20260630_decision_patron_comun_y_paleta.md  (11.1K)
+│   │   ├── .DS_Store  (6K)
+│   │   ├── contexto_paes.md  (51.2K)
+│   │   ├── gobernanza_datos.md  (7.16K)
+│   │   ├── manifiesto_insumos.md  (5.77K)
+│   │   ├── POLITICA_PROYECTO.md  (33K)
+│   │   └── SETTINGS_Y_PROMPTS_OPERACIONALES.md  (46.7K)
+│   ├── andamios/
+│   │   ├── .gitkeep  (0)
+│   │   └── 20260701_renombrado_insumos_datos.md  (5.86K)
+│   ├── estructura/
+│   │   ├── 20260701_103301_estructura.md  (20K)
+│   │   ├── 20260701_103301_estructura.txt  (20K)
+│   │   ├── 20260701_112639_estructura.md  (4.54K)
+│   │   ├── 20260701_112639_estructura.txt  (4.54K)
+│   │   ├── estructura_actual.md  (4.54K)
+│   │   └── estructura_actual.txt  (4.54K)
+│   ├── traspasos/
+│   │   └── .gitkeep  (0)
+│   └── .DS_Store  (8K)
+├── docs/
+│   ├── .gitkeep  (0)
+│   └── index.html  (673K)
+├── tests/
+│   └── .gitkeep  (0)
+├── .DS_Store  (10K)
+├── .gitignore  (1.09K)
+├── .Renviron.example  (771)
+├── 00_escanear_proyecto.R  (9.07K)
+├── 00_run_all.R  (8.23K)
+├── CLAUDE.md  (9.68K)
+├── LICENSE  (1.9K)
+├── README.md  (5.47K)
+└── slep_paes.Rproj  (220)
+
+Conteo por extension:
+  md                 14
+  (sin extension)    10
+  r                  8
+  js                 4
+  txt                3
+  html               2
+  example            1
+  rproj              1
