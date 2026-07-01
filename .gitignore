@@ -1,34 +1,55 @@
-# R
+# .gitignore — slep_paes (RAMA B: proyecto con datos personales)
+# Los datos reales (bases DEMRE/MINEDUC: MICRODATO por persona, con MRUN de NNA y
+# FECHA_NACIMIENTO) viven FUERA del repo, en la raiz de datos de OneDrive
+# (variable SLEP_PAES_DATA_ROOT). El repo solo contiene codigo, configuracion y
+# documentacion no sensible. Ver 50_documentacion/activa/gobernanza_datos.md.
+
+# --- Datos (defensa en profundidad: viven fuera del repo, se blindan igual) ---
+20_insumos/*
+40_salidas/*
+!20_insumos/README.md
+!40_salidas/README.md
+*.csv
+*.xlsx
+*.parquet
+*.rds
+*.sqlite
+*.db
+*.feather
+
+# --- Credenciales ---
+.env
+.Renviron
+*credentials*
+*secret*
+*token*
+*password*
+
+# --- R / sistema ---
+.Rproj.user/
 .Rhistory
 .Rapp.history
 .RData
 .Ruserdata
-.Rproj.user/
-.Renviron
-
-# Salidas intermedias del pipeline (regenerables)
-40_salidas/intermedios/*.parquet
-
-# Producto final HTML (regenerable; se publica por separado)
-40_salidas/motor_paes.html
-
-# Sistema operativo
 .DS_Store
 Thumbs.db
 *~
-
-# Logs
 *.log
+# Nota: *.Rproj SI se versiona (ancla del proyecto; sin el here::here() no resuelve).
 
-# Configuracion local de Claude Code
-.claude/
+# --- Snapshots y backups locales ---
 _archivo/
+*.bak
 
-# Gobernanza (defensa en profundidad): el directorio oficial CRUDO trae columnas
-# RUT_SOSTENEDOR y MRUN (identificadores de persona) y NO debe versionarse en un
-# repo publico. Solo se versiona el depurado (directorio_oficial_ee_publico.csv).
-# Si alguien deposita el crudo localmente para reprocesarlo, queda fuera de git.
-20_insumos/auxiliares/directorio_oficial_ee.csv
+# --- Configuracion local de Claude Code ---
+.claude/
 
-# Reportes regenerables de la auditoria de cifras
+# --- Outputs accidentales en raiz y temporales ---
+/*.docx
+/*.pdf
+/*.html
+/diagnostico_*.md
+/verificar_*.R
 tests/reportes/
+*_freeze/
+.quarto/

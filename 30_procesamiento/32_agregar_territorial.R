@@ -31,7 +31,8 @@ source(here::here("10_utils", "10_utils.R"))
 source(here::here("10_utils", "10_configuracion.R"))   # UMBRAL_SUPRESION_CELDA, ETAPAS_EMBUDO, PRUEBAS_PAES, ETIQUETA_SIN_RBD_VIGENTE
 instalar_si_falta(c("here", "dplyr", "tidyr", "arrow"))
 
-ruta_int <- function(f) here::here("40_salidas", "intermedios", f)
+ruta_int <- function(f) ruta_salidas("intermedios", f)
+dir.create(ruta_salidas("intermedios"), recursive = TRUE, showWarnings = FALSE)
 
 # ============================================================================
 # Funciones de agregacion territorial (reutilizables por ambos focos)
