@@ -1,13 +1,9 @@
-# Estructura actual — slep_paes
+ESCANEO DE ESTRUCTURA — slep_paes
+Raiz   : /Users/tomgc/Projects/slep_paes
+Fecha  : 2026-07-01 11:42:49
+Totales: 12 carpetas, 45 archivos
+Nota   : todos los datos son publicos (bases PAES del DEMRE) y se versionan en el repo.
 
-- **Raiz:** `/Users/tomgc/Projects/slep_paes`
-- **Fecha:** 2026-07-01 11:28:34
-- **Totales:** 12 carpetas, 43 archivos
-- **Nota:** todos los datos son publicos (bases PAES del DEMRE) y se versionan en el repo.
-
-## Arbol
-
-```
 slep_paes/
 ├── 10_utils/
 │   ├── 10_configuracion.R  (7.39K)
@@ -32,6 +28,7 @@ slep_paes/
 │   │   │   ├── .gitkeep  (0)
 │   │   │   └── 20260630_decision_patron_comun_y_paleta.md  (11.1K)
 │   │   ├── .DS_Store  (6K)
+│   │   ├── backlog_acumulativo.md  (4.09K)
 │   │   ├── contexto_paes.md  (51.2K)
 │   │   ├── gobernanza_datos.md  (7.16K)
 │   │   ├── manifiesto_insumos.md  (5.77K)
@@ -41,14 +38,15 @@ slep_paes/
 │   │   ├── .gitkeep  (0)
 │   │   └── 20260701_renombrado_insumos_datos.md  (5.86K)
 │   ├── estructura/
-│   │   ├── 20260701_103301_estructura.md  (20K)
-│   │   ├── 20260701_103301_estructura.txt  (20K)
-│   │   ├── 20260701_112639_estructura.md  (4.54K)
-│   │   ├── 20260701_112639_estructura.txt  (4.54K)
-│   │   ├── estructura_actual.md  (4.54K)
-│   │   └── estructura_actual.txt  (4.54K)
+│   │   ├── 20260701_112834_estructura.md  (2.56K)
+│   │   ├── 20260701_112834_estructura.txt  (2.56K)
+│   │   ├── 20260701_113741_estructura.md  (4.74K)
+│   │   ├── 20260701_113741_estructura.txt  (4.74K)
+│   │   ├── estructura_actual.md  (4.74K)
+│   │   └── estructura_actual.txt  (4.74K)
 │   ├── traspasos/
-│   │   └── .gitkeep  (0)
+│   │   ├── .gitkeep  (0)
+│   │   └── traspaso_cierre_v01.md  (38K)
 │   └── .DS_Store  (8K)
 ├── docs/
 │   ├── .gitkeep  (0)
@@ -64,17 +62,13 @@ slep_paes/
 ├── LICENSE  (1.9K)
 ├── README.md  (5.47K)
 └── slep_paes.Rproj  (220)
-```
 
-## Conteo por extension
-
-| Extension | Archivos |
-|---|---|
-| md | 14 |
-| (sin extension) | 10 |
-| r | 8 |
-| js | 4 |
-| txt | 3 |
-| html | 2 |
-| example | 1 |
-| rproj | 1 |
+Conteo por extension:
+  md                 16
+  (sin extension)    10
+  r                  8
+  js                 4
+  txt                3
+  html               2
+  example            1
+  rproj              1
