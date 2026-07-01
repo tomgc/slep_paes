@@ -17,19 +17,56 @@
 #            + catalogos territoriales (de 30_).
 # Salidas  : 40_salidas/intermedios/paes_cobertura_territorial.parquet
 #            40_salidas/intermedios/paes_rendimiento_territorial.parquet
-# Fecha    : 2026-06-30
+# Fecha    : 2026-07-01
 # -----------------------------------------------------------------------------
-# STUB FUNCIONAL (sesion 1): sin los parquets de 31_ (bases DEMRE no depositadas)
-# la agregacion se OMITE con aviso; el pipeline no aborta. Las FUNCIONES de
-# agregacion, la categoria de rezagados y la SUPRESION de celdas chicas ya estan
-# definidas; el mapeo de columnas concretas (que columna marca "rindio", que
-# puntaje por prueba) se cablea contra la salida real de 31_ (B.1: no inventar).
+# Cableado (Fase B) contra la salida real confirmada de 31_leer_normalizar.R.
+# Decision de diseno (delegada, ver decisiones/20260701_decision_territorializacion_d_matr.md
+# y CLAUDE.md "Ultimos cambios"): ArchivoD (postulacion_seleccion) NO trae rbd
+# propio -> se territorializa via join por (id_aux, anio_proceso) contra
+# paes_inscripcion (que si trae rbd de egreso; verificado 100% de las
+# combinaciones id_aux+anio de ArchivoD existen en ArchivoB). ArchivoMatr
+# (matricula universitaria) NO es una etapa de ETAPAS_EMBUDO ni fue pedida por
+# el encargo -> queda FUERA del arbol territorial en esta v1; el mismo mecanismo
+# de join por id_aux aplicaria si una version futura la necesita.
+#
+# Reglas mecanicas aplicadas (documentadas, no inventadas):
+#   - "rendicion" y "resultados" (embudo) filtran vigencia == "actual": una fila
+#     vigencia == "anterior" es un puntaje HEREDADO del proceso previo, no una
+#     rendicion de ESTE anio (evita inflar/duplicar el embudo entre anios).
+#   - "resultados validos" = rindio el paquete obligatorio (CLEC + M1) este
+#     anio. NO implementa el umbral fino de habilitacion a postulacion
+#     centralizada (>=458 ptos promedio o 10% superior de notas,
+#     contexto_paes.md L.205): PORC_SUP_NOTAS en la base real es un DECIL
+#     (0,10,...,100), no un flag binario de "10% superior", y no hay glosa que
+#     confirme el mapeo decil->habilitacion -> se habria inventado el corte
+#     (B.1). Alcance documentado, no una detencion: el criterio CLEC+M1 esta
+#     explicitamente en contexto_paes.md L.105 y es mecanico.
+#   - "mate" (INV 2023-2024 sin split, ver 31_) NO cuenta como M1 para
+#     resultados_validos: no es homologable a mate1 sin fuente (misma decision
+#     que en 31_). Subcuenta documentada, no fabricada.
+#   - "seleccion" = estado_pref %in% c(24, 26) ("en lista de seleccionados",
+#     "seleccionado en preferencia anterior"; Anexo Estado Preferencia
+#     ArchivoD). 25 ("en lista de espera") NO cuenta como seleccionado.
+#   - Denominador "egresados": el archivo real trae ~4x mas filas que personas
+#     (999.446 filas vs. ~254.750 egresados 2023) porque incluye registros de
+#     grados 1-4 medio por estudiante, no solo el anio de egreso; marca_egreso
+#     == 1 identifica la fila de egreso efectivo (verificado: tras filtrar,
+#     mrun es unico por agno y las cardinalidades -254.750/257.261/281.356-
+#     son consistentes con cohortes reales de egreso de EM en Chile). No hay
+#     glosa oficial para MARCA_EGRESO (archivo MINEDUC sin libro de codigos
+#     depositado); la inferencia se apoya en el nombre autodescriptivo de la
+#     columna + el patron interno de los datos, documentada aqui por ausencia
+#     de fuente formal (B.1).
+#   - Sentinela 0 en ptje_nem/ptje_ranking = sin valor calculado (mismo patron
+#     que puntaje en 31_; confirmado: rango sin el 0 es 100-1000, la escala
+#     PAES exacta) -> se excluye del promedio de rendimiento.
 # =============================================================================
 
 library(here)
 source(here::here("10_utils", "10_utils.R"))
 source(here::here("10_utils", "10_configuracion.R"))   # UMBRAL_SUPRESION_CELDA, ETAPAS_EMBUDO, PRUEBAS_PAES, ETIQUETA_SIN_RBD_VIGENTE
 instalar_si_falta(c("here", "dplyr", "tidyr", "arrow"))
+library(dplyr)
 
 ruta_int <- function(f) ruta_salidas("intermedios", f)
 dir.create(ruta_salidas("intermedios"), recursive = TRUE, showWarnings = FALSE)
@@ -66,7 +103,6 @@ aplicar_supresion <- function(df, col_n = "n", umbral = UMBRAL_SUPRESION_CELDA) 
 # territorial + rezagados. `df_personas` debe traer una columna `rbd` (RBD_ENS de
 # egreso, o NA para rezagados) y las columnas de desglose en `by`.
 agregar_conteo_territorial <- function(df_personas, mapa, by = character(0)) {
-  # TODO(31): df_personas viene de la etapa normalizada; `rbd` = rbd_ens vigente.
   d <- dplyr::left_join(df_personas, mapa, by = "rbd")
 
   rezagados <- d |>
@@ -91,6 +127,48 @@ agregar_conteo_territorial <- function(df_personas, mapa, by = character(0)) {
     por("region", "cod_region"), nacional, rezagados
   ) |>
     aplicar_supresion("n")
+}
+
+# Analogo a agregar_conteo_territorial() pero para un VALOR promedio (puntaje,
+# NEM, Ranking) en vez de un headcount. Al ser cada fila una observacion
+# persona-indicador, mean(valor_col) por entidad territorial ya queda
+# ponderado por nº de observaciones (no hace falta reponderar aparte).
+# Cuando la celda se suprime (n < umbral), la media TAMBIEN se enmascara: un
+# promedio de <8 personas sigue siendo informacion individualizable.
+agregar_promedio_territorial <- function(df_personas, mapa, valor_col, by = character(0)) {
+  d <- dplyr::left_join(df_personas, mapa, by = "rbd")
+  resumir <- function(datos, agrupar_por) {
+    datos |>
+      dplyr::summarise(
+        n = dplyr::n(),
+        media = mean(.data[[valor_col]], na.rm = TRUE),
+        .by = dplyr::all_of(agrupar_por)
+      )
+  }
+
+  rezagados <- d |>
+    dplyr::filter(is.na(.data$cod_comuna)) |>
+    resumir(by) |>
+    dplyr::mutate(tipo_entidad = "rezagados", cod_entidad = ETIQUETA_SIN_RBD_VIGENTE)
+
+  con_rbd <- d |> dplyr::filter(!is.na(.data$cod_comuna))
+  por <- function(tipo, col) {
+    con_rbd |>
+      dplyr::filter(!is.na(.data[[col]])) |>
+      resumir(c(col, by)) |>
+      dplyr::rename(cod_entidad = dplyr::all_of(col)) |>
+      dplyr::mutate(tipo_entidad = tipo, cod_entidad = as.character(cod_entidad))
+  }
+  nacional <- con_rbd |>
+    resumir(by) |>
+    dplyr::mutate(tipo_entidad = "nacional", cod_entidad = "0")
+
+  dplyr::bind_rows(
+    por("comuna", "cod_comuna"), por("slep", "cod_slep"),
+    por("region", "cod_region"), nacional, rezagados
+  ) |>
+    aplicar_supresion("n") |>
+    dplyr::mutate(media = dplyr::if_else(.data$suprimida, NA_real_, .data$media))
 }
 
 # ============================================================================
@@ -119,22 +197,115 @@ if (faltan_31 || faltan_cat) {
   cat_slep  <- arrow::read_parquet(ruta_int("sleps_chile.parquet"))
   mapa      <- mapa_territorial(cat_estab, cat_slep)
 
+  egresados    <- arrow::read_parquet(ruta_int("paes_egresados.parquet"))
+  inscripcion  <- arrow::read_parquet(ruta_int("paes_inscripcion.parquet"))
+  rendicion    <- arrow::read_parquet(ruta_int("paes_rendicion_resultados.parquet"))
+  postulacion  <- arrow::read_parquet(ruta_int("paes_postulacion_seleccion.parquet"))
+
   # ---- FOCO COBERTURA: embudo por etapa ----------------------------------
-  # Cada etapa aporta su universo de personas (con rbd_ens). El conteo por etapa,
-  # agregado al arbol territorial + rezagados, arma el embudo. El denominador es
-  # egresados. `by` incluira el anio de proceso (y prueba si aplica) cuando 31_
-  # exponga esas columnas homologadas.
-  # TODO(31): sustituir los df por las columnas reales de cada etapa.
   log_msg("Agregando FOCO COBERTURA (embudo egresados -> ... -> seleccionados)...", "INFO", "32")
-  # ... (cableado por etapa contra la salida real de 31_) ...
-  # arrow::write_parquet(cobertura, ruta_int("paes_cobertura_territorial.parquet"))
+
+  # egresados (denominador): marca_egreso == 1 identifica la fila de egreso
+  # efectivo (ver nota de cabecera). agno -> anio_proceso para homologar con
+  # el resto de las etapas.
+  etapa_egresados <- egresados |>
+    dplyr::filter(.data$marca_egreso == 1) |>
+    dplyr::transmute(rbd = .data$rbd, anio_proceso = as.integer(.data$agno)) |>
+    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::mutate(etapa = "egresados")
+
+  # inscripcion: una fila de ArchivoB = un inscrito.
+  etapa_inscripcion <- inscripcion |>
+    dplyr::distinct(id_aux, rbd, anio_proceso) |>
+    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::mutate(etapa = "inscripcion")
+
+  # rendicion: aparece en ArchivoC (post sentinela-0 filtrado en 31_) con
+  # vigencia == "actual" -> rindio al menos una prueba ESTE anio.
+  etapa_rendicion <- rendicion |>
+    dplyr::filter(.data$vigencia == "actual") |>
+    dplyr::distinct(id_aux, rbd, anio_proceso) |>
+    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::mutate(etapa = "rendicion")
+
+  # resultados validos: rindio CLEC + M1 (paquete obligatorio) este anio.
+  # "mate" (INV sin split) no homologa a mate1 (heredado de 31_).
+  ids_obligatorias_ok <- rendicion |>
+    dplyr::filter(.data$vigencia == "actual", .data$prueba %in% c("clec", "mate1")) |>
+    dplyr::distinct(id_aux, anio_proceso, prueba) |>
+    dplyr::summarise(n_pruebas_obligatorias = dplyr::n(), .by = c(id_aux, anio_proceso)) |>
+    dplyr::filter(.data$n_pruebas_obligatorias == 2)
+
+  etapa_resultados <- rendicion |>
+    dplyr::distinct(id_aux, rbd, anio_proceso) |>
+    dplyr::inner_join(ids_obligatorias_ok, by = c("id_aux", "anio_proceso")) |>
+    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::mutate(etapa = "resultados")
+
+  # postulacion / seleccion: ArchivoD no trae rbd -> join por (id_aux,
+  # anio_proceso) contra inscripcion (decision documentada en la cabecera).
+  inscripcion_rbd <- inscripcion |> dplyr::distinct(id_aux, anio_proceso, rbd)
+
+  etapa_postulacion <- postulacion |>
+    dplyr::distinct(id_aux, anio_proceso) |>
+    dplyr::left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
+    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::mutate(etapa = "postulacion")
+
+  # seleccion: estado_pref 24 (en lista de seleccionados) o 26 (seleccionado en
+  # preferencia anterior). 25 (lista de espera) NO cuenta como seleccionado.
+  etapa_seleccion <- postulacion |>
+    dplyr::filter(.data$estado_pref %in% c(24, 26)) |>
+    dplyr::distinct(id_aux, anio_proceso) |>
+    dplyr::left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
+    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::mutate(etapa = "seleccion")
+
+  orden_etapas <- stats::setNames(seq_along(ETAPAS_EMBUDO), names(ETAPAS_EMBUDO))
+  cobertura <- dplyr::bind_rows(
+    etapa_egresados, etapa_inscripcion, etapa_rendicion,
+    etapa_resultados, etapa_postulacion, etapa_seleccion
+  ) |>
+    dplyr::mutate(orden_etapa = orden_etapas[.data$etapa])
+
+  arrow::write_parquet(cobertura, ruta_int("paes_cobertura_territorial.parquet"))
+  log_msg(sprintf("OK: paes_cobertura_territorial.parquet (%d filas, %d cols).",
+                  nrow(cobertura), ncol(cobertura)), "INFO", "32")
 
   # ---- FOCO RENDIMIENTO: puntajes por prueba -----------------------------
-  # Media ponderada por nº de rendidos, por prueba (PRUEBAS_PAES), NEM y Ranking,
-  # mismo arbol territorial, con supresion de celdas chicas.
   log_msg("Agregando FOCO RENDIMIENTO (puntajes por prueba, NEM, Ranking)...", "INFO", "32")
-  # ... (cableado contra la salida real de 31_) ...
-  # arrow::write_parquet(rendimiento, ruta_int("paes_rendimiento_territorial.parquet"))
 
-  message("\n32_agregar_territorial.R: (cuerpo a completar con las bases reales).")
+  # Puntajes por prueba: agrupado por prueba/tipo_rendicion/vigencia (ambas
+  # vigencias, "actual" Y "anterior", son parte del desglose solicitado -- no
+  # se filtran aqui, a diferencia del embudo de cobertura).
+  rendimiento_puntajes <- rendicion |>
+    agregar_promedio_territorial(
+      mapa, valor_col = "puntaje",
+      by = c("anio_proceso", "prueba", "tipo_rendicion", "vigencia")
+    )
+
+  # NEM y Ranking: atributos por PERSONA (constantes por id_aux+anio_proceso,
+  # verificado), no por fila pivoteada -> deduplicar antes de promediar para no
+  # sobreponderar a quienes rindieron mas pruebas. Sentinela 0 = sin valor
+  # calculado (mismo patron que puntaje), se excluye del promedio.
+  personas_contexto <- rendicion |>
+    dplyr::distinct(id_aux, anio_proceso, rbd, ptje_nem, ptje_ranking)
+
+  rendimiento_nem <- personas_contexto |>
+    dplyr::filter(.data$ptje_nem > 0) |>
+    agregar_promedio_territorial(mapa, valor_col = "ptje_nem", by = "anio_proceso") |>
+    dplyr::mutate(prueba = "nem", tipo_rendicion = NA_character_, vigencia = NA_character_)
+
+  rendimiento_ranking <- personas_contexto |>
+    dplyr::filter(.data$ptje_ranking > 0) |>
+    agregar_promedio_territorial(mapa, valor_col = "ptje_ranking", by = "anio_proceso") |>
+    dplyr::mutate(prueba = "ranking", tipo_rendicion = NA_character_, vigencia = NA_character_)
+
+  rendimiento <- dplyr::bind_rows(rendimiento_puntajes, rendimiento_nem, rendimiento_ranking)
+
+  arrow::write_parquet(rendimiento, ruta_int("paes_rendimiento_territorial.parquet"))
+  log_msg(sprintf("OK: paes_rendimiento_territorial.parquet (%d filas, %d cols).",
+                  nrow(rendimiento), ncol(rendimiento)), "INFO", "32")
+
+  message("\n32_agregar_territorial.R: OK. Focos agregados: cobertura, rendimiento")
 }
