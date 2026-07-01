@@ -50,13 +50,22 @@
 #   - Denominador "egresados": el archivo real trae ~4x mas filas que personas
 #     (999.446 filas vs. ~254.750 egresados 2023) porque incluye registros de
 #     grados 1-4 medio por estudiante, no solo el anio de egreso; marca_egreso
-#     == 1 identifica la fila de egreso efectivo (verificado: tras filtrar,
-#     mrun es unico por agno y las cardinalidades -254.750/257.261/281.356-
-#     son consistentes con cohortes reales de egreso de EM en Chile). No hay
-#     glosa oficial para MARCA_EGRESO (archivo MINEDUC sin libro de codigos
-#     depositado); la inferencia se apoya en el nombre autodescriptivo de la
-#     columna + el patron interno de los datos, documentada aqui por ausencia
-#     de fuente formal (B.1).
+#     == 1 identifica la fila de egreso efectivo. CONFIRMADO contra glosa
+#     oficial: "Esquema de registro bases de Notas y Egresados de Enseñanza
+#     Media por estudiante" (Unidad de Estadisticas, Centro de Estudios,
+#     Ministerio de Educacion), archivo
+#     20_insumos/demre/referencia/<AAAA>/er_notas_y_egresados_ensenanza_media_publ_<AAAA>.pdf
+#     (identico en 2023/2024/2025), pagina 3/8, tabla "Variables":
+#     "MARCA_EGRESO | Numerico | Indicador si el alumno egresa en el año
+#     (solo para alumnos con informacion completa de enseñanza media) |
+#     0: No egresa / 1: Egresa". La tabla "Numero de observaciones por año" de
+#     la pagina 1/8 reporta "Numero de Egresados de la educacion Media" =
+#     254.750 (2023) / 257.261 (2024) / 281.356 (2025) -- coincide EXACTO con
+#     la cardinalidad post-filtro `marca_egreso==1` calculada en este script.
+#     (El mismo documento tambien confirma nota al pie 2: "Para casos sin
+#     informacion de RBD, se asigna el valor 0" -- por eso `rbd=="0"` cae
+#     correctamente en "rezagados" via el left_join con `mapa`, sin trato
+#     especial en el codigo.)
 #   - Sentinela 0 en ptje_nem/ptje_ranking = sin valor calculado (mismo patron
 #     que puntaje en 31_; confirmado: rango sin el 0 es 100-1000, la escala
 #     PAES exacta) -> se excluye del promedio de rendimiento.
@@ -206,8 +215,9 @@ if (faltan_31 || faltan_cat) {
   log_msg("Agregando FOCO COBERTURA (embudo egresados -> ... -> seleccionados)...", "INFO", "32")
 
   # egresados (denominador): marca_egreso == 1 identifica la fila de egreso
-  # efectivo (ver nota de cabecera). agno -> anio_proceso para homologar con
-  # el resto de las etapas.
+  # efectivo. CONFIRMADO contra glosa oficial MINEDUC (ver nota de cabecera:
+  # er_notas_y_egresados_ensenanza_media_publ_<AAAA>.pdf, pag. 3/8). agno ->
+  # anio_proceso para homologar con el resto de las etapas.
   etapa_egresados <- egresados |>
     dplyr::filter(.data$marca_egreso == 1) |>
     dplyr::transmute(rbd = .data$rbd, anio_proceso = as.integer(.data$agno)) |>
