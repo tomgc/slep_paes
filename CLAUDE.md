@@ -99,7 +99,17 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 ## Ultimos cambios
 
-1. **Sesion 1 (paso 2) — reuso y patron comun.** Reuso verbatim de d3/pako (md5
+1. **Sesion 1 (paso 3) — insumos, gobernanza y reseña.** Estructura de
+   `20_insumos/` por etapa (`demre/{inscripcion,rendicion_resultados,
+   postulacion_seleccion,glosas}` + `egresados_em/`) con README por carpeta y
+   nombres canonicos; `manifiesto_insumos.md` (mapa etapa->base->nombre->foco->glosa).
+   `gobernanza_datos.md` (datos abiertos DEMRE k-anonimizados con `ID_aux`;
+   supresion de celdas < 8 = k-anonimato del DEMRE, `UMBRAL_SUPRESION_CELDA` a 8L;
+   solo agregados en la web; terminologia SLEP). Reseña `Guia_Completa_de_la_PAES.docx`
+   convertida a `contexto_paes.md` (fuente unica de dominio; fórmulas IRT/NEM no
+   sobrevivieron la extraccion, se marcan, NO se rellenan). Guia de uso de datos
+   abiertos DEMRE movida a `auxiliares/`.
+2. **Sesion 1 (paso 2) — reuso y patron comun.** Reuso verbatim de d3/pako (md5
    identicos a los hermanos) y de los auxiliares territoriales desde slep_idps
    (directorio depurado SIN RUT/MRUN; .gitignore blinda el nombre del crudo). Nota
    `decisiones/20260630_decision_patron_comun_y_paleta.md` con el patron de familia

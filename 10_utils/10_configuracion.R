@@ -54,10 +54,11 @@ NOMBRES_REGION <- c(
 # ============================================================================
 # El panorama publica AGREGADOS territoriales, nunca microdato ni identificadores
 # de postulantes. Si una agregacion territorial dejara a la vista un conteo que
-# individualice (mismo criterio que los hermanos para celdas de unico
-# establecimiento), se suprime o etiqueta. El umbral vive aqui como constante
-# nombrada; su redaccion normativa completa va en gobernanza_datos.md (paso 3).
-UMBRAL_SUPRESION_CELDA <- 1L  # celdas que individualizan a <= 1 establecimiento
+# individualice, se suprime o etiqueta. El umbral se ALINEA con el k-anonimato
+# que el DEMRE ya aplica en origen a sus datos abiertos (k=8, Ley 19.628; ver
+# contexto_paes.md "Filtros de Confidencialidad"). NO es un numero inventado:
+# es el estandar de la fuente. Redaccion normativa completa en gobernanza_datos.md.
+UMBRAL_SUPRESION_CELDA <- 8L  # celdas con < 8 personas se suprimen (k-anonimato DEMRE)
 
 # ============================================================================
 # Dominio PAES: vocabulario estable (provenance: contexto_paes.md + glosas DEMRE)
