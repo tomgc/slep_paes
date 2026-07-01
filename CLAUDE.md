@@ -78,10 +78,12 @@ A, orquestador y escaner, `10_utils` (incluida `PALETA_PAES` + React/d3/pako
 locales), contrato, docs, reuso de auxiliares, nota de patron comun, `20_insumos/`
 por etapa + manifiesto + gobernanza + `contexto_paes.md`, y los cuatro scripts de
 `30_procesamiento/` + motor. `run_all()` corre end-to-end: `30` construye
-catalogos (real), `31`/`32` son stubs que se omiten sin abortar hasta que el
-titular deposite las bases DEMRE, `33` genera un motor-esqueleto autocontenido
-(sin CDN) con el doble foco. Pendiente: bases del DEMRE; validacion visual de la
-paleta; primer push.
+catalogos (real), `33` genera un motor-esqueleto autocontenido (sin CDN) con
+el doble foco. Pendiente: validacion visual de la paleta; primer push.
+
+**Sesion 2:** `31_leer_normalizar.R` implementado y verificado contra las
+bases reales (ver Ultimos cambios). `32_agregar_territorial.R` sigue stub:
+diseño pendiente contra el esquema ya normalizado por 31.
 
 ## Pipeline
 
@@ -94,9 +96,11 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 - `30_construir_auxiliares.R` — catalogos territoriales (directorio oficial
   reusado) RBD -> comuna -> SLEP -> region -> nacional.
-- `31_leer_normalizar.R` — lectura de las bases por etapa (inscripcion, rendicion,
-  resultados, postulacion, seleccion) + caracterizacion de egresados; normaliza,
-  tipa llaves como character, homologa esquema.
+- `31_leer_normalizar.R` — lectura y normalizacion de ArchivoB/C/D/Matr
+  2023-2026 + egresados EM contra el esquema real (FUNCIONAL): pivot LONG de
+  ArchivoC (prueba/tipo_rendicion/vigencia), unificacion wide/long de ArchivoD
+  con atributos `*_solo2023` preservados, llaves character, manifiesto de
+  archivos clasificado por nombre (ver decision 20260701).
 - `32_agregar_territorial.R` — agrega los dos focos: cobertura (embudo vs.
   denominador de egresados, con la categoria de rezagados) y rendimiento (puntajes
   por prueba/escala/NEM/Ranking).
@@ -106,7 +110,30 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 ## Ultimos cambios
 
-1. **Sesion 1 (Fase A) — migracion Rama A -> B (codigo).** Diagnostico de las
+1. **Sesion 2 — `31_leer_normalizar.R` implementado (Fase B).** Diagnostico
+   previo en `decisiones/20260701_decision_schema_31_leer_normalizar.md`
+   (mapeo wide->long de ArchivoD 2023 + esquema LONG para ArchivoC),
+   aprobado por el titular con dos resoluciones: `SITUACION_POSTULANTE[_BEA|
+   _PACE]`/flags `BEA`/`PACE` de 2023 se preservan como atributos
+   `*_solo2023` (NA en 2024+); postulantes repetidos entre `_reg`/`_inv` 2026
+   se apilan sin fusion (sin regla de precedencia confirmada). Lee y
+   normaliza ArchivoB/C/D/Matr 2023-2026 + egresados EM (delimitador `,`,
+   distinto de los planos DEMRE en `;`) desde el manifiesto de archivos
+   clasificado por NOMBRE (nunca por posicion ni por carpeta unica: ArchivoD
+   y ArchivoMatr conviven en `postulacion_seleccion/`). ArchivoC se pivotea
+   LONG (`prueba, tipo_rendicion, vigencia, puntaje`), descartando el
+   sentinela 0; `MODULO_*` (BIO/FIS/QUI/TEC) se pivotea aparte por no ser un
+   puntaje y se adjunta solo a `prueba == "cien"`. Bug encontrado y
+   corregido en la verificacion: ArchivoD 2023 mezcla separador decimal
+   coma/punto dentro del bloque PACE (~1967 celdas) — se lee siempre como
+   texto y se parsea con `parsear_numero_flex()` tolerante a ambas
+   notaciones (antes se perdian esos puntajes como NA en el read inicial).
+   Verificado end-to-end contra los datos reales: 4 anios, sin NA
+   inesperados en llaves/puntajes (los NA de `rbd` y `ptje_pref` trazan a
+   causas de negocio conocidas — rezagados sin RBD vigente, preferencias
+   rechazadas sin ponderado — no a fallas de parsing). `32_agregar_
+   territorial.R` sigue como stub.
+2. **Sesion 1 (Fase A) — migracion Rama A -> B (codigo).** Diagnostico de las
    bases reales: microdato por persona (~953 MB) con PII (`MRUN`/`MRUN_IPE` de NNA
    en egresados 2023-2025; `FECHA_NACIMIENTO` en ArchivoB) y `ArchivoD_2023`
    (104 MB) sobre el limite de GitHub. Se migra a DOS RAICES: `10_configuracion.R`
@@ -125,7 +152,7 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    actualizado. PENDIENTE: el titular debe vaciar la copia vieja que quedo en el
    repo (`~/Projects/slep_paes/20_insumos/`, gitignoreada pero con PII en disco);
    diseño de 31 contra el esquema real; egresados 2026.
-2. **Sesion 1 (paso 4) — stubs de ETL y motor.** Cuatro scripts en
+3. **Sesion 1 (paso 4) — stubs de ETL y motor.** Cuatro scripts en
    `30_procesamiento/`: `30_construir_auxiliares.R` (FUNCIONAL: catalogos
    territoriales desde el directorio publico + listado SLEP; 10.945 EE, 345
    comunas, Costa Central OK); `31_leer_normalizar.R` y `32_agregar_territorial.R`
@@ -137,7 +164,7 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    a `10_utils/`. `run_all()` corre end-to-end (0 refs de red en el motor). Fix:
    el comentario del template repetia el token `__JSON_DATA__` y `sub()` lo
    reemplazaba antes que el real; reescrito.
-2. **Sesion 1 (paso 3) — insumos, gobernanza y reseña.** Estructura de
+4. **Sesion 1 (paso 3) — insumos, gobernanza y reseña.** Estructura de
    `20_insumos/` por etapa (`demre/{inscripcion,rendicion_resultados,
    postulacion_seleccion,glosas}` + `egresados_em/`) con README por carpeta y
    nombres canonicos; `manifiesto_insumos.md` (mapa etapa->base->nombre->foco->glosa).
@@ -147,7 +174,7 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    convertida a `contexto_paes.md` (fuente unica de dominio; fórmulas IRT/NEM no
    sobrevivieron la extraccion, se marcan, NO se rellenan). Guia de uso de datos
    abiertos DEMRE movida a `auxiliares/`.
-2. **Sesion 1 (paso 2) — reuso y patron comun.** Reuso verbatim de d3/pako (md5
+5. **Sesion 1 (paso 2) — reuso y patron comun.** Reuso verbatim de d3/pako (md5
    identicos a los hermanos) y de los auxiliares territoriales desde slep_idps
    (directorio depurado SIN RUT/MRUN; .gitignore blinda el nombre del crudo). Nota
    `decisiones/20260630_decision_patron_comun_y_paleta.md` con el patron de familia
@@ -155,10 +182,3 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    docs/) y las divergencias de PAES (microdato por postulante -> SI suprime celdas
    chicas; dos focos; agregacion en R). `PALETA_PAES` propia (uva/terracota), fuente
    unica en `10_configuracion.R`, v1 a validar visualmente.
-2. **Sesion 1 (paso 1) — scaffold Rama A.** Estructura canonica por decenas, `00_run_all.R`
-   y `00_escanear_proyecto.R`, `10_utils/10_utils.R` (bootstrapping) y
-   `10_configuracion.R` (Rama A, vocabulario de dominio PAES sin congelar esquema),
-   `.gitignore` publico, README, LICENSE (MIT + clausula de datos DEMRE), contrato
-   copiado desde slep_idps. Pendiente: reuso de d3/pako y auxiliares (paso 2),
-   `20_insumos/` + manifiesto + gobernanza + contexto_paes (paso 3), stubs de ETL
-   y motor con doble foco (paso 4).
