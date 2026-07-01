@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Panorama PAES — Área de Monitoreo y Seguimiento (SLEP Costa Central)</title>
+<!--
+  Motor autocontenido de slep_paes. Sin dependencias de red: React, ReactDOM, D3
+  y pako se inyectan LOCALES via placeholders; el JSON viaja embebido comprimido
+  (gzip+base64) y se descomprime en cliente con pako. Los placeholders reales
+  aparecen UNA sola vez cada uno mas abajo (33_generar_html.R usa sub(), primera
+  ocurrencia): no repetir sus nombres literales en comentarios.
+  Paleta: fuente unica PALETA_PAES (10_configuracion.R), inyectada en DATA.meta.paleta;
+  el chrome CSS de :root la refleja literalmente.
+  TODO(fuentes): embeber gobCL / Museo Sans en base64 (copiar .otf de un hermano
+  y generar un placeholder de fuentes en 33_generar_html.R). Por ahora, fallback
+  de sistema.
+-->
+<style>
+  :root{
+    --paper:#FBF7EF; --tinta:#241B2E; --header:#3B1D5E; --acento:#C2410C;
+    --linea:#E6DECB; --panel:#FFFFFF; --cobertura:#653F99; --rendimiento:#1F5C54;
+    --font-display: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--tinta);font-family:var(--font-body);
+       line-height:1.5}
+  header.app{background:var(--header);color:#F3EEF9;padding:20px 24px;
+             border-bottom:4px solid var(--acento)}
+  header.app h1{margin:0;font-family:var(--font-display);font-size:clamp(20px,3.4vw,32px);
+                font-weight:800;letter-spacing:.2px}
+  header.app p{margin:4px 0 0;opacity:.85;font-size:14px}
+  main{max-width:1080px;margin:0 auto;padding:20px 24px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:8px 0 20px}
+  .seg{display:inline-flex;border:1px solid var(--linea);border-radius:10px;overflow:hidden;
+       background:var(--panel)}
+  .seg button{border:0;background:transparent;padding:9px 16px;font-size:14px;cursor:pointer;
+              color:var(--tinta);font-weight:600}
+  .seg button.on[data-foco="cobertura"]{background:var(--cobertura);color:#fff}
+  .seg button.on[data-foco="rendimiento"]{background:var(--rendimiento);color:#fff}
+  .nav select{padding:8px 10px;border:1px solid var(--linea);border-radius:8px;
+              background:var(--panel);font-size:14px;color:var(--tinta)}
+  .card{background:var(--panel);border:1px solid var(--linea);border-radius:12px;
+        padding:18px 20px;margin:0 0 16px}
+  .aviso{border-left:4px solid var(--acento);background:#FBEDE4}
+  .kpis{display:flex;flex-wrap:wrap;gap:14px}
+  .kpi{flex:1 1 150px;background:var(--panel);border:1px solid var(--linea);border-radius:12px;
+       padding:14px 16px}
+  .kpi .n{font-size:26px;font-weight:800;font-family:var(--font-display)}
+  .kpi .l{font-size:12px;opacity:.75;text-transform:uppercase;letter-spacing:.6px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .chip{font-size:12px;padding:5px 10px;border-radius:999px;color:#fff}
+  footer{max-width:1080px;margin:0 auto;padding:16px 24px 40px;font-size:12px;opacity:.7}
+  code{background:#efe9f5;padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- Librerias LOCALES (sin CDN) -->
+<script>__REACT_INLINE__</script>
+<script>__REACTDOM_INLINE__</script>
+<script>__D3_INLINE__</script>
+<script>__PAKO_INLINE__</script>
+
+<!-- Datos embebidos (gzip + base64), descomprimidos con pako -->
+<script>
+  const __B64 = "__JSON_DATA__";
+  const DATA = JSON.parse(pako.inflate(Uint8Array.from(atob(__B64), c => c.charCodeAt(0)), {to:"string"}));
+</script>
+
+<!-- App (React.createElement; JSX pre-transpilado, sin Babel) -->
+<script>
+(function(){
+  const h = React.createElement;
+  const M = DATA.meta;
+  const P = M.paleta;
+
+  function Kpi(props){ return h("div",{className:"kpi"},
+    h("div",{className:"n"},props.n), h("div",{className:"l"},props.l)); }
+
+  function PanelCobertura(){
+    const etapas = Object.keys(M.etapas_embudo);
+    return h("div",{className:"card"},
+      h("h2",{style:{marginTop:0}},"Foco Cobertura — el embudo"),
+      h("p",null,"Cuántos de quienes pueden rendir avanzan en cada etapa, contra el denominador de egresados de enseñanza media. Los egresados de años anteriores sin RBD vigente se agregan como categoría explícita."),
+      h("div",{className:"chips"}, etapas.map(function(k){
+        return h("span",{key:k,className:"chip",
+          style:{background:(P.cobertura&&P.cobertura[k])||"#8A65B5"}}, M.etapas_embudo[k]);
+      }).concat([
+        h("span",{key:"rez",className:"chip",style:{background:P.sin_rbd_vigente,border:"1px dashed #fff"}}, M.rezagados_label)
+      ]))
+    );
+  }
+
+  function PanelRendimiento(){
+    const pruebas = Object.keys(M.pruebas);
+    return h("div",{className:"card"},
+      h("h2",{style:{marginTop:0}},"Foco Rendimiento — los puntajes"),
+      h("p",null,"Distribución de puntajes de quienes rinden, por prueba (escala "+M.escala.min+"–"+M.escala.max+", IRT), con NEM y Ranking como contexto."),
+      h("div",{className:"chips"}, pruebas.map(function(k){
+        return h("span",{key:k,className:"chip",
+          style:{background:(P.pruebas&&P.pruebas[k])||"#5B3A9E"}}, M.pruebas[k]);
+      }))
+    );
+  }
+
+  function App(){
+    const st = React.useState("cobertura"); const foco = st[0], setFoco = st[1];
+    const nComunas = DATA.comunas.rows, nSleps = (DATA.sleps.rows||0), nEstab = DATA.establecimientos.rows;
+
+    return h("div",null,
+      h("header",{className:"app"},
+        h("h1",null,"Panorama nacional de la PAES"),
+        h("p",null,"Área de Monitoreo y Seguimiento de Procesos y Resultados Educativos — SLEP Costa Central · datos públicos del DEMRE")
+      ),
+      h("main",null,
+        h("div",{className:"toolbar"},
+          h("div",{className:"seg"},
+            h("button",{"data-foco":"cobertura",className:foco==="cobertura"?"on":"",onClick:function(){setFoco("cobertura")}},"Cobertura"),
+            h("button",{"data-foco":"rendimiento",className:foco==="rendimiento"?"on":"",onClick:function(){setFoco("rendimiento")}},"Rendimiento")
+          ),
+          h("div",{className:"nav"},
+            h("select",null,
+              ["Nacional","Región","SLEP","Comuna","Establecimiento"].map(function(x){
+                return h("option",{key:x},x); }))
+          )
+        ),
+
+        (!M.hay_datos) && h("div",{className:"card aviso"},
+          h("strong",null,"Andamiaje del motor (sesión 1). "),
+          "Aún sin bases del DEMRE. Este esqueleto ya trae el chrome, la navegación territorial y el toggle de doble foco; los paneles se poblarán cuando ",
+          h("code",null,"32_agregar_territorial.R")," escriba los agregados. Umbral de supresión de celdas: ",
+          h("strong",null,"n < "+M.umbral_supresion),"."
+        ),
+
+        h("div",{className:"kpis"},
+          h(Kpi,{n:nComunas,l:"Comunas (catálogo)"}),
+          h(Kpi,{n:nSleps,l:"SLEP × RBD (catálogo)"}),
+          h(Kpi,{n:nEstab,l:"Establecimientos (catálogo)"})
+        ),
+        h("div",{style:{height:16}}),
+        foco==="cobertura" ? h(PanelCobertura) : h(PanelRendimiento)
+      ),
+      h("footer",null,
+        "Fuente: bases de datos abiertas del DEMRE (Universidad de Chile). El panorama publica sólo agregados territoriales, con supresión de celdas que individualicen (k-anonimato). Generado el "+M.fecha_generacion+"."
+      )
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+})();
+</script>
+</body>
+</html>
