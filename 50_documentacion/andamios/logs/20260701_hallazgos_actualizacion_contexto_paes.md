@@ -71,6 +71,7 @@ la carpeta es idéntica al canónico (referencia).
 | Cupo Invierno **50.000** los tres años | informes de resultados de invierno 2023-2025 |
 | Ranking: **R1-R4**, promedio, **3 generaciones** anteriores, PROM/MAX en escala 100-1000 | [demre.cl Puntaje Ranking](https://demre.cl/paes/factores-seleccion/puntaje-ranking) |
 | Definición operacional de "**rinde**" + nomenclatura `_REG/INV_ACTUAL/ANTERIOR` | `Guía de uso de datos abiertos DEMRE.pdf` PÁG 5 |
+| **Puntaje Ponderado** — fórmula y ejemplo **848,75** (re-chequeo 2026-07-01): aritmética correcta (ponderaciones suman 100%); estructura = suma de factores (NEM, Ranking, PAES) × ponderación por universidad, mínimos del Comité Técnico de Acceso. Coincide con `%_NOTAS/%_Ranking/%_LENG/%_MATE1/%_MATE2/%_HYCS/%_CIEN` de la oferta académica. **Confirmado sin cambios.** Precisión: algunas carreras suman una "prueba especial". | [DEMRE Conceptos claves postulación](https://demre.cl/mesa-de-ayuda/conceptos-claves/conceptos-claves-postulacion); [Mineduc, Consideraciones cálculos ponderados](https://acceso.mineduc.cl/wp-content/uploads/2021/06/2-CONSIDERACIONES-PARA-LOS-CA%CC%81LCULOS-DE-PUNTAJES-PONDERADOS-Y-PROCESO-DE-SELECCIO%CC%81N.pdf); `2014-efecto-ranking-notas.pdf` y `Guía datos abiertos DEMRE.pdf` (mención de "puntaje ponderado", sin fórmula ni ejemplo que lo contradiga) |
 
 ## Pendientes (no verificables con este material; requieren cotejo oficial)
 
@@ -90,7 +91,7 @@ la carpeta es idéntica al canónico (referencia).
   vs. guía-secundaria, resueltas por jerarquía documental (IRT/Rasch, pedagogía,
   universidades).
 - **Adiciones:** 12 (A1-A12), incluidas 2 secciones nuevas (Niveles de Desempeño, CCEA).
-- **Confirmaciones:** 5 bloques.
+- **Confirmaciones:** 6 bloques (incluye el re-chequeo del Puntaje Ponderado 848,75, 2026-07-01).
 - **Pendientes marcados:** 5.
 - **Detenciones activadas:** ninguna. La única contradicción sobre "fórmula ya
   verificada" (IRT 3PL) **sí** era resoluble por jerarquía documental clara (Informe
