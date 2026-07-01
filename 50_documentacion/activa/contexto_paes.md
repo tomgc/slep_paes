@@ -4,6 +4,7 @@ fuente: Guía Completa de la PAES.docx (depositada por el titular)
 convertido: 2026-06-30 (sesión 1, paso 3)
 formulas_transcritas: 2026-06-30 (sesión 1, continuación; ver nota de procedencia)
 revision_oficial: 2026-07-01 (sesión 1; contraste con fuentes oficiales DEMRE — ver nota de revisión y hallazgos)
+ponderado_rechequeado: 2026-07-01 (fórmula y ejemplo 848,75 CONFIRMADOS sin cambios contra DEMRE; ver hallazgos)
 estado: conocimiento de dominio estable; NO es insumo de datos (B.1)
 ---
 
@@ -231,6 +232,18 @@ P_ponderado = (825×0,15) + (870×0,20) + (700×0,10) + (900×0,35) + (820×0,10
 ```
 
 El estudiante del ejemplo postula con un valor consolidado de 848,75 puntos para competir por una vacante en la carrera elegida32.
+
+> **Re-chequeo oficial (2026-07-01).** La fórmula y el ejemplo (848,75) se
+> **confirman sin cambios**: la aritmética cuadra (las seis ponderaciones suman
+> 100%) y la estructura coincide con la definición oficial del DEMRE —el puntaje
+> ponderado es la suma de cada factor (NEM, Ranking, puntajes PAES) por la
+> ponderación que **cada universidad** define autónomamente, respetando los
+> mínimos del Comité Técnico de Acceso (DEMRE, *Conceptos claves de postulación*).
+> Coincide además con las columnas de ponderación (`%_NOTAS`, `%_Ranking`,
+> `%_LENG`, `%_MATE1`, `%_MATE2`, `%_HYCS`, `%_CIEN`) de los archivos de oferta
+> académica. **Precisión:** algunas carreras (p. ej. artísticas) suman además una
+> **prueba especial** como factor ponderado; el ejemplo ilustra el caso general
+> sin prueba especial.
 ## Diferencias en la Gestión del Proceso: Invierno versus Regular
 La organización anual de la PAES considera dos rendiciones diferenciadas en términos de calendarios de postulación, elegibilidad del postulante, costos y contenidos específicos3.
 ### Aplicación Regular (Fines de Año)
