@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hallazgos — actualización de contexto_paes.md con fuentes oficiales (2026-07-01)</title>
+<style>
+  :root{ --tinta:#241B2E; --uva:#3B1D5E; --terr:#C2410C; --linea:#E6DECB;
+    --paper:#FBF7EF; --ok:#2f7d4f; --corr:#B45309; --add:#1F5C54; --pend:#8a6d3b; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--tinta);
+       font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;}
+  header{background:var(--uva);color:#F3EEF9;padding:22px 28px;border-bottom:4px solid var(--terr)}
+  header h1{margin:0;font-size:clamp(19px,3vw,28px)}
+  header p{margin:6px 0 0;opacity:.85;font-size:14px}
+  main{max-width:1080px;margin:0 auto;padding:22px 28px 60px}
+  h2{margin:30px 0 10px;color:var(--uva);border-bottom:2px solid var(--linea);padding-bottom:4px}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px;background:#fff}
+  th,td{border:1px solid var(--linea);padding:8px 10px;vertical-align:top;text-align:left}
+  th{background:#F0EAF5}
+  code{background:#efe9f5;padding:1px 5px;border-radius:4px;font-size:13px}
+  a{color:var(--terr)}
+  .tag{display:inline-block;padding:2px 8px;border-radius:999px;color:#fff;font-size:12px;font-weight:600}
+  .t-corr{background:var(--corr)} .t-add{background:var(--add)} .t-ok{background:var(--ok)} .t-pend{background:var(--pend)}
+  .note{background:#FBEDE4;border-left:4px solid var(--terr);padding:10px 14px;border-radius:6px;margin:12px 0}
+  .src{font-size:13px}
+  ul{margin:8px 0}
+  footer{max-width:1080px;margin:0 auto;padding:0 28px 40px;font-size:12px;opacity:.7}
+</style>
+</head>
+<body>
+<header>
+  <h1>Hallazgos — actualización de <code>contexto_paes.md</code></h1>
+  <p>Revisión con fuentes oficiales del DEMRE · 2026-07-01 · slep_paes (Área de Monitoreo y Seguimiento, SLEP Costa Central)</p>
+</header>
+<main>
+
+<p>Se contrastó la reseña de dominio (construida antes desde una guía secundaria) contra
+<strong>material oficial del DEMRE</strong> depositado por el titular, más búsqueda web dirigida
+a DEMRE como complemento. Las fuentes locales oficiales <strong>prevalecen</strong> ante conflicto.
+Cada hallazgo abajo es trazable a su fuente con un clic (URLs web; archivos locales vía enlace
+<code>file://</code> a la carpeta de insumos).</p>
+
+<div class="note"><strong>Correcciones mayores:</strong> (1) el modelo psicométrico NO es IRT 3PL sino
+<strong>Rasch (1 parámetro)</strong>; (2) las "5 preguntas" no son de pilotaje sino margen de ajuste;
+(3) la vía Pedagogía se rige por la <strong>Ley 21.490</strong> (percentil 60/50, no "567,5=percentil 50");
+(4) son <strong>45</strong> universidades, no 47; (5) la ausencia se codifica <code>0</code>, no NULL.
+Además, secciones nuevas de <strong>Niveles de Desempeño</strong> y <strong>CCEA</strong>.</div>
+
+<h2>Inventario y salvedades de procesamiento</h2>
+<ul>
+  <li>Extraídos con éxito los <strong>19 PDF + 4 HTML</strong> oficiales (R <code>pdftools</code>, R-only).</li>
+  <li>Los PDF de niveles de desempeño de CL y M1 perdieron las <em>tablas de cortes</em> en la extracción (imagen); los cortes se tomaron de las páginas oficiales <code>demre-cl.html</code> / <code>demre-cm1.html</code> (mismo emisor DEMRE).</li>
+  <li><code>WebFetch</code> a demre.cl falló (header del servidor); se usó <code>WebSearch</code> con extractos oficiales, citando URL.</li>
+  <li>No verificables en esta tanda (marcados como pendientes): tabla NEM exacta, fórmula lineal del Ranking, piso 458, escala PSU 150-850.</li>
+</ul>
+
+<h2>Correcciones <span class="tag t-corr">material oficial corrige lo transcrito</span></h2>
+<table>
+<tr><th>#</th><th>Tema</th><th>Antes (contexto)</th><th>Corrección oficial</th><th>Fuente</th></tr>
+<tr><td>C1</td><td><strong>Modelo psicométrico</strong></td><td>IRT <strong>3PL</strong> con discriminación (a) y azar (c)</td><td><strong>Modelo de Rasch</strong> (1 parámetro, solo dificultad); <code>p=e^(θ−δ)/(1+e^(θ−δ))</code>; estimación EAP; transformación lineal por prueba</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/informe-tecnico-paes-capitulo-04-2025.pdf">informe-tecnico cap-04</a> pág 13,16-17; <a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/informe-tecnico-paes-capitulo-02-2025.pdf">cap-02</a> pág 28; <a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/2023-informe-resultados-pdt-invierno-admision-2023.pdf">PDT-invierno 2023</a> pág 1</td></tr>
+<tr><td>C2</td><td>"5 preguntas excluidas"</td><td>Pilotaje / calibración futura</td><td><strong>Margen de ajuste</strong> de calidad/estabilidad; el pilotaje es proceso separado y previo</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/informe-tecnico-paes-capitulo-02-2025.pdf">informe-tecnico cap-02</a> pág 31</td></tr>
+<tr><td>C3</td><td>Ejes de M1</td><td>"Álgebra" y "Datos"</td><td>"<strong>Álgebra y Funciones</strong>" y "<strong>Probabilidad y Estadística</strong>"</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/demre-cm1.html">demre-cm1.html</a></td></tr>
+<tr><td>C4</td><td>Vía Pedagogía</td><td>"percentil 50 = 567,5" como vía autónoma; "20% o 30%"</td><td>Ley 21.490: percentil <strong>60</strong> (puntaje), <strong>20%</strong> notas, o <strong>40%</strong> notas + percentil <strong>50</strong>. 567,5=p37 y 603=p50 (Adm 2026)</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/Ley-21490_20-OCT-2022.pdf">Ley-21490</a> pág 2; <a href="https://demre.cl/paes/postulacion/como-postulo-a-una-universidad/requisitos-postulacion-pedagogia">DEMRE requisitos pedagogía</a></td></tr>
+<tr><td>C5</td><td>N° universidades</td><td>47</td><td><strong>45</strong> adscritas (Adm 2023 y 2024)</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/2023-informe-resultados-paes-regular-admision-2023.pdf">resultados PAES regular 2023</a> pág 6</td></tr>
+<tr><td>C6</td><td>Ausencia de puntaje</td><td>NULL</td><td>Se codifica <code>0</code>; "rinde" = 100-1000 en ≥1 prueba</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/Gu%C3%ADa%20de%20uso%20de%20datos%20abiertos%20DEMRE.pdf">Guía datos abiertos DEMRE</a> pág 5</td></tr>
+<tr><td>C7</td><td>Inauguración de la escala 100-1000</td><td>Atribuida a la PAES regular; 3PL</td><td>Inaugurada con la <strong>PDT de Invierno (jul-2022)</strong>; lineal por prueba; método Rasch</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/2023-informe-resultados-pdt-invierno-admision-2023.pdf">PDT-invierno 2023</a> pág 1,46-47</td></tr>
+</table>
+
+<h2>Adiciones <span class="tag t-add">contenido nuevo oficial</span></h2>
+<table>
+<tr><th>#</th><th>Tema</th><th>Qué se agregó</th><th>Fuente</th></tr>
+<tr><td>A1</td><td>Niveles de Desempeño (CL)</td><td>CL3 804-1000, CL2 654-803, CL1B 535-653, CL1A 382-534, CL0 100-381</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/demre-cl.html">demre-cl.html</a>; <a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/niveles-desempeno-competencia-lectora.pdf">niveles-CL.pdf</a></td></tr>
+<tr><td>A2</td><td>Niveles de Desempeño (M1)</td><td>CM3 792-1000, CM2 658-791, CM1B 571-657, CM1A 460-570, CM0 100-459</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/demre-cm1.html">demre-cm1.html</a></td></tr>
+<tr><td>A3</td><td>CCEA — Autoeficacia Académica</td><td>4 niveles Likert; sin cortes; conecta con Archivos K/L</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/demre-aa.html">demre-aa.html</a></td></tr>
+<tr><td>A4</td><td>CCEA — Autorregulación del Aprendizaje</td><td>3 niveles Likert; ciclo Planificación-Desempeño-Evaluación</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/demre-ada.html">demre-ada.html</a></td></tr>
+<tr><td>A5</td><td>Marco legal Pedagogía</td><td>Ley 21.490 (mod. art. 27 bis Ley 20.129; art. 36 trans. Ley 20.903)</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/Ley-21490_20-OCT-2022.pdf">Ley-21490</a> pág 1</td></tr>
+<tr><td>A6</td><td>Equating por anclaje</td><td>Ítems ancla 2016-2022; regresión; R²≥0,90; desanclaje</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/informe-tecnico-paes-capitulo-04-2025.pdf">cap-04</a> pág 10-12</td></tr>
+<tr><td>A7</td><td>Exclusión de ítems + casos extremos</td><td>Ítems sin estándar psicométrico se excluyen; hab. máx/mín a puntaje perfecto/cero</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/informe-tecnico-paes-capitulo-04-2025.pdf">cap-04</a> pág 9,13,16</td></tr>
+<tr><td>A8</td><td>"Nuevo Ranking" (Admisión 2028)</td><td>Deja de ser bono sobre NEM; solo posición relativa</td><td class="src"><a href="https://demre.cl/paes/factores-seleccion/nuevo-ranking">DEMRE Nuevo Ranking</a>; <a href="https://demre.cl/noticias/2025-08-22-entrevista-nuevo-ranking-proceso-2028">entrevista 2025-08-22</a></td></tr>
+<tr><td>A9</td><td>Ranking: agrupación &lt;30 egresados</td><td>Establecimiento con &lt;30 egresados en 3 generaciones se agrupa con similares</td><td class="src"><a href="https://demre.cl/paes/factores-seleccion/puntaje-ranking">DEMRE Puntaje Ranking</a></td></tr>
+<tr><td>A10</td><td>Cupo Invierno = techo no saturado</td><td>50.000 nunca lleno (33.379 / 30.064 / 31.067 reales); invierno no selecciona</td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/2025-informe-resultados-paes-invierno-admision-2025.pdf">resultados invierno 2025</a></td></tr>
+<tr><td>A11</td><td>Portal: Archivo D + Base de Matrícula</td><td>4 bases oficiales; desde 2024; <code>GRUPO_DEPENDENCIA</code> ≠ <code>COD_DEPE</code></td><td class="src"><a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/Gu%C3%ADa%20de%20uso%20de%20datos%20abiertos%20DEMRE.pdf">Guía datos abiertos DEMRE</a> pág 2-3,8</td></tr>
+<tr><td>A12</td><td>Nuevos contenidos PAES Regular 2027</td><td>Temario ampliado Adm 2027</td><td class="src"><a href="https://demre.cl/noticias/2026-03-20-nuevos-contenidos-paes-regular-p2027">DEMRE noticia 2026-03-20</a></td></tr>
+</table>
+
+<h2>Confirmaciones <span class="tag t-ok">el oficial ratifica el contexto</span></h2>
+<ul>
+  <li>CL y M1 = <strong>65 preguntas</strong> c/u (selección múltiple, 4 opciones) — <a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/demre-cl.html">demre-cl.html</a>, <a href="file:///Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/demre-cm1.html">demre-cm1.html</a>.</li>
+  <li>Escala <strong>100-1.000</strong> desde Adm 2023, propia por prueba — cap-04 pág 16.</li>
+  <li>Cupo Invierno <strong>50.000</strong> los tres años — informes de resultados de invierno.</li>
+  <li>Ranking: <strong>R1-R4</strong>, promedio, <strong>3 generaciones</strong> anteriores, PROM/MAX en escala 100-1000 — <a href="https://demre.cl/paes/factores-seleccion/puntaje-ranking">DEMRE Puntaje Ranking</a>.</li>
+  <li>Definición de "<strong>rinde</strong>" + nomenclatura <code>_REG/INV_ACTUAL/ANTERIOR</code> — Guía datos abiertos DEMRE pág 5.</li>
+</ul>
+
+<h2>Pendientes <span class="tag t-pend">requieren cotejo oficial</span></h2>
+<ul>
+  <li><strong>Tabla NEM</strong> exacta (por modalidad/grupo) — <a href="https://demre.cl/paes/factores-seleccion/tabla-transformacion-nem">DEMRE Tablas NEM</a>.</li>
+  <li><strong>Fórmula lineal exacta del Ranking</strong> (pendiente m, intercepto b) — estructura confirmada, fórmula no consta en este material.</li>
+  <li><strong>Piso 458</strong> y su vigencia "Adm 2028" — requiere resolución del Comité Técnico de Acceso.</li>
+  <li><strong>Escala PSU 150-850 / σ=110</strong> — dato secundario histórico.</li>
+  <li><strong>Niveles de desempeño de M2, Ciencias, Historia</strong> — no hay páginas DEMRE en el material; no se inventaron.</li>
+</ul>
+
+<h2>Resumen</h2>
+<p><strong>7 correcciones</strong> (3 eran contradicciones fuente-oficial vs. guía-secundaria, resueltas por
+jerarquía documental) · <strong>12 adiciones</strong> (incluidas 2 secciones nuevas) · <strong>5 confirmaciones</strong> ·
+<strong>5 pendientes</strong>. <strong>0 detenciones</strong>: la única contradicción sobre "fórmula ya verificada"
+(IRT 3PL) era resoluble por jerarquía clara (Informe Técnico DEMRE &gt; guía secundaria), así que se corrigió.</p>
+
+</main>
+<footer>Generado el 2026-07-01 · slep_paes · Los enlaces <code>file://</code> apuntan a
+<code>…/OneDrive-SLEP/Proyectos/slep_paes/insumos_nuevo_contexto_paes/</code>. Documento autocontenido (sin dependencias de red para renderizar).</footer>
+</body>
+</html>
