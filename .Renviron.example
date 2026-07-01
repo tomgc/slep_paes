@@ -1,18 +1,13 @@
 # .Renviron.example — slep_paes (RAMA B, dos raices)
 # -----------------------------------------------------------------------------
-# Copia este archivo a ~/.Renviron (macOS/Linux) o C:/Users/<usuario>/.Renviron
-# (Windows), ajusta la ruta a tu maquina, y REINICIA R / Positron.
+# Copia este archivo a ~/.Renviron (crear si no existe) y REINICIA R / Positron.
+#   cp .Renviron.example ~/.Renviron
+# Si ~/.Renviron ya existe con otras variables, agrega solo la linea activa
+# de abajo al final del archivo existente (no sobrescribas el resto).
 #
 # La variable apunta a la raiz de DATOS del proyecto en OneDrive institucional,
 # que contiene 20_insumos/ y 40_salidas/ con los datos reales (fuera del repo).
 # NO se versiona (esta en .gitignore).
 # -----------------------------------------------------------------------------
 
-# macOS:
-SLEP_PAES_DATA_ROOT="/Users/<usuario>/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes"
-
-# Windows (ejemplo; ajustar al montaje real de OneDrive):
-# SLEP_PAES_DATA_ROOT="C:/Users/<usuario>/OneDrive - SLEP/Proyectos/slep_paes"
-
-# Alternativa (raiz comun del workspace; el proyecto deriva <root>/slep_paes):
-# WORKSPACE_DATA_ROOT="/Users/<usuario>/Library/CloudStorage/OneDrive-SLEP/Proyectos"
+SLEP_PAES_DATA_ROOT="/Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes"
