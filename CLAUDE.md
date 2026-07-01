@@ -117,9 +117,14 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    `20_insumos/`. Hallazgos de esquema (para 31 futuro): patron
    `<PRUEBA>_<REG|INV>_<ACTUAL|ANTERIOR>` en ArchivoC (varia por año); ArchivoD
    wide(186 col, 2023) -> long(6 col, 2024+); ArchivoMatr = matricula
-   universitaria; egresados 2026 ausente. Pendiente: Fase B (mover datos a
-   OneDrive, titular), Fase C (`~/.Renviron`, titular), Fase D (validar), renombrado
-   snake_case + manifiesto.
+   universitaria; egresados 2026 ausente. **Fase B/C/D completadas:** datos en el
+   data root, `~/.Renviron` con `SLEP_PAES_DATA_ROOT`, validacion 8.3.7 verde,
+   `run_all(only=30)` corre desde OneDrive. **Renombrado** de los 74 archivos a
+   snake_case + `demre/glosas/`->`demre/referencia/` (log en
+   `andamios/20260701_renombrado_insumos_datos.csv`); `manifiesto_insumos.md`
+   actualizado. PENDIENTE: el titular debe vaciar la copia vieja que quedo en el
+   repo (`~/Projects/slep_paes/20_insumos/`, gitignoreada pero con PII en disco);
+   diseño de 31 contra el esquema real; egresados 2026.
 2. **Sesion 1 (paso 4) — stubs de ETL y motor.** Cuatro scripts en
    `30_procesamiento/`: `30_construir_auxiliares.R` (FUNCIONAL: catalogos
    territoriales desde el directorio publico + listado SLEP; 10.945 EE, 345
