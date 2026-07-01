@@ -67,19 +67,41 @@ Sigue la convención canónica de carpetas numeradas por flujo de ejecución
 (`10_utils`, `20_insumos`, `30_procesamiento`, `40_salidas`, `50_documentacion`),
 documentada en `50_documentacion/activa/POLITICA_PROYECTO.md`.
 
-## Datos
+## Datos (RAMA B — dos raíces)
 
-Los datos provienen del **DEMRE** (bases de datos PAES y datos abiertos). Son
-información **pública** y se versionan directamente en este repositorio
-(`20_insumos/`), conforme a las condiciones de uso de la información del DEMRE.
+**Este repositorio NO contiene datos reales.** Las bases del **DEMRE** (inscritos,
+rendición/resultados, postulación/selección) y de **MINEDUC** (egresados de EM)
+son **microdato por persona** e incluyen datos personales (`MRUN` de estudiantes
+en egresados; `FECHA_NACIMIENTO` en inscritos; Ley 19.628 / 21.719). Por eso viven
+**fuera del repo**, en la raíz de datos de OneDrive institucional apuntada por la
+variable de entorno `SLEP_PAES_DATA_ROOT`.
 
-Este proyecto **no** publica, en ningún punto, microdato individual ni
-identificadores de postulantes: el panorama publica únicamente **agregados
-territoriales**, con supresión de celdas que pudieran individualizar. Ver
-`50_documentacion/activa/gobernanza_datos.md` (pendiente) para la base de esta
-clasificación, y `50_documentacion/activa/contexto_paes.md` (pendiente) para la
-reseña de dominio (qué es la PAES, sus pruebas, la escala 100-1000 e IRT, NEM y
-Ranking, y las etapas del proceso).
+El panorama publica únicamente **agregados territoriales** (`docs/index.html`), con
+supresión de celdas que pudieran individualizar (umbral k=8, alineado al
+k-anonimato del DEMRE). Ver `50_documentacion/activa/gobernanza_datos.md` para la
+clasificación de datos, `manifiesto_insumos.md` para qué archivo va dónde, y
+`contexto_paes.md` para la reseña de dominio (pruebas, escala 100-1000 e IRT, NEM,
+Ranking, etapas, estructura de las bases DEMRE).
+
+## Configuración inicial en una máquina nueva
+
+1. Clonar el repo en `~/Projects/`.
+2. Verificar que OneDrive institucional esté sincronizado y localizar la raíz de
+   datos del proyecto (`.../OneDrive-SLEP/Proyectos/slep_paes/`, con `20_insumos/`
+   y `40_salidas/`).
+3. Copiar `.Renviron.example` a `~/.Renviron`, ajustar la ruta de
+   `SLEP_PAES_DATA_ROOT` al sistema operativo, y reiniciar R / Positron.
+4. Validar:
+   ```r
+   source(here::here("10_utils", "10_configuracion.R"))
+   obtener_data_root()          # ruta válida
+   dir.exists(ruta_insumos())   # TRUE
+   dir.exists(ruta_salidas())   # TRUE
+   ```
+5. Correr `source("00_run_all.R"); run_all()`.
+
+> Este repositorio **no** contiene datos reales: se obtienen del DEMRE/MINEDUC y se
+> colocan en la raíz de datos externa. Ver gobernanza de datos.
 
 ## Publicación (GitHub Pages)
 

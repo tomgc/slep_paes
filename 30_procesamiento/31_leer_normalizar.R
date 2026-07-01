@@ -24,19 +24,21 @@
 
 library(here)
 source(here::here("10_utils", "10_utils.R"))
+source(here::here("10_utils", "10_configuracion.R"))  # ruta_insumos(), ruta_salidas()
 instalar_si_falta(c("here", "fs", "readr", "janitor", "dplyr", "stringr", "arrow"))
 
-ruta_int <- function(f) here::here("40_salidas", "intermedios", f)
+ruta_int <- function(f) ruta_salidas("intermedios", f)
+dir.create(ruta_salidas("intermedios"), recursive = TRUE, showWarnings = FALSE)
 
 # --- Etapas: carpeta de insumo -> parquet de salida -------------------------
 ETAPAS_LECTURA <- list(
-  list(carpeta = here::here("20_insumos", "demre", "inscripcion"),
+  list(carpeta = ruta_insumos("demre", "inscripcion"),
        salida  = "paes_inscripcion.parquet",             foco = "cobertura"),
-  list(carpeta = here::here("20_insumos", "demre", "rendicion_resultados"),
+  list(carpeta = ruta_insumos("demre", "rendicion_resultados"),
        salida  = "paes_rendicion_resultados.parquet",    foco = "cobertura+rendimiento"),
-  list(carpeta = here::here("20_insumos", "demre", "postulacion_seleccion"),
+  list(carpeta = ruta_insumos("demre", "postulacion_seleccion"),
        salida  = "paes_postulacion_seleccion.parquet",   foco = "cobertura"),
-  list(carpeta = here::here("20_insumos", "egresados_em"),
+  list(carpeta = ruta_insumos("egresados_em"),
        salida  = "paes_egresados.parquet",               foco = "denominador")
 )
 

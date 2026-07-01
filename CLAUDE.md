@@ -66,8 +66,12 @@ estetico y arquitectonico de `slep_categoria_desempeno`, `slep_idps` y
 
 ## Estado
 
-**RAMA A** (proyecto publico, datos PAES del DEMRE versionados en el repo). Raiz
-unificada, `.gitignore` estandar sin bloque de datos, sin data root externo.
+**RAMA B** (dos raices; reclasificado 2026-07-01). Las bases DEMRE/MINEDUC son
+MICRODATO por persona con datos personales (`MRUN` de NNA en egresados,
+`FECHA_NACIMIENTO` en ArchivoB): viven FUERA del repo, en la raiz de datos de
+OneDrive (`SLEP_PAES_DATA_ROOT`). El repo solo tiene codigo, docs y
+`docs/index.html` (agregados). `.gitignore` blindado. Acceso a datos SIEMPRE via
+`ruta_insumos()` / `ruta_salidas()`.
 
 **Sesion 1 (scaffold):** Pasos 1-4 del plan completados — estructura canonica Rama
 A, orquestador y escaner, `10_utils` (incluida `PALETA_PAES` + React/d3/pako
@@ -102,7 +106,21 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 ## Ultimos cambios
 
-1. **Sesion 1 (paso 4) — stubs de ETL y motor.** Cuatro scripts en
+1. **Sesion 1 (Fase A) — migracion Rama A -> B (codigo).** Diagnostico de las
+   bases reales: microdato por persona (~953 MB) con PII (`MRUN`/`MRUN_IPE` de NNA
+   en egresados 2023-2025; `FECHA_NACIMIENTO` en ArchivoB) y `ArchivoD_2023`
+   (104 MB) sobre el limite de GitHub. Se migra a DOS RAICES: `10_configuracion.R`
+   resuelve `SLEP_PAES_DATA_ROOT` (`obtener_data_root/ruta_insumos/ruta_salidas`),
+   `.gitignore` blindado, `.Renviron.example`, `gobernanza_datos.md` -> Rama B,
+   README con configuracion de maquina nueva, `30/31/32/33` leen via
+   `ruta_insumos()/ruta_salidas()`, `git rm --cached` de lo versionado bajo
+   `20_insumos/`. Hallazgos de esquema (para 31 futuro): patron
+   `<PRUEBA>_<REG|INV>_<ACTUAL|ANTERIOR>` en ArchivoC (varia por año); ArchivoD
+   wide(186 col, 2023) -> long(6 col, 2024+); ArchivoMatr = matricula
+   universitaria; egresados 2026 ausente. Pendiente: Fase B (mover datos a
+   OneDrive, titular), Fase C (`~/.Renviron`, titular), Fase D (validar), renombrado
+   snake_case + manifiesto.
+2. **Sesion 1 (paso 4) — stubs de ETL y motor.** Cuatro scripts en
    `30_procesamiento/`: `30_construir_auxiliares.R` (FUNCIONAL: catalogos
    territoriales desde el directorio publico + listado SLEP; 10.945 EE, 345
    comunas, Costa Central OK); `31_leer_normalizar.R` y `32_agregar_territorial.R`

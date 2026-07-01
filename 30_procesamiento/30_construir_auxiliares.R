@@ -23,8 +23,9 @@
 
 library(here)
 
-# --- Autoinstalacion -------------------------------------------------------
+# --- Autoinstalacion y rutas (dos raices) ----------------------------------
 source(here::here("10_utils", "10_utils.R"))
+source(here::here("10_utils", "10_configuracion.R"))  # ruta_insumos(), ruta_salidas()
 instalar_si_falta(c("here", "fs", "readr", "readxl", "janitor", "dplyr", "arrow"))
 
 # --- Constantes -------------------------------------------------------------
@@ -42,14 +43,14 @@ NOMBRES_REGION_ASCII <- c(
   "15"="Arica y Parinacota","16"="Nuble"
 )
 
-ruta_int <- function(f) here::here("40_salidas", "intermedios", f)
+ruta_int <- function(f) ruta_salidas("intermedios", f)
+dir.create(ruta_salidas("intermedios"), recursive = TRUE, showWarnings = FALSE)
 
 # ============================================================================
 # Bloque 1 — Directorio oficial publico
 # ============================================================================
 message("[1] Leyendo directorio_oficial_ee_publico.csv...")
-ruta_directorio <- here::here("20_insumos", "auxiliares",
-                              "directorio_oficial_ee_publico.csv")
+ruta_directorio <- ruta_insumos("auxiliares", "directorio_oficial_ee_publico.csv")
 stopifnot("Falta el directorio publico" = file.exists(ruta_directorio))
 
 df_dir_raw <- readr::read_delim(
@@ -86,7 +87,7 @@ message(sprintf("    OK: %d comunas.", nrow(df_comunas)))
 # Bloque 3 — sleps_chile.parquet (una fila por SLEP x RBD)
 # ============================================================================
 message("[3] sleps_chile.parquet...")
-ruta_sleps <- here::here("20_insumos", "auxiliares", "listado_slep_2026.xlsx")
+ruta_sleps <- ruta_insumos("auxiliares", "listado_slep_2026.xlsx")
 stopifnot("Falta el listado SLEP" = file.exists(ruta_sleps))
 
 df_sleps_raw <- readxl::read_excel(ruta_sleps, sheet = "Listado SLEP",

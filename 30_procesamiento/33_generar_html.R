@@ -27,7 +27,7 @@ source(here::here("10_utils", "10_utils.R"))
 source(here::here("10_utils", "10_configuracion.R"))  # PALETA_PAES, FOCOS_PAES, ETAPAS_EMBUDO, PRUEBAS_PAES, ESCALA_*, etc.
 instalar_si_falta(c("here", "fs", "dplyr", "arrow", "jsonlite"))
 
-ruta_int <- function(f) here::here("40_salidas", "intermedios", f)
+ruta_int <- function(f) ruta_salidas("intermedios", f)
 
 # Lee un parquet si existe; si no, devuelve un tibble vacio (bloque rows=0).
 leer_o_vacio <- function(f) {
@@ -126,7 +126,8 @@ html <- plantilla
 for (ph in names(libs)) html <- sub(ph, leer_txt(libs[[ph]]), html, fixed = TRUE)
 html <- sub("__JSON_DATA__", json_b64, html, fixed = TRUE)
 
-ruta_salida <- here::here("40_salidas", "motor_paes.html")
+ruta_salida <- ruta_salidas("motor_paes.html")
+dir.create(dirname(ruta_salida), recursive = TRUE, showWarnings = FALSE)
 con <- file(ruta_salida, open = "wb", encoding = "UTF-8")
 writeBin(charToRaw(enc2utf8(html)), con); close(con)
 message(sprintf("    OK: %s (%.0f KB)", fs::path_rel(ruta_salida, here::here()),

@@ -2,45 +2,74 @@
 # 10_utils/10_configuracion.R
 # -----------------------------------------------------------------------------
 # Proyecto : slep_paes
-# Proposito: Rutas, constantes y resolucion de ubicaciones del proyecto.
-#            RAMA A (proyecto publico): raiz unificada, datos versionados en
-#            el repo. SIN variable de entorno ni data root externo
-#            (POLITICA_PROYECTO.md, secciones 6.2 y 8.2).
-# Fecha    : 2026-06-30
+# Proposito: Resolucion de rutas (DOS RAICES) + constantes del proyecto.
+#            RAMA B (datos personales): el repo (raiz de CODIGO) NO contiene
+#            datos; los datos reales viven en la raiz de DATOS en OneDrive
+#            institucional, apuntada por la variable de entorno
+#            SLEP_PAES_DATA_ROOT (POLITICA_PROYECTO.md secciones 6.2 y 8.3).
+# Fecha    : 2026-07-01
 # -----------------------------------------------------------------------------
-# NO-INVENCION DE METODOLOGIA (B.1): las constantes de dominio PAES de este
-# archivo (escala, pruebas, etapas del embudo) trazan a la resena de dominio
-# (50_documentacion/activa/contexto_paes.md, pendiente) y a las glosas
-# oficiales del DEMRE que el titular depositara en 20_insumos/. Lo que aqui
-# se fija es VOCABULARIO estable del dominio, NO el esquema por etapa ni los
-# nombres de columnas de las bases: esos se definen en 31_/32_ contra las
-# bases reales y sus glosas, y NO se congelan antes de verlas (brief, seccion 7).
+# Por que Rama B: las bases DEMRE/MINEDUC depositadas son MICRODATO por persona.
+# egresados_em trae MRUN / MRUN_IPE (RUN enmascarado de estudiante = NNA) y
+# ArchivoB trae FECHA_NACIMIENTO: datos personales (Ley 19.628 / 21.719) que
+# jamas entran a Git (POLITICA 6.1). Ver gobernanza_datos.md.
+#
+# Este modulo usa solo base R (cero dependencias de paquetes cargados): se carga
+# antes de cualquier library() (bootstrapping, POLITICA 1.4).
+#
+# NO-INVENCION DE METODOLOGIA (B.1): las constantes de dominio PAES trazan a
+# 50_documentacion/activa/contexto_paes.md y a las glosas del DEMRE. El esquema
+# por etapa NO se congela aqui; se define en 31_/32_ contra las bases reales.
 # =============================================================================
 
 # --- Identificador del proyecto ---------------------------------------------
 PROYECTO_ID <- "slep_paes"
 
-# --- Rutas (Rama A: todo dentro del repo) -----------------------------------
-ruta_insumos <- function(...) here::here("20_insumos", ...)
-ruta_salidas <- function(...) here::here("40_salidas", ...)
+# ============================================================================
+# Resolucion de la raiz de DATOS (dos raices)
+# ============================================================================
+# La raiz de datos contiene 20_insumos/ y 40_salidas/ reales, fuera del repo.
+# Variable canonica: <PROYECTO_ID en MAYUS>_DATA_ROOT (POLITICA 6.2).
+obtener_data_root <- function() {
+  data_root <- Sys.getenv("SLEP_PAES_DATA_ROOT", unset = "")
+  if (data_root == "") {
+    stop(
+      "Variable de entorno SLEP_PAES_DATA_ROOT no definida.\n",
+      "Configurala asi:\n",
+      "  macOS:   agregar a ~/.Renviron la linea\n",
+      "    SLEP_PAES_DATA_ROOT=\"/Users/<usuario>/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes\"\n",
+      "  Windows: agregar a C:/Users/<usuario>/.Renviron la linea\n",
+      "    SLEP_PAES_DATA_ROOT=\"C:/Users/<usuario>/OneDrive - SLEP/Proyectos/slep_paes\"\n",
+      "Luego reiniciar la sesion de R / Positron. Ver .Renviron.example.",
+      call. = FALSE
+    )
+  }
+  if (!dir.exists(data_root)) {
+    stop(
+      "La ruta apuntada por SLEP_PAES_DATA_ROOT no existe en disco:\n  ",
+      data_root, "\n",
+      "Verifica que OneDrive este sincronizado y que la ruta sea correcta.",
+      call. = FALSE
+    )
+  }
+  data_root
+}
+
+# Ruta a insumos:  file.path(<data_root>, "20_insumos", ...)
+ruta_insumos <- function(...) file.path(obtener_data_root(), "20_insumos", ...)
+# Ruta a salidas:  file.path(<data_root>, "40_salidas", ...)
+ruta_salidas <- function(...) file.path(obtener_data_root(), "40_salidas", ...)
 
 # ============================================================================
 # Constantes territoriales (reusadas de los hermanos, NO reconstruidas)
 # ============================================================================
-# Fuente canonica RBD -> comuna -> SLEP: directorio oficial y diccionario de
-# territorios copiados de los hermanos a 20_insumos/auxiliares/ (paso 2). RBD y
-# codigos comunales SIEMPRE como character (un join con tipos mezclados falla en
-# silencio; POLITICA 5.3.6).
-
-# Comunas del SLEP Costa Central (homologar mayusculas/sin tildes al leer).
+# Fuente canonica RBD -> comuna -> SLEP: directorio oficial y territorios en la
+# raiz de datos (20_insumos/auxiliares/). RBD y codigos comunales SIEMPRE como
+# character (un join con tipos mezclados falla en silencio; POLITICA 5.3.6).
 COMUNAS_SLEP_CC <- c("VINA DEL MAR", "CONCON", "QUINTERO", "PUCHUNCAVI")
 
-# Region de referencia para comparacion (Valparaiso).
 COD_REGION_REFERENCIA <- 5L
 
-# Nombres oficiales de region por codigo (formas cortas, UTF-8). El motor las
-# fuerza a Encoding "UTF-8" antes de serializar a JSON (gotcha de locale C,
-# heredado de los hermanos).
 NOMBRES_REGION <- c(
   "1" = "Tarapacá", "2" = "Antofagasta", "3" = "Atacama", "4" = "Coquimbo",
   "5" = "Valparaíso", "6" = "O'Higgins", "7" = "Maule", "8" = "Biobío",
@@ -53,29 +82,26 @@ NOMBRES_REGION <- c(
 # Gobernanza: supresion de celdas chicas (constante nombrada, POLITICA 5.3.10)
 # ============================================================================
 # El panorama publica AGREGADOS territoriales, nunca microdato ni identificadores
-# de postulantes. Si una agregacion territorial dejara a la vista un conteo que
-# individualice, se suprime o etiqueta. El umbral se ALINEA con el k-anonimato
-# que el DEMRE ya aplica en origen a sus datos abiertos (k=8, Ley 19.628; ver
-# contexto_paes.md "Filtros de Confidencialidad"). NO es un numero inventado:
-# es el estandar de la fuente. Redaccion normativa completa en gobernanza_datos.md.
+# de postulantes. Toda celda con < UMBRAL_SUPRESION_CELDA personas se suprime.
+# El umbral se ALINEA con el k-anonimato que el DEMRE aplica en origen (k=8, Ley
+# 19.628; ver contexto_paes.md). NO es un numero inventado: es el estandar de la
+# fuente. Redaccion normativa completa en gobernanza_datos.md.
 UMBRAL_SUPRESION_CELDA <- 8L  # celdas con < 8 personas se suprimen (k-anonimato DEMRE)
 
 # ============================================================================
 # Dominio PAES: vocabulario estable (provenance: contexto_paes.md + glosas DEMRE)
 # ============================================================================
-
-# Los dos FOCOS del panorama, ejes PARES (ninguno subordinado al otro):
-#   - cobertura  : el embudo contra el denominador de egresados de EM.
-#   - rendimiento: distribucion de puntajes de quienes rinden.
+# Los dos FOCOS del panorama, ejes PARES (ninguno subordinado al otro).
 FOCOS_PAES <- c("cobertura", "rendimiento")
 
-# Escala de puntajes PAES (IRT). Hecho de dominio (brief seccion 3; resena).
+# Escala de puntajes PAES (IRT). Hecho de dominio (contexto_paes.md).
 ESCALA_PAES_MIN <- 100L
 ESCALA_PAES_MAX <- 1000L
 
-# Pruebas PAES (slug interno -> nombre visible). El slug es identificador interno;
-# el mapeo del slug a las columnas reales de cada base se define en 31_ contra las
-# glosas del DEMRE (no se congela aqui). "Ciencias" incluye su version TP.
+# Pruebas PAES (slug interno -> nombre visible). El mapeo del slug a las columnas
+# reales de cada base se define en 31_ contra las glosas (no se congela aqui).
+# "Ciencias" incluye su version TP. (Las columnas reales del DEMRE en ArchivoC
+# son CLEC, MATE1, MATE2, HCSOC, CIEN, MODULO; homologacion en 31_.)
 PRUEBAS_PAES <- c(
   "competencia_lectora" = "Competencia Lectora",
   "m1"                  = "Matemática 1 (M1)",
@@ -88,9 +114,7 @@ PRUEBAS_PAES <- c(
 FACTORES_CONTEXTO <- c("nem" = "NEM", "ranking" = "Ranking")
 
 # Etapas del embudo (FOCO cobertura), en orden del proceso. La caracterizacion de
-# egresados de EM es la capa de ELEGIBILIDAD/denominador, no una etapa mas. Cada
-# etapa tiene sus propios resultados; su granularidad y esquema se definen contra
-# las bases reales (paso 4), no aqui.
+# egresados de EM es la capa de ELEGIBILIDAD/denominador, no una etapa mas.
 ETAPAS_EMBUDO <- c(
   "egresados"   = "Egresados de ensenanza media (denominador de cobertura)",
   "inscripcion" = "Inscripcion de la PAES",
@@ -101,9 +125,7 @@ ETAPAS_EMBUDO <- c(
 )
 
 # Categoria EXPLICITA de cobertura para quienes rinden sin RBD de egreso vigente
-# (egresados de anios anteriores / rezagados). NO es un hueco ni un error: es
-# informacion, se agrega etiquetada y visible, jamas diluida ni descartada
-# (brief secciones 3 y 4).
+# (egresados de anios anteriores / rezagados): informacion, no hueco (brief 3-4).
 ETIQUETA_SIN_RBD_VIGENTE <- "Egresados de anios anteriores (sin RBD vigente)"
 
 # ============================================================================
@@ -111,39 +133,19 @@ ETIQUETA_SIN_RBD_VIGENTE <- "Egresados de anios anteriores (sin RBD vigente)"
 # ============================================================================
 # Decision y justificacion completas en:
 #   50_documentacion/activa/decisiones/20260630_decision_patron_comun_y_paleta.md
-# Las paletas NO son transversales: slep_paes NO hereda la de ningun hermano.
-# v1 de trabajo; contraste AA y revision visual pendientes para el paso 4.
 PALETA_PAES <- list(
-  # --- Chrome / identidad ---
   chrome = c(
-    paper  = "#FBF7EF",  # fondo marfil calido (gobCL, propio)
-    tinta  = "#241B2E",  # texto base (tinta uva)
-    header = "#3B1D5E",  # header (uva profunda, sello PAES)
-    acento = "#C2410C",  # acento / activo (terracota PAES)
-    linea  = "#E6DECB"   # bordes y separadores
+    paper  = "#FBF7EF", tinta = "#241B2E", header = "#3B1D5E",
+    acento = "#C2410C", linea = "#E6DECB"
   ),
-  # --- Foco COBERTURA: secuencial uva (atenuacion del embudo) ---
-  # Mismas llaves que ETAPAS_EMBUDO, en orden del proceso.
   cobertura = c(
-    egresados   = "#EFE9F5",
-    inscripcion = "#D2C0E4",
-    rendicion   = "#AE92CE",
-    resultados  = "#8A65B5",
-    postulacion = "#653F99",
-    seleccion   = "#412072"
+    egresados   = "#EFE9F5", inscripcion = "#D2C0E4", rendicion  = "#AE92CE",
+    resultados  = "#8A65B5", postulacion = "#653F99", seleccion  = "#412072"
   ),
-  # Rezagados (sin RBD vigente): neutro diferenciado, no es una etapa del embudo.
   sin_rbd_vigente = "#9A8FA6",
-  # --- Foco RENDIMIENTO: categorico por prueba (llaves de PRUEBAS_PAES) ---
   pruebas = c(
-    competencia_lectora = "#B45309",  # ambar terroso
-    m1                  = "#1F5C54",  # teal profundo
-    m2                  = "#5B3A9E",  # uva media
-    ciencias            = "#4D7C0F",  # oliva oscuro
-    historia            = "#B91C5C"   # frambuesa-burdeos
+    competencia_lectora = "#B45309", m1 = "#1F5C54", m2 = "#5B3A9E",
+    ciencias = "#4D7C0F", historia = "#B91C5C"
   ),
-  # Divergente para tramos de puntaje (bajo -> alto), neutro al centro.
-  rendimiento_divergente = c(
-    "#B45309", "#D9A441", "#E6DECB", "#4C8C7D", "#1F5C54"
-  )
+  rendimiento_divergente = c("#B45309", "#D9A441", "#E6DECB", "#4C8C7D", "#1F5C54")
 )
