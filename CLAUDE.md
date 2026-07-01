@@ -69,12 +69,15 @@ estetico y arquitectonico de `slep_categoria_desempeno`, `slep_idps` y
 **RAMA A** (proyecto publico, datos PAES del DEMRE versionados en el repo). Raiz
 unificada, `.gitignore` estandar sin bloque de datos, sin data root externo.
 
-**Sesion 1 (scaffold):** Pasos 1-2 del plan completados — estructura canonica Rama
-A, stubs de orquestador y escaner, `10_utils` con bootstrapping y configuracion
-(incluida `PALETA_PAES`), contrato copiado, README/CLAUDE/LICENSE, git local,
-primer escaneo; reuso de d3/pako y auxiliares territoriales, nota de patron comun.
-Pipeline aun sin pasos construidos. Pendiente: 20_insumos por etapa + manifiesto +
-gobernanza + contexto_paes (paso 3); stubs de ETL y motor (paso 4).
+**Sesion 1 (scaffold):** Pasos 1-4 del plan completados — estructura canonica Rama
+A, orquestador y escaner, `10_utils` (incluida `PALETA_PAES` + React/d3/pako
+locales), contrato, docs, reuso de auxiliares, nota de patron comun, `20_insumos/`
+por etapa + manifiesto + gobernanza + `contexto_paes.md`, y los cuatro scripts de
+`30_procesamiento/` + motor. `run_all()` corre end-to-end: `30` construye
+catalogos (real), `31`/`32` son stubs que se omiten sin abortar hasta que el
+titular deposite las bases DEMRE, `33` genera un motor-esqueleto autocontenido
+(sin CDN) con el doble foco. Pendiente: bases del DEMRE; validacion visual de la
+paleta; primer push.
 
 ## Pipeline
 
@@ -99,7 +102,19 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 ## Ultimos cambios
 
-1. **Sesion 1 (paso 3) — insumos, gobernanza y reseña.** Estructura de
+1. **Sesion 1 (paso 4) — stubs de ETL y motor.** Cuatro scripts en
+   `30_procesamiento/`: `30_construir_auxiliares.R` (FUNCIONAL: catalogos
+   territoriales desde el directorio publico + listado SLEP; 10.945 EE, 345
+   comunas, Costa Central OK); `31_leer_normalizar.R` y `32_agregar_territorial.R`
+   (stubs con compuerta: se omiten sin abortar si faltan las bases DEMRE; ya traen
+   la logica de embudo, rezagados y supresion de celdas < 8); `33_generar_html.R` +
+   `33_motor_template.html` (motor autocontenido, React/d3/pako LOCALES sin CDN,
+   JSON columnar gzip+base64+pako, navegacion territorial + toggle de doble foco,
+   `PALETA_PAES` como fuente unica; copia a `docs/index.html`). React libs copiadas
+   a `10_utils/`. `run_all()` corre end-to-end (0 refs de red en el motor). Fix:
+   el comentario del template repetia el token `__JSON_DATA__` y `sub()` lo
+   reemplazaba antes que el real; reescrito.
+2. **Sesion 1 (paso 3) — insumos, gobernanza y reseña.** Estructura de
    `20_insumos/` por etapa (`demre/{inscripcion,rendicion_resultados,
    postulacion_seleccion,glosas}` + `egresados_em/`) con README por carpeta y
    nombres canonicos; `manifiesto_insumos.md` (mapa etapa->base->nombre->foco->glosa).

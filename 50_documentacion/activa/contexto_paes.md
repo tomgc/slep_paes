@@ -2,6 +2,7 @@
 titulo: Reseña de dominio — Prueba de Acceso a la Educación Superior (PAES)
 fuente: Guía Completa de la PAES.docx (depositada por el titular)
 convertido: 2026-06-30 (sesión 1, paso 3)
+formulas_transcritas: 2026-06-30 (sesión 1, continuación; ver nota de procedencia)
 estado: conocimiento de dominio estable; NO es insumo de datos (B.1)
 ---
 
@@ -16,13 +17,25 @@ estado: conocimiento de dominio estable; NO es insumo de datos (B.1)
 > aquí, sino de las bases del DEMRE y sus glosas.
 >
 > **Procedencia y fidelidad de la conversión.** El `.docx` original se archivó en
-> `_archivo/` (no versionado). La conversión (zip → `word/document.xml` → md)
-> preservó texto, encabezados, listas y tablas, pero **NO** las **fórmulas
-> matemáticas** (IRT, Ranking, ponderado) ni algunos **valores numéricos de
-> tablas de conversión NEM**, que aparecen como huecos (p. ej. "un promedio de
-> se traduce en puntos"). Para esas fórmulas y tablas, consultar el `.docx`
-> original o las fuentes DEMRE citadas al final. **No se rellenaron los huecos a
-> mano** (B.1: no fabricar).
+> `_archivo/` (no versionado). La conversión automática inicial (zip →
+> `word/document.xml` → md) preservó texto, encabezados, listas y tablas, pero
+> **NO** las fórmulas matemáticas ni algunos valores numéricos de tablas de
+> conversión NEM, porque el `.docx` fuente (originado en Google Docs) las
+> incrusta como **imágenes PNG** (`word/media/imageN.png`), no como texto ni
+> como objetos de ecuación OMML. Ninguna extracción de texto (pandoc,
+> `extract-text`) puede recuperarlas.
+>
+> **Transcripción manual (esta revisión).** Las 6 zonas de huecos se resolvieron
+> por inspección visual directa del `.docx` original (rasterizado a imagen,
+> página por página) y se transcribieron a notación de texto plano/Markdown:
+> fórmula IRT (3PL), tabla de conversión NEM (4 pares promedio→puntos),
+> parámetros y condiciones lineales del Ranking (incluida la fórmula de la
+> pendiente `m` y el intercepto `b`), fórmula general del Puntaje Ponderado con
+> su ejemplo numérico verificado (825×0,15 + 870×0,20 + 700×0,10 + 900×0,35 +
+> 820×0,10 + 840×0,10 = 848,75, cuadra exactamente con el valor consolidado del
+> docx), el símbolo `PPP` del Puntaje Ponderado PACE, y el piso de postulación a
+> Pedagogía (567,5 puntos). Transcripción literal de lo que el `.docx` muestra;
+> no se fabricó ningún valor ni fórmula no presente en la fuente (B.1).
 >
 > **Anclas para slep_paes** (lo que esta reseña fija como dominio):
 > - Cinco pruebas: Competencia Lectora, Matemática 1 (M1), Matemática 2 (M2),
@@ -66,9 +79,13 @@ La prueba M2 constituye un requisito obligatorio para postular de manera central
 - Prueba de Ciencias Técnico-Profesional (TP): Diseñada específicamente para los egresados de establecimientos con formación técnico-profesional, esta prueba reduce el temario evaluando los módulos comunes de Biología, Física y Química referidos únicamente a los planes de estudio generales de 1° y 2° año de enseñanza media, eliminando el módulo electivo de especialidad científica para resguardar la equidad del instrumento11.
 ## Metodología Psicométrica de Calibración bajo IRT
 Uno de los principales desarrollos de la PAES es su metodología de procesamiento de datos18. La antigua PSU utilizaba un modelo estadístico simplificado basado en la Teoría Clásica de Test (TC), mediante el cual el puntaje corregido correspondía a una transformación que dependía de la cantidad de respuestas correctas, ajustándose después a una curva normal1. Esto forzaba una distribución estadística donde el puntaje representaba la posición relativa del estudiante frente a su generación y no su nivel real de competencia, impidiendo comparar el puntaje obtenido en años distintos1.
-La PAES utiliza un enfoque basado en la Teoría de Respuesta al Ítem (IRT), estimando de forma directa la habilidad latente del estudiante (representada por el parámetro estadístico )1. La probabilidad de que un examinado con un nivel de habilidad  responda correctamente a un ítem determinado se modela matemáticamente considerando las características intrínsecas de cada pregunta19:
+La PAES utiliza un enfoque basado en la Teoría de Respuesta al Ítem (IRT), estimando de forma directa la habilidad latente del estudiante (representada por el parámetro estadístico θ)1. La probabilidad de que un examinado con un nivel de habilidad θ responda correctamente a un ítem determinado se modela matemáticamente considerando las características intrínsecas de cada pregunta19 (modelo logístico de 3 parámetros):
 
-En esta formulación matemática, se asumen tres parámetros fundamentales del reactivo: el parámetro de dificultad (), el parámetro de discriminación () y el parámetro de acierto fortuito o azar ()19. Una vez estimada la posición del examinado en la escala de habilidad latente , este valor se somete a una transformación lineal para posicionarlo dentro de una escala de referencia estándar que varía entre los 100 y los 1.000 puntos1.
+```
+P(Correcta|θ) = c + (1 - c) / (1 + e^(-a(θ-b)))
+```
+
+En esta formulación matemática, se asumen tres parámetros fundamentales del reactivo: el parámetro de dificultad (b), el parámetro de discriminación (a) y el parámetro de acierto fortuito o azar (c)19. Una vez estimada la posición del examinado en la escala de habilidad latente θ, este valor se somete a una transformación lineal para posicionarlo dentro de una escala de referencia estándar que varía entre los 100 y los 1.000 puntos1.
 ### Razones Técnicas del Cambio de Escala (100 a 1.000 puntos)
 El reemplazo de la escala histórica de 150 a 850 puntos por la escala unificada de 100 a 1.000 puntos obedeció a varios factores técnicos de comparabilidad y precisión psicométrica10:
 - Garantía de Comparabilidad Absoluta: Debido a que el cálculo de puntajes se desprende directamente de las propiedades métricas del banco de ítems calibrado y no del desempeño relativo del grupo evaluado, los puntajes son directamente equivalentes entre distintas aplicaciones1. Un puntaje de 700 en una prueba de invierno equivale exactamente al mismo nivel de competencia que un 700 en una regular de fin de año1.
@@ -78,21 +95,33 @@ El reemplazo de la escala histórica de 150 a 850 puntos por la escala unificada
 Para postular a través de la postulación centralizada, el puntaje final de postulación resulta de una ponderación de los exámenes de la PAES y de dos componentes del historial del estudiante: el puntaje de Notas de Enseñanza Media (NEM) y el Ranking de Notas2.
 ### Notas de Enseñanza Media (NEM)
 El puntaje NEM representa la conversión lineal del promedio ponderado de las calificaciones acumuladas durante los cuatro años de educación escolar secundaria, expresado con dos decimales y truncado18. Este promedio se homologa a la escala unificada de 100 a 1.000 puntos utilizando tablas de conversión diferenciadas según la modalidad educativa25. En la modalidad Científico-Humanista, la equivalencia de puntajes presenta las siguientes referencias técnicas:
-- Un promedio de  se traduce en  puntos NEM28.
-- Un promedio intermedio de  se traduce en  puntos NEM27.
-- Un promedio destacado de  se traduce en  puntos NEM27.
-- Un promedio máximo de  alcanza los  puntos NEM27.
+- Un promedio de 4,01 se traduce en 103 puntos NEM28.
+- Un promedio intermedio de 5,0 se traduce en 415 puntos NEM27.
+- Un promedio destacado de 6,0 se traduce en 713 puntos NEM27.
+- Un promedio máximo de 7,0 alcanza los 1.000 puntos NEM27.
 A partir del proceso de admisión del año 2028, se ha establecido que la nota mínima de egreso escolar requerida para participar en el proceso de admisión regular centralizado equivaldrá a un piso de 458 puntos en la escala unificada26.
 ### Ranking de Notas
 El Ranking de Notas es un ponderador diseñado para valorar el rendimiento académico del postulante en relación con su entorno socioeducativo inmediato de origen, eliminando el sesgo asociado a la disparidad de calificaciones promedio entre distintos colegios6.
-La metodología evalúa los promedios de notas del postulante en cada uno de los cuatro años de enseñanza media (, ,  y ) y los contrasta individualmente con su respectiva Población de Referencia6. Esta población de referencia se constituye por el rendimiento de los alumnos de las tres generaciones inmediatamente anteriores que cursaron ese mismo nivel educativo en el establecimiento6. El promedio de estos cuatro análisis determina el Ranking final del postulante6.
+La metodología evalúa los promedios de notas del postulante en cada uno de los cuatro años de enseñanza media (R1, R2, R3 y R4) y los contrasta individualmente con su respectiva Población de Referencia6. Esta población de referencia se constituye por el rendimiento de los alumnos de las tres generaciones inmediatamente anteriores que cursaron ese mismo nivel educativo en el establecimiento6. El promedio de estos cuatro análisis determina el Ranking final del postulante6.
 Los parámetros requeridos para el cálculo lineal del Ranking son:
-- Promedio Histórico del Establecimiento (): El promedio de los promedios de notas acumulados por las tres generaciones anteriores de egresados de ese colegio6.
-- Promedio Máximo Histórico (): El promedio de los promedios máximos de notas de las mismas tres generaciones de egresados18.
-- Promedio Acumulado del Alumno (): La calificación final promedio obtenida por el postulante18.
+- Promedio Histórico del Establecimiento (I_med): El promedio de los promedios de notas acumulados por las tres generaciones anteriores de egresados de ese colegio6.
+- Promedio Máximo Histórico (M_med): El promedio de los promedios máximos de notas de las mismas tres generaciones de egresados18.
+- Promedio Acumulado del Alumno (P_post): La calificación final promedio obtenida por el postulante18.
 La asignación de puntaje de Ranking se rige por las siguientes condiciones lineales18:
 
-Donde los parámetros de pendiente () e intersección () se determinan de forma particular para cada colegio a partir del Puntaje NEM del promedio histórico () y el valor de  asignado al máximo histórico18:
+```
+                 ⎧ Puntaje NEM del postulante   si P_post ≤ I_med
+Puntaje Ranking = ⎨ b + m × P_post               si I_med < P_post < M_med
+                 ⎩ 1.000                        si P_post ≥ M_med
+```
+
+Donde los parámetros de pendiente (m) e intersección (b) se determinan de forma particular para cada colegio a partir del Puntaje NEM del promedio histórico (N_hist) y el valor de 1.000 asignado al máximo histórico18:
+
+```
+m = (1.000 - N_hist) / (M_med - I_med)
+
+b = 1.000 - m × M_med
+```
 
 Este modelo garantiza que el estudiante que destaque por encima del promedio histórico de su colegio reciba una bonificación que eleva su puntaje Ranking por sobre su puntaje NEM puro27. Por el contrario, si el promedio del alumno se ubica por debajo de la media histórica de su entorno de referencia, el Ranking simplemente se iguala a su puntaje NEM, impidiendo cualquier perjuicio en el cálculo ponderado del estudiante18.
 ## Proceso de Postulación y Filtros de Admisión
@@ -104,20 +133,28 @@ Cabe destacar que las universidades de mayor selectividad académica tienen la f
 El puntaje ponderado final de un estudiante se calcula multiplicando cada factor de selección por el porcentaje asignado por la carrera universitaria, sumando luego dichos valores27. Las universidades definen estos porcentajes de acuerdo con el perfil del programa académico2.
 - Fórmula General:
 
+```
+Puntaje Ponderado = (N × %N) + (R × %R) + (L × %L) + (M1 × %M1) + (M2 × %M2) + (C/H × %C/H)
+```
+
 Donde:
-- : Puntaje NEM27.
-- : Puntaje Ranking de Notas27.
-- : Puntaje PAES de Competencia Lectora27.
-- : Puntaje PAES de Competencia Matemática 127.
-- : Puntaje PAES de Competencia Matemática 2 (cuando corresponda)27.
-- : Puntaje PAES de Ciencias o de Historia (según el requisito de la carrera)27.
+- N: Puntaje NEM27.
+- R: Puntaje Ranking de Notas27.
+- L: Puntaje PAES de Competencia Lectora27.
+- M1: Puntaje PAES de Competencia Matemática 127.
+- M2: Puntaje PAES de Competencia Matemática 2 (cuando corresponda)27.
+- C/H: Puntaje PAES de Ciencias o de Historia (según el requisito de la carrera)27.
 Un ejemplo práctico de ponderación de carrera de alta exigencia se presenta a continuación32:
-- Puntaje NEM del Alumno:  con una ponderación de carrera de 32.
-- Puntaje Ranking:  con una ponderación del 32.
-- Competencia Lectora:  con una ponderación del 32.
-- Competencia Matemática 1 (M1):  con una ponderación de 32.
-- Prueba Electiva (Ciencias):  con una ponderación de 32.
-- Competencia Matemática 2 (M2):  con una ponderación de 32.
+- Puntaje NEM del Alumno: 825 con una ponderación de carrera de 15%32.
+- Puntaje Ranking: 870 con una ponderación del 20%32.
+- Competencia Lectora: 700 con una ponderación del 10%32.
+- Competencia Matemática 1 (M1): 900 con una ponderación de 35%32.
+- Prueba Electiva (Ciencias): 820 con una ponderación de 10%32.
+- Competencia Matemática 2 (M2): 840 con una ponderación de 10%32.
+
+```
+P_ponderado = (825×0,15) + (870×0,20) + (700×0,10) + (900×0,35) + (820×0,10) + (840×0,10) = 848,75
+```
 
 El estudiante del ejemplo postula con un valor consolidado de 848,75 puntos para competir por una vacante en la carrera elegida32.
 ## Diferencias en la Gestión del Proceso: Invierno versus Regular
@@ -140,13 +177,13 @@ El programa PACE busca garantizar vacantes universitarias a estudiantes talentos
 - Haber cursado de forma continua 3° y 4° año medio en un establecimiento participante del programa PACE y egresar en el año correspondiente32.
 - Ubicarse dentro del 25% superior de puntaje de ranking de su establecimiento de egreso, o haber obtenido un puntaje de ranking individual igual o superior a los 830 puntos32.
 - Rendir obligatoriamente las pruebas PAES de Competencia Lectora, Competencia Matemática 1 (M1), y al menos una de las dos pruebas electivas (Ciencias o de Historia)7.
-Los estudiantes que cumplen con estas condiciones están exentos del pago del arancel de inscripción de la PAES y acceden de manera preferente a los cupos de las universidades mediante el cálculo del Puntaje Ponderado PACE (), que bonifica variables geográficas y de orden de preferencia del postulante30.
+Los estudiantes que cumplen con estas condiciones están exentos del pago del arancel de inscripción de la PAES y acceden de manera preferente a los cupos de las universidades mediante el cálculo del Puntaje Ponderado PACE (PPP), que bonifica variables geográficas y de orden de preferencia del postulante30.
 ### Cupos "Más Mujeres Científicas" (+MC)
 Esta iniciativa especial, implementada en 44 universidades adscritas al Sistema de Acceso, busca disminuir las brechas de género en las áreas de Ciencia, Tecnología, Ingeniería y Matemáticas (STEM) mediante la asignación de vacantes adicionales exclusivas para mujeres40.
 Los requisitos exigen estar legalmente registrada como mujer ante el Servicio de Registro Civil (o sexo femenino al solicitar el IPE), rendir las pruebas PAES obligatorias y específicas demandadas por la carrera, y cumplir con los puntajes de postulación mínimos43. Las postulantes interesadas participan de esta asignación a través de su postulación regular centralizada de hasta 20 carreras de interés, seleccionándose los cupos de forma paralela y descendente de acuerdo con su puntaje ponderado tradicional hasta completar las vacantes adicionales disponibles por carrera7.
 ### Habilitación para Carreras de Pedagogía
 El ingreso centralizado a carreras de Pedagogía está normado por estándares específicos orientados a asegurar la calidad docente en el sistema escolar45. Los estudiantes deben satisfacer obligatoriamente al menos uno de los siguientes filtros de habilitación académica45:
-- Puntaje PAES: Obtener un puntaje promedio entre las dos pruebas obligatorias (Competencia Lectora y M1) que posicione al postulante en el percentil 50 o superior de la distribución nacional de resultados (equivalente a un piso de  puntos en el proceso reciente)45.
+- Puntaje PAES: Obtener un puntaje promedio entre las dos pruebas obligatorias (Competencia Lectora y M1) que posicione al postulante en el percentil 50 o superior de la distribución nacional de resultados (equivalente a un piso de 567,5 puntos en el proceso reciente)45.
 - Ranking de Notas: Estar posicionado dentro del 20% o 30% superior de rendimiento de enseñanza media (NEM) del respectivo establecimiento de origen45.
 - Programa de Preparación Docente: Haber completado y aprobado con éxito un Programa de Acceso a Pedagogías (PAP) o un Programa de Atracción de Talento Pedagógico validado por el Mineduc y rendir las pruebas de selección de manera regular45.
 - Inclusión por Discapacidad: Estar oficialmente inscrito en el Registro Nacional de Discapacidad (RND), haber completado con éxito un programa de preparación PAP y contar con puntajes vigentes, quedando en estos casos exento del requisito de rendir las pruebas si se postula por vías de admisión directa de las universidades45.
