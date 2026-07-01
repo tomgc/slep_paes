@@ -202,6 +202,9 @@ leer_archivo_c <- function(meta_c) {
     for (col in OPCIONALES_C) df <- agregar_columna_si_falta(df, col, NA_real_)
 
     df_puntajes <- df |>
+      # MODULO_* ya se extrae aparte en df_modulos (-> modulo_ciencias); se
+      # descarta aqui para no arrastrar las columnas crudas al parquet final.
+      dplyr::select(-matches(PATRON_MODULO_C)) |>
       tidyr::pivot_longer(
         cols = matches(PATRON_PUNTAJE_C),
         names_to = c("prueba", "tipo_rendicion", "vigencia"),
