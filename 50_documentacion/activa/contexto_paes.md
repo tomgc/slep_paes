@@ -3,8 +3,38 @@ titulo: Reseña de dominio — Prueba de Acceso a la Educación Superior (PAES)
 fuente: Guía Completa de la PAES.docx (depositada por el titular)
 convertido: 2026-06-30 (sesión 1, paso 3)
 formulas_transcritas: 2026-06-30 (sesión 1, continuación; ver nota de procedencia)
+revision_oficial: 2026-07-01 (sesión 1; contraste con fuentes oficiales DEMRE — ver nota de revisión y hallazgos)
 estado: conocimiento de dominio estable; NO es insumo de datos (B.1)
 ---
+
+> **REVISIÓN CON FUENTES OFICIALES (2026-07-01).** Esta reseña se construyó en la
+> ronda anterior desde una guía secundaria (`Guía Completa de la PAES.docx`). En
+> esta ronda se contrastó contra **material oficial del DEMRE** depositado por el
+> titular (Informe Técnico PAES 2025 caps. I-IV; informes de resultados PAES
+> 2023-2025 regular e invierno; informe de resultados PDT-invierno 2023;
+> páginas oficiales DEMRE de Competencia Lectora y Matemática 1; fichas de
+> niveles de desempeño y del Cuestionario de Caracterización — CCEA; Ley
+> 21.490) y con búsqueda web dirigida a DEMRE. **Correcciones principales de
+> esta ronda** (detalle y citas en
+> `50_documentacion/andamios/logs/20260701_hallazgos_actualizacion_contexto_paes.md`):
+> - **Modelo psicométrico:** NO es IRT 3PL; el DEMRE usa el **modelo de Rasch**
+>   (1 parámetro, solo dificultad). Corregido en la sección de metodología.
+> - **"5 preguntas excluidas":** no son de pilotaje/calibración, sino margen de
+>   ajuste de calidad de la medición. Corregido.
+> - **Vía Pedagogía:** los percentiles/pisos se rigen por la **Ley 21.490**;
+>   corregido (percentil 60 autónomo; percentil 50 solo combinado con 40% de
+>   notas). El "567,5 = percentil 50" del original es inexacto.
+> - **N° de universidades adscritas:** los informes oficiales 2023/2024 dicen
+>   **45**, no 47.
+> - **Ausencia de puntaje** en las bases se codifica como **0**, no NULL.
+> - **Nuevas secciones:** Niveles de Desempeño (Competencia Lectora y M1, con
+>   cortes oficiales) y el Cuestionario de Caracterización (CCEA: Autoeficacia,
+>   Autorregulación). Marco legal (Ley 21.490) y "Nuevo Ranking" (Admisión 2028).
+> - **NEM y fórmula del Ranking:** el material oficial de esta tanda NO incluye la
+>   tabla NEM ni la fórmula lineal del Ranking; su metodología (3 generaciones,
+>   tramos, piso NEM, tope 1000) se **confirmó** vía la página oficial DEMRE
+>   *Puntaje Ranking*, pero los pares exactos de la tabla NEM quedan pendientes de
+>   cotejo con las *Tablas de transformación de NEM* del DEMRE.
 
 # Reseña de dominio — PAES (contexto_paes.md)
 
@@ -55,7 +85,7 @@ estado: conocimiento de dominio estable; NO es insumo de datos (B.1)
 # Reseña de la Prueba de Acceso a la Educación Superior (PAES) en Chile
 ## Definición, Naturaleza y Propósito del Sistema de Admisión
 La Prueba de Acceso a la Educación Superior (PAES) constituye el instrumento estandarizado oficial para la selección y admisión de estudiantes a las universidades de Chile adscritas al Sistema de Acceso1. Administrada por el Departamento de Evaluación, Medición y Registro Educacional (DEMRE) de la Universidad de Chile, en colaboración directa con la Subsecretaría de Educación Superior del Ministerio de Educación (Mineduc), la PAES tiene la función de regular el ingreso a las instituciones mediante un proceso técnico y centralizado1.
-Este examen tiene como propósito evaluar competencias clave, integrando las habilidades cognitivas de orden superior con los conocimientos disciplinares fundamentales1. A diferencia de sus antecesoras, la PAES no se limita a medir el volumen de contenidos curriculares acumulados, sino el "saber" y el "saber hacer", es decir, la capacidad latente de los postulantes para aplicar destrezas metodológicas y resolver problemas prácticos en entornos académicos diversos1. Los puntajes obtenidos operan como factores de ponderación que, combinados con las Notas de Enseñanza Media (NEM) y el Ranking de Notas de cada estudiante, determinan el acceso a las vacantes de las 47 universidades participantes del subsistema universitario2.
+Este examen tiene como propósito evaluar competencias clave, integrando las habilidades cognitivas de orden superior con los conocimientos disciplinares fundamentales1. A diferencia de sus antecesoras, la PAES no se limita a medir el volumen de contenidos curriculares acumulados, sino el "saber" y el "saber hacer", es decir, la capacidad latente de los postulantes para aplicar destrezas metodológicas y resolver problemas prácticos en entornos académicos diversos1. Los puntajes obtenidos operan como factores de ponderación que, combinados con las Notas de Enseñanza Media (NEM) y el Ranking de Notas de cada estudiante, determinan el acceso a las vacantes de las universidades participantes del subsistema universitario2. **(Corrección 2026-07-01:** los informes oficiales de resultados de Admisión 2023 y 2024 consignan **45 universidades adscritas** al Sistema de Acceso, no 47; el número varía por año según incorporaciones.**)**
 ## Evolución Histórica y Factores de Transición Psicométrica
 La gestación de la PAES obedece a un proceso de reestructuración metodológica motivado por críticas de desigualdad socioeconómica asociadas a los exámenes previos8.
 ### Cronología de los Instrumentos de Selección Universitaria en Chile
@@ -75,19 +105,29 @@ Para participar activamente del proceso de postulación a las vacantes ofrecidas
 La prueba M2 constituye un requisito obligatorio para postular de manera centralizada a más de 400 carreras de alta exigencia matemática, tales como ciencias físicas, ingenierías y tecnologías14. Por disposición regulatoria del Sistema de Acceso, este examen específico debe ponderar, como mínimo, un 5% en el cálculo del puntaje final ponderado de las carreras que lo requieren13.
 ### Aspectos Instrumentales Comunes
 - Ausencia de Penalización por Respuestas Incorrectas: Desde el proceso de admisión del año 2016 se eliminó de forma definitiva el descuento de puntaje por respuestas erróneas, criterio que se mantiene vigente en la estructura de la PAES1. El puntaje final depende exclusivamente de la cantidad de aciertos obtenidos en las preguntas consideradas para la escala de notas17.
-- Preguntas de Pilotaje: Todas las pruebas integran 5 preguntas experimentales o de pilotaje distribuidas de forma oculta en el folleto1. Las respuestas a estos ítems experimentales se utilizan exclusivamente para análisis de calibración psicométrica futura y no influyen en el puntaje de selección del postulante1.
+- Preguntas excluidas del puntaje: en todas las pruebas hay **cinco preguntas que se excluyen del cálculo del puntaje**. **Corrección (revisión oficial 2026-07-01):** su función NO es de pilotaje ni de calibración futura (como decía la versión anterior), sino **resguardar la calidad y estabilidad de la medición**, funcionando como margen de ajuste ante posibles dificultades de impresión, técnicas o métricas; si no se detectan inconvenientes, se usan para optimizar el funcionamiento global del instrumento. El **pilotaje** de ítems es un proceso separado y previo a la aplicación oficial (Informe Técnico PAES 2025, cap. II).
 - Prueba de Ciencias Técnico-Profesional (TP): Diseñada específicamente para los egresados de establecimientos con formación técnico-profesional, esta prueba reduce el temario evaluando los módulos comunes de Biología, Física y Química referidos únicamente a los planes de estudio generales de 1° y 2° año de enseñanza media, eliminando el módulo electivo de especialidad científica para resguardar la equidad del instrumento11.
 ## Metodología Psicométrica de Calibración bajo IRT
 Uno de los principales desarrollos de la PAES es su metodología de procesamiento de datos18. La antigua PSU utilizaba un modelo estadístico simplificado basado en la Teoría Clásica de Test (TC), mediante el cual el puntaje corregido correspondía a una transformación que dependía de la cantidad de respuestas correctas, ajustándose después a una curva normal1. Esto forzaba una distribución estadística donde el puntaje representaba la posición relativa del estudiante frente a su generación y no su nivel real de competencia, impidiendo comparar el puntaje obtenido en años distintos1.
-La PAES utiliza un enfoque basado en la Teoría de Respuesta al Ítem (IRT), estimando de forma directa la habilidad latente del estudiante (representada por el parámetro estadístico θ)1. La probabilidad de que un examinado con un nivel de habilidad θ responda correctamente a un ítem determinado se modela matemáticamente considerando las características intrínsecas de cada pregunta19 (modelo logístico de 3 parámetros):
+La PAES utiliza un enfoque basado en la Teoría de Respuesta al Ítem (TRI/IRT), estimando la habilidad latente del estudiante (θ) mediante el **modelo de Rasch** (Rasch, 1960), un modelo de **un solo parámetro** que estima **únicamente la dificultad (δ)** de cada ítem. La probabilidad de que una persona *i* responda correctamente el ítem *j* se modela como:
 
 ```
-P(Correcta|θ) = c + (1 - c) / (1 + e^(-a(θ-b)))
+P(X_ij = 1 | θ_i, δ_j) = e^(θ_i − δ_j) / (1 + e^(θ_i − δ_j))
 ```
 
-En esta formulación matemática, se asumen tres parámetros fundamentales del reactivo: el parámetro de dificultad (b), el parámetro de discriminación (a) y el parámetro de acierto fortuito o azar (c)19. Una vez estimada la posición del examinado en la escala de habilidad latente θ, este valor se somete a una transformación lineal para posicionarlo dentro de una escala de referencia estándar que varía entre los 100 y los 1.000 puntos1.
+donde θ_i es la habilidad de la persona y δ_j la dificultad del ítem; cuando θ_i = δ_j, la probabilidad de acierto es 0,5. El modelo de Rasch **NO incorpora parámetros de discriminación ni de azar (adivinación)**; una respuesta incorrecta y una omitida se codifican igual (X = 0). La habilidad se estima por el método **EAP (Expected A Posteriori)** y luego se transforma **linealmente** a la escala de 100 a 1.000 puntos, con un **escalamiento propio para cada prueba**, respetando la distribución original de habilidades (a quienes obtienen todas las respuestas correctas se les asigna la habilidad máxima, y a quienes no tienen aciertos, la mínima). Los ítems que no cumplen los estándares psicométricos (curva característica no creciente o dificultad fuera de rango) se excluyen del cálculo del puntaje.
+
+> **Corrección (revisión oficial 2026-07-01).** La versión anterior de esta reseña
+> describía un modelo logístico de **3 parámetros** (con discriminación *a* y azar
+> *c*: `P = c + (1−c)/(1+e^(−a(θ−b)))`). Es **incorrecto**: el Informe Técnico PAES
+> 2025 (cap. IV, "Procesamiento y análisis de datos") y el informe de resultados
+> PDT-invierno Admisión 2023 establecen que el DEMRE usa el **modelo de Rasch (1
+> parámetro)**. Se corrige por jerarquía documental (fuente oficial DEMRE sobre la
+> guía secundaria de origen).
+
+La **comparabilidad entre aplicaciones** (equating) se logra por **anclaje de ítems**: todos provienen de un Banco de Ítems calibrado (ítems ancla aplicados en procesos oficiales de 2016 a 2022). La relación entre la dificultad calibrada y la de la aplicación oficial se estima con una **regresión lineal** bajo el supuesto de invarianza de las dificultades, iterando hasta un ajuste R² ≥ 0,90 y liberando luego los ítems ancla ("desanclaje") para la estimación final (Kolen & Brennan, 2014). Así, un puntaje de 700 en una aplicación equivale al mismo nivel de competencia que un 700 en otra.
 ### Razones Técnicas del Cambio de Escala (100 a 1.000 puntos)
-El reemplazo de la escala histórica de 150 a 850 puntos por la escala unificada de 100 a 1.000 puntos obedeció a varios factores técnicos de comparabilidad y precisión psicométrica10:
+El reemplazo de la escala histórica de 150 a 850 puntos por la escala unificada de 100 a 1.000 puntos obedeció a varios factores técnicos de comparabilidad y precisión psicométrica10. **Precisión oficial (2026-07-01):** la escala 100-1.000 se **inauguró con la PDT de Invierno (julio de 2022)** y se acordó para la futura PAES, no con la PAES regular; la transformación de habilidad a puntaje es **lineal y propia de cada prueba** (`e_k(x) = γ_k + x·m_k`), no una única transformación global (informe de resultados PDT-invierno Admisión 2023). La escala previa **150-850** con promedio 500 y desviación 110 corresponde al régimen **PSU** y proviene de la guía secundaria: no aparece en el material oficial de esta tanda (dato a tratar como referencia histórica, no verificado aquí). Factores del cambio:
 - Garantía de Comparabilidad Absoluta: Debido a que el cálculo de puntajes se desprende directamente de las propiedades métricas del banco de ítems calibrado y no del desempeño relativo del grupo evaluado, los puntajes son directamente equivalentes entre distintas aplicaciones1. Un puntaje de 700 en una prueba de invierno equivale exactamente al mismo nivel de competencia que un 700 en una regular de fin de año1.
 - Previsión contra Fluctuaciones del Puntaje de Corte: Al extender el rango métrico disponible, se aumenta la gradación y la sensibilidad estadística en la distribución de puntajes, reduciendo la variabilidad interanual de los puntajes de corte de las carreras universitarias20.
 - Habilitación de la Combinabilidad de Puntajes: Al eliminar los sesgos de cohorte, el Sistema de Acceso permite que las universidades combinen de forma automatizada los mejores resultados individuales vigentes obtenidos por un postulante en las últimas cuatro aplicaciones consecutivas (por ejemplo, combinando el puntaje obtenido en la aplicación de invierno de un año con el de la regular del año posterior)3.
@@ -99,7 +139,20 @@ El puntaje NEM representa la conversión lineal del promedio ponderado de las ca
 - Un promedio intermedio de 5,0 se traduce en 415 puntos NEM27.
 - Un promedio destacado de 6,0 se traduce en 713 puntos NEM27.
 - Un promedio máximo de 7,0 alcanza los 1.000 puntos NEM27.
-A partir del proceso de admisión del año 2028, se ha establecido que la nota mínima de egreso escolar requerida para participar en el proceso de admisión regular centralizado equivaldrá a un piso de 458 puntos en la escala unificada26.
+
+> **Procedencia (revisión 2026-07-01).** Estos cuatro pares de la tabla NEM
+> provienen de la guía secundaria de origen y **no** pudieron verificarse contra
+> el material oficial de esta tanda (el Informe Técnico PAES 2025 no incluye la
+> tabla NEM). La fuente oficial son las *Tablas de transformación de NEM* del
+> DEMRE, diferenciadas por modalidad/grupo (A, B, C, D); el cotejo punto por punto
+> queda **pendiente** contra esa página oficial. La existencia de tablas por
+> modalidad está confirmada por el DEMRE.
+
+El requisito de un puntaje promedio mínimo de **458 puntos** (Competencia Lectora
+y M1) para postular, y su vigencia declarada "desde Admisión 2028", provienen
+también de la guía secundaria y **no constan** en los informes oficiales de
+resultados 2023-2025 de esta tanda; requieren cotejo con la resolución/normativa
+del Comité Técnico de Acceso (pendiente).
 ### Ranking de Notas
 El Ranking de Notas es un ponderador diseñado para valorar el rendimiento académico del postulante en relación con su entorno socioeducativo inmediato de origen, eliminando el sesgo asociado a la disparidad de calificaciones promedio entre distintos colegios6.
 La metodología evalúa los promedios de notas del postulante en cada uno de los cuatro años de enseñanza media (R1, R2, R3 y R4) y los contrasta individualmente con su respectiva Población de Referencia6. Esta población de referencia se constituye por el rendimiento de los alumnos de las tres generaciones inmediatamente anteriores que cursaron ese mismo nivel educativo en el establecimiento6. El promedio de estos cuatro análisis determina el Ranking final del postulante6.
@@ -124,6 +177,27 @@ b = 1.000 - m × M_med
 ```
 
 Este modelo garantiza que el estudiante que destaque por encima del promedio histórico de su colegio reciba una bonificación que eleva su puntaje Ranking por sobre su puntaje NEM puro27. Por el contrario, si el promedio del alumno se ubica por debajo de la media histórica de su entorno de referencia, el Ranking simplemente se iguala a su puntaje NEM, impidiendo cualquier perjuicio en el cálculo ponderado del estudiante18.
+
+> **Verificación oficial y precisiones (revisión 2026-07-01).** La metodología
+> anterior proviene de la guía secundaria; se **confirmó su estructura** contra la
+> página oficial DEMRE *Puntaje Ranking*: se calculan cuatro rankings (R1..R4, uno
+> por cada nivel de EM) que se promedian; cada Rk compara el promedio del alumno
+> en ese nivel con el `PROM` (promedio) y el `MAX` (máximo) de las notas de las
+> **tres generaciones anteriores** del mismo nivel y establecimiento, llevados a la
+> escala 100-1.000. **Precisión nueva:** si un establecimiento tiene **menos de 30
+> egresados** en las últimas tres generaciones, se **agrupa** con establecimientos
+> similares y el conjunto se trata como uno solo para asignar el puntaje. (El
+> estudio "Efecto Ranking" 2014 aportado es era-PSU y no formaliza el cálculo;
+> reporta correlación Ranking–NEM de 0,9788, consistente con el tramo "Ranking =
+> NEM".) La fórmula lineal exacta de pendiente/intercepto no consta en el material
+> oficial de esta tanda; queda pendiente de cotejo fino con DEMRE.
+>
+> **Cambio próximo — "Nuevo Ranking" (Admisión 2028).** El DEMRE anunció un cambio
+> de metodología: el Nuevo Ranking **dejará de operar como bono sobre el NEM** y
+> pasará a ser un puntaje que considera **solo la posición relativa** del
+> estudiante en su contexto educativo, de modo que dos personas en la misma
+> posición relativa —aunque provengan de colegios distintos— obtendrán el mismo
+> Puntaje Ranking. (Fuente: DEMRE, *Nuevo Ranking* / entrevista 2025-08-22.)
 ## Proceso de Postulación y Filtros de Admisión
 Para calificar para la postulación centralizada a las universidades del Sistema de Acceso, los postulantes deben cumplir con requisitos mínimos obligatorios fijados por el Mineduc y el DEMRE1.
 ### Requisitos Mínimos de Postulación
@@ -163,7 +237,7 @@ La organización anual de la PAES considera dos rendiciones diferenciadas en té
 La PAES Regular se aplica masivamente a fines de noviembre o principios de diciembre de cada año2. Está dirigida de manera preferente a los alumnos rezagados de promociones anteriores y a toda la cohorte que se encuentra cursando su último año de educación media (4° medio)2.
 El proceso oficial de inscripción digital se extiende regularmente entre el 1 de junio y el 22 de julio del año en curso3. No se contemplan períodos de inscripción adicionales o extraordinarios bajo ninguna circunstancia1. Los alumnos regulares de 4° medio que estudien en colegios con financiamiento estatal están exentos del pago del arancel de rendición gracias a la asignación de la Beca PAES34.
 ### Aplicación de Invierno (Mitad de Año)
-La PAES de Invierno se aplica a mediados del mes de junio y está dirigida exclusivamente a personas egresadas que ya cuenten con su Licencia de Enseñanza Media y deseen rendir pruebas puntuales para mejorar sus puntajes históricos2. A diferencia de la aplicación regular, esta instancia tiene un cupo nacional limitado fijado en 50.000 inscritos22.
+La PAES de Invierno se aplica a mediados del mes de junio y está dirigida exclusivamente a personas egresadas que ya cuenten con su Licencia de Enseñanza Media y deseen rendir pruebas puntuales para mejorar sus puntajes históricos2. A diferencia de la aplicación regular, esta instancia tiene un cupo nacional limitado fijado en 50.000 inscritos22. **Precisión oficial (2026-07-01):** los informes de resultados confirman los 50.000 cupos los tres años, pero se trata de un **techo que nunca se ha llenado** (inscritos reales: PDT-invierno 2023 ≈ 33.379; PAES-invierno 2024 ≈ 30.064; PAES-invierno 2025 ≈ 31.067). Además, **en invierno NO se realiza selección**: la aplicación solo alimenta los puntajes vigentes que se usarán en la postulación regular de fin de año.
 El período de inscripción se restringe a una ventana corta de tiempo en el mes de marzo (del 4 al 17 de marzo), cerrándose de inmediato si se agotan las vacantes asignadas antes del plazo límite22. Los inscritos en la versión de invierno no son elegibles para la beca de gratuidad estatal y deben costear el arancel correspondiente según el número de pruebas registradas22.
 ### Diferencias en el Contenido Evaluado
 A partir del proceso de admisión de 2026, el temario de evaluación en el área matemática presenta variaciones de cobertura de contenidos según la época del año34:
@@ -182,9 +256,13 @@ Los estudiantes que cumplen con estas condiciones están exentos del pago del ar
 Esta iniciativa especial, implementada en 44 universidades adscritas al Sistema de Acceso, busca disminuir las brechas de género en las áreas de Ciencia, Tecnología, Ingeniería y Matemáticas (STEM) mediante la asignación de vacantes adicionales exclusivas para mujeres40.
 Los requisitos exigen estar legalmente registrada como mujer ante el Servicio de Registro Civil (o sexo femenino al solicitar el IPE), rendir las pruebas PAES obligatorias y específicas demandadas por la carrera, y cumplir con los puntajes de postulación mínimos43. Las postulantes interesadas participan de esta asignación a través de su postulación regular centralizada de hasta 20 carreras de interés, seleccionándose los cupos de forma paralela y descendente de acuerdo con su puntaje ponderado tradicional hasta completar las vacantes adicionales disponibles por carrera7.
 ### Habilitación para Carreras de Pedagogía
-El ingreso centralizado a carreras de Pedagogía está normado por estándares específicos orientados a asegurar la calidad docente en el sistema escolar45. Los estudiantes deben satisfacer obligatoriamente al menos uno de los siguientes filtros de habilitación académica45:
-- Puntaje PAES: Obtener un puntaje promedio entre las dos pruebas obligatorias (Competencia Lectora y M1) que posicione al postulante en el percentil 50 o superior de la distribución nacional de resultados (equivalente a un piso de 567,5 puntos en el proceso reciente)45.
-- Ranking de Notas: Estar posicionado dentro del 20% o 30% superior de rendimiento de enseñanza media (NEM) del respectivo establecimiento de origen45.
+El ingreso centralizado a carreras de Pedagogía está normado por la **Ley N° 21.490** (publicada el 20-10-2022), que modifica el art. 27 bis de la Ley N° 20.129 y el art. trigésimo sexto transitorio de la Ley N° 20.903. **Corrección (revisión oficial 2026-07-01):** la versión anterior describía "percentil 50 o superior (piso 567,5)" como vía autónoma, lo cual es **inexacto**. La ley establece que el/la estudiante debe cumplir al menos uno de estos requisitos alternativos:
+- **Vía puntaje (autónoma):** ubicarse en el **percentil 60 o superior** en el promedio de las dos pruebas obligatorias (Competencia Lectora y M1).
+- **Vía notas (autónoma):** promedio de notas de EM dentro del **20% superior** del establecimiento.
+- **Vía combinada:** notas dentro del **40% superior** del establecimiento *más* PAES en **percentil 50 o superior**.
+- **Vía preparación / discapacidad:** haber aprobado un Programa de Acceso a Pedagogías (PAP) o de Atracción de Talento; o, para personas inscritas en el Registro Nacional de la Discapacidad (RND) que aprueben un programa de preparación, **sin necesidad de rendir la PAES** (art. 27 bis lit. b, ordinal v).
+
+> **Cortes vigentes (DEMRE, Admisión 2026/2027, complemento web):** el percentil se traduce cada año a puntaje. Para Admisión 2026, la vía puntaje se satisface con **567,5 puntos** promedio (percentil 37, requisito de menor exigencia transitoria) y la vía combinada requiere **603 puntos** promedio (percentil 50) + notas en el 40% superior. Los pisos exactos cambian por proceso; consultar la página oficial DEMRE *Requisitos de postulación a Pedagogía*.
 - Programa de Preparación Docente: Haber completado y aprobado con éxito un Programa de Acceso a Pedagogías (PAP) o un Programa de Atracción de Talento Pedagógico validado por el Mineduc y rendir las pruebas de selección de manera regular45.
 - Inclusión por Discapacidad: Estar oficialmente inscrito en el Registro Nacional de Discapacidad (RND), haber completado con éxito un programa de preparación PAP y contar con puntajes vigentes, quedando en estos casos exento del requisito de rendir las pruebas si se postula por vías de admisión directa de las universidades45.
 ### Distinciones a las Trayectorias Educativas (DTE)
@@ -194,6 +272,65 @@ Las Distinciones a las Trayectorias Educativas (DTE) sustituyen de manera defini
 - Pueblos Originarios: Reconoce a las personas pertenecientes a pueblos indígenas, con acreditación vigente de Conadi, que alcancen los máximos puntajes en los exámenes obligatorios50.
 - Modalidad de Enseñanza: Distingue a los alumnos que registren un puntaje de ranking perfecto de 1.000 puntos y el promedio más alto en las pruebas obligatorias, diferenciando según procedan de establecimientos Científico-Humanistas o Técnico-Profesionales49.
 Los estudiantes que obtengan una distinción DTE y que procedan de colegios de administración municipal, subvencionada o SLEP, pertenecientes al 80% más vulnerable de la población según el Registro Social de Hogares (RSH), acceden de forma automática al beneficio económico de la Beca DTE41. Este subsidio estatal financia un monto anual de hasta $1.150.000 CLP de la brecha del arancel real de la carrera en la institución donde se matriculen41.
+## Niveles de Desempeño (nuevo, revisión 2026-07-01)
+
+Los **niveles de desempeño** son descripciones oficiales del DEMRE (elaboradas en el
+marco del Proyecto FONDEF ID22I100228 "Admisión universitaria más allá de la
+selección") de lo que típicamente saben y son capaces de hacer los y las estudiantes
+según su puntaje en cada prueba. Sirven para interpretar el puntaje en términos del
+nivel de dominio de la competencia, más allá del número. El DEMRE publica **cortes de
+puntaje oficiales para las dos pruebas obligatorias** (Competencia Lectora y
+Matemática 1). Los niveles de M2, Ciencias e Historia, si existen, deberán
+incorporarse desde sus páginas DEMRE respectivas (**no** disponibles en este material;
+no se inventan). Fuentes: páginas oficiales DEMRE de Competencia Lectora y M1.
+
+### Competencia Lectora (CL) — cortes en la escala PAES
+
+| Nivel | Corte (Puntaje PAES) | Qué sabe hacer (síntesis) |
+|---|---|---|
+| **CL3** | 804 – 1000 | Integra y valora información explícita e implícita de distintas partes del texto y la usa de forma **flexible**; interpreta usos no convencionales y sentido figurado no familiar; evalúa propósito y pertinencia aun cuando se aleja de lo esperable para el género. |
+| **CL2** | 654 – 803 | Como CL3 pero sin el uso "flexible" ni el mayor nivel de abstracción; localiza información que compite; interpreta sentido figurado familiar y no familiar; evalúa con claves explícitas e implícitas. |
+| **CL1B** | 535 – 653 | Localiza información que **no** compite; interpreta ideas principales de fácil acceso y sentido figurado familiar; evalúa propósito y pertinencia con claves explícitas ligadas al género. |
+| **CL1A** | 382 – 534 | Versión más acotada de CL1B: localiza información expresada con las mismas palabras; interpreta elementos convencionales e ideas muy destacadas. |
+| **CL0** | 100 – 381 | Aún no ha desarrollado las habilidades descritas en CL1A. |
+
+### Competencia Matemática 1 (M1) — cortes en la escala PAES
+
+| Nivel | Corte (Puntaje PAES) | Qué sabe hacer (síntesis) |
+|---|---|---|
+| **CM3** | 792 – 1000 | Razonamiento matemático **flexible y reflexivo**; situaciones rutinarias y **no rutinarias**; infiere información no explícita; identifica/ajusta modelos con uno o más parámetros; evalúa validez de argumentos e identifica errores. |
+| **CM2** | 658 – 791 | Procedimientos directos y algunos complejos; rutinarias y **algunas** no rutinarias con información explícita; modelos con a lo más un parámetro. |
+| **CM1B** | 571 – 657 | Razonamiento **básico**, procedimientos directos, conocimientos elementales sin integración; modelos sencillos sin parámetros. |
+| **CM1A** | 460 – 570 | Situaciones rutinarias solo en contextos cotidianos con información explícita; operatoria con racionales positivos y proporcionalidad directa. |
+| **CM0** | 100 – 459 | Aún no ha desarrollado las habilidades descritas en CM1A. |
+
+Los cortes son **contiguos** (CL: 381/382, 534/535, 653/654, 803/804; M1: 459/460,
+570/571, 657/658, 791/792): transcribir exactos, no redondear.
+
+## Cuestionario de Caracterización de la Experiencia Académica (CCEA) (nuevo)
+
+Autoeficacia Académica y Autorregulación del Aprendizaje **no son pruebas PAES**, sino
+dos de las tres escalas del **Cuestionario de Caracterización de la Experiencia
+Académica (CCEA)** del DEMRE (la tercera es *Motivación para las tareas académicas*).
+El CCEA describe el **perfil de ingreso** de quienes comienzan la Educación Superior,
+para que las universidades diseñen estrategias de transición. Sus niveles se basan en
+**escalas Likert de 4 categorías y NO tienen cortes de puntaje** en la escala
+100-1.000. **Conecta con los Archivos K/L (CCEA) del proyecto** (`cuestionarios_caracterizacion/`).
+
+- **Autoeficacia Académica** — percepción sobre la propia capacidad de realizar tareas
+  académicas y lograr aprendizajes/resultados. Escala: *Nada capaz / Poco capaz /
+  Bastante capaz / Muy capaz*. **Cuatro niveles** (con dos subniveles en el Nivel 2),
+  de menor a mayor confianza; el Nivel 4 = confianza alta sostenida incluso ante las
+  tareas más difíciles.
+- **Autorregulación del Aprendizaje** — conductas autónomas e intencionales para
+  propiciar el propio aprendizaje, en un ciclo de tres fases (Planificación;
+  Desempeño y monitoreo; Evaluación). Escala: *Nunca / Pocas veces / Frecuentemente /
+  Siempre*. **Tres niveles** (con dos subniveles en el Nivel 3), de mayor mediación
+  externa a mayor autonomía y consistencia.
+
+Fuentes: páginas DEMRE de niveles de desempeño de Autoeficacia Académica y
+Autorregulación del Aprendizaje (Proyecto FONDEF ID22I100228).
+
 ## Conclusiones e Implicancias de Política Educativa
 La implementación de la Prueba de Acceso a la Educación Superior (PAES) consolida un cambio de paradigma en la administración del sistema de selección chileno1. En el ámbito técnico de la psicometría, la adopción de la Teoría de Respuesta al Ítem (IRT) y la reformulación de la escala de puntajes a un rango de 100 a 1.000 puntos solucionaron problemas históricos de comparabilidad interanual de resultados, habilitando una postulación flexible para los estudiantes1. En el aspecto social de equidad, la división metodológica en exámenes específicos de matemática (M1 y M2) evitó penalizar a sectores vulnerables por falta de cobertura curricular, mientras que la ampliación de programas especiales (como PACE y los cupos de género +MC) y el reconocimiento contextualizado mediante las distinciones DTE facilitan el acceso universitario de grupos tradicionalmente excluidos4. El sistema actual equilibra la medición rigurosa de competencias aplicadas con los principios de equidad e inclusión educativa4.
 
@@ -206,6 +343,20 @@ Para cada proceso de admisión (por ejemplo, Admisión 2024, 2025, etc.), la inf
 - Archivo B - Base de Inscritos/as: Contiene la información demográfica, socioeconómica y de origen escolar de todas las personas que se registraron para rendir las pruebas en ese proceso, independientemente de si asistieron o no.DEMRE
 - Archivo C - Base de Rendición y Resultados: Contiene los puntajes obtenidos en cada una de las pruebas rendidas (Competencia Lectora, Competencia Matemática 1, Competencia Matemática 2, Ciencias, Historia y Ciencias Sociales), además de los antecedentes escolares de rendimiento, como el promedio de notas de enseñanza media (NEM) y el puntaje Ranking.
 - Base de Postulaciones y Seleccionados (en procesos consolidados): Muestra las preferencias de carreras que marcaron los estudiantes en el sistema centralizado, el orden de sus opciones, los puntajes ponderados calculados para cada carrera y, finalmente, el resultado del proceso (si quedó Seleccionado, en Lista de Espera o No Seleccionado).
+
+> **Precisión oficial (2026-07-01, *Guía de uso de datos abiertos del DEMRE*).** El
+> portal (disponible desde 2024, con datos desde 2004) publica **cuatro** bases con
+> rótulos oficiales: **Archivo B** (Inscritos), **Archivo C** (Rendición y
+> resultados), **Archivo D** (Postulación: preferencias + puntajes ponderados) y
+> **Base de Matrícula** (`ArchivoMatr`: matrícula universitaria efectiva). Los
+> puntajes de las bases incluyen los **últimos dos procesos** de admisión, con
+> nomenclatura `[PRUEBA]_REG_ACTUAL`, `_INV_ACTUAL`, `_REG_ANTERIOR`,
+> `_INV_ANTERIOR` (dos procesos × regular/invierno = hasta 4 puntajes por prueba;
+> esto homologa la redacción, antes inconsistente, de "últimas dos rendiciones" /
+> "cuatro aplicaciones"). **Ojo:** en el código de ejemplo de la Guía la variable
+> `GRUPO_DEPENDENCIA` usa un mapeo distinto (3 y 4 = Municipal, 2 = Part. subv., 1 =
+> Part. pagado) al de `COD_DEPE` (1 = Municipal … 5 = SLEP): son variables
+> distintas, no confundir.
 ### 2. ¿Qué variables tienen? (Campos principales)
 Para permitir el cruce de los archivos (por ejemplo, unir los datos socioeconómicos del Archivo B con los puntajes del Archivo C), el DEMRE incluye una variable clave de unión (Llave Primaria):
 - ID_aux (o ID / Correlativo): Es un identificador numérico anonimizado y único para cada postulante. Reemplaza al RUN para proteger la identidad.DEMRE
@@ -225,7 +376,7 @@ A grandes rasgos, las variables se agrupan en las siguientes categorías:
 - PROM_NOTAS: Promedio de notas de la Enseñanza Media (NEM) con decimales.
 - PTJE_NEM: Puntaje asociado al promedio de notas según la tabla de conversión vigente para ese proceso.
 - PTJE_RANKING: Puntaje Ranking del estudiante, calculado según su contexto educativo.
-- Puntajes por Prueba (CLEC, CMAT1, CMAT2, CCIE, CHIS): Columnas específicas para cada examen rindiendo. En las bases actuales de la PAES, estos puntajes vienen en la escala nueva (de 100 a 1.000 puntos). Si el postulante se ausentó o no inscribió la prueba, el campo suele aparecer vacío (NULL) o con códigos específicos de ausencia.
+- Puntajes por Prueba (CLEC, CMAT1, CMAT2, CCIE, CHIS): Columnas específicas para cada examen rindiendo. En las bases actuales de la PAES, estos puntajes vienen en la escala nueva (de 100 a 1.000 puntos). Si el postulante no tiene puntaje en una prueba (ausencia o no inscripción), el campo se registra como **`0`** en las bases (así lo define la *Guía de uso de datos abiertos del DEMRE*, no como `NULL`; corrección 2026-07-01). Una persona "**rinde**" en el proceso si tiene puntaje entre 100 y 1.000 en al menos una prueba.
 #### D. Variables de Postulación y Selección
 - PREFERENCIA: El orden (1 al 20, según el proceso) en que el estudiante situó una carrera.
 - COD_CARRERA: Código único de la carrera universitaria en el sistema centralizado.
@@ -348,7 +499,7 @@ Cuando descargues estos archivos .rar históricos, notarás que las columnas tie
 
 | Nombre Oficial de la Prueba | Tipo de Examen | Cantidad de Preguntas | Tiempo de Duración | Ejes Evaluados y Características Principales |
 | Prueba Obligatoria de Competencia Lectora | Obligatorio2 | 651 | 2 h 30 min1 | Comprensión, interpretación y evaluación crítica de diversos tipos de textos literarios y no literarios1. |
-| Prueba Obligatoria de Competencia Matemática 1 (M1) | Obligatorio2 | 651 | 2 h 20 min1 | Medición de habilidades generales de resolución de problemas, modelación, representación y argumentación en Números, Álgebra, Geometría y Datos (de 7° básico a 2° medio)12. |
+| Prueba Obligatoria de Competencia Matemática 1 (M1) | Obligatorio2 | 651 | 2 h 20 min1 | Medición de habilidades generales de resolución de problemas, modelación, representación y argumentación en los ejes **Números; Álgebra y Funciones; Geometría; y Probabilidad y Estadística** (plan de formación general de 7° básico a 2° medio; nomenclatura oficial DEMRE, corregida en la revisión 2026-07-01)12. |
 | Prueba de Competencia Matemática 2 (M2) | Específico / Requerido2 | 551 | 2 h 20 min1 | Evaluación intensiva de las mismas destrezas de M1, agregando contenidos avanzados (como logaritmos, trigonometría, combinatoria y probabilidad condicional de 3° y 4° medio)2. |
 | Prueba Electiva de Ciencias | Electivo2 | 801 | 2 h 40 min1 | Consta de un módulo común de 54 preguntas y un módulo electivo de 26 preguntas a elección del postulante entre Biología, Física o Química. Hay una versión Técnico-Profesional (TP)1. |
 | Prueba Electiva de Historia y Ciencias Sociales | Electivo2 | 651 | 2 h 00 min1 | Evalúa habilidades de análisis temporal, espacial y pensamiento crítico en los ejes de Historia, Formación Ciudadana y Economía12. |
