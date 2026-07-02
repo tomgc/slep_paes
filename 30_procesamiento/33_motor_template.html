@@ -42,9 +42,15 @@ var h = React.createElement;
 var M = DATA.meta;
 
 // ==== Indices de acceso O(1) (solo agregados) ===============================
-var COV = {}; // tipo|cod|anio|etapa -> {n, sup}
+// nsel/np1/pct1: KPI de prioridad de carrera seleccionada -- SOLO existe en
+// filas etapa=="seleccion" (null en las otras 5); null tambien cuando esa
+// fila esta suprimida (32_agregar_territorial.R ya enmascara ambos a NA).
+var COV = {}; // tipo|cod|anio|etapa -> {n, sup, nsel, np1, pct1}
 (function(){ var c=DATA.cobertura; for(var i=0;i<c.rows;i++){
-  COV[c.tipo_entidad[i]+"|"+c.cod_entidad[i]+"|"+c.anio_proceso[i]+"|"+c.etapa[i]]={n:c.n[i],sup:c.suprimida[i]};
+  COV[c.tipo_entidad[i]+"|"+c.cod_entidad[i]+"|"+c.anio_proceso[i]+"|"+c.etapa[i]]={
+    n:c.n[i], sup:c.suprimida[i],
+    nsel:c.n_seleccionados[i], np1:c.n_prioridad_1[i], pct1:c.pct_prioridad_1[i]
+  };
 }})();
 var REN = {}; // tipo|cod|anio|prueba -> {n, media, sup}
 (function(){ var r=DATA.rendimiento; for(var i=0;i<r.rows;i++){
@@ -81,6 +87,8 @@ function renGet(id, anio, prueba){ var p=terrParse(id); return REN[p.tipo+"|"+p.
 function fmt(n){ if(n==null||isNaN(n)) return "—"; return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,"."); }
 function fmtPct(x){ if(x==null||isNaN(x)) return "—"; return (x<100? x.toFixed(1).replace(".",",") : "100")+"%"; }
 function fmtMean(x){ if(x==null||isNaN(x)) return "—"; return String(Math.round(x)); }
+// KPI de prioridad: "62% (n=358)" -- formato pedido para la card standalone.
+function fmtPrioridad(pct,n){ if(pct==null||n==null||isNaN(pct)) return null; return Math.round(pct)+"% (n="+fmt(n)+")"; }
 var SUP_TXT = "sin dato (resguardo estadístico)"; // copy del patron hermano (idps)
 var SUP_SHORT = "resguardo";
 var ETAPAS = M.etapas, PRUEBAS = M.pruebas, CONTEXTO = M.contexto;
@@ -321,10 +329,27 @@ function retencionComunas(ctx){
           h("div",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginTop:"4px"}}, (base&&sel!=null)? ("seleccionados "+(sel/base*100).toFixed(0)+"% · "+fmt(sel)+" de "+fmt(base)) : SUP_SHORT));
       }))]);
 }
+// KPI: prioridad de la carrera seleccionada (Camino B). Solo existe en la
+// fila etapa=="seleccion" (32_agregar_territorial.R); nunca se fabrica para
+// otras etapas. Supresion: reusa el MISMO flag `sup` de esa fila de
+// "seleccion" (32 ya enmascara n_prioridad_1/pct_prioridad_1 a NA cuando
+// n_seleccionados < 8) -- no se inventa un umbral separado.
+function prioridadKpiCard(ctx){
+  var acc=ctx.acc, id=ctx.state.terrSel;
+  var g=covGet(id, M.anio_actual, "seleccion");
+  var suprimido = !g || g.sup || g.pct1==null;
+  return card({},[cardTitle("Prioridad de la carrera seleccionada", terrName(id)+" · % de seleccionados en su 1.ª preferencia · admisión "+M.anio_actual),
+    suprimido
+      ? h("div",{style:{height:"48px",display:"flex",alignItems:"center",paddingLeft:"4px",background:"#E7E1D2",borderRadius:"4px",fontSize:"var(--fs-caption)",color:"var(--slate)"}}, SUP_TXT)
+      : h("div",{style:{display:"flex",alignItems:"baseline",gap:"10px",flexWrap:"wrap"}},
+          h("span",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"var(--fs-h2)",color:acc,lineHeight:1}}, fmtPrioridad(g.pct1, g.np1)),
+          h("span",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)"}}, "de "+fmt(g.nsel)+" seleccionados"))]);
+}
 function CobActual(ctx){
   var acc=ctx.acc, id=ctx.state.terrSel;
   var stages=funnelStages(id, M.anio_actual);
   var out=[ card({},[cardTitle("Embudo de participación", terrName(id)+" · admisión "+M.anio_actual), funnelSvg(stages,acc)]),
+            h("div",{key:"kpiprio",style:{marginTop:"14px"}}, prioridadKpiCard(ctx)),
             h("div",{key:"rz",style:{marginTop:"14px"}}, genAntSlab(ctx)) ];
   var ret=retencionComunas(ctx);
   if(ret) out.push(h("div",{key:"ret",style:{marginTop:"14px"}}, ret));
@@ -391,12 +416,19 @@ function supCell(key,leftBorder){ return h("td",{key:key,style:{padding:"9px 9px
 function CobComp(ctx){
   var acc=ctx.acc, ids=ctx.state.compSel, anio=M.anio_actual;
   var keys=["inscripcion","rendicion","resultados","postulacion","seleccion"];
-  var heads=["Territorio","Egresados","Inscritos","Rindió","Válidos","Postuló","Seleccionado"];
+  var heads=["Territorio","Egresados","Inscritos","Rindió","Válidos","Postuló","Seleccionado","Prioridad 1"];
   var ranges={}; keys.forEach(function(k){ var vs=[];
     ids.forEach(function(id){ var eg=covGet(id,anio,"egresados"), st=covGet(id,anio,k);
       if(eg&&!eg.sup&&eg.n&&st&&!st.sup) vs.push(st.n/eg.n*100); });
     ranges[k]=vs.length?[Math.min.apply(null,vs),Math.max.apply(null,vs)]:[0,1]; });
   function norm(k,pct){ var r=ranges[k]; return r[1]>r[0]?(pct-r[0])/(r[1]-r[0]):0.5; }
+  // Prioridad 1 no es "% de egresados" como las 5 columnas de arriba -- es
+  // "% de seleccionados" (pct_prioridad_1, ya viene calculado en 32_); su
+  // heatmap se normaliza sobre ese pct directo, con su propio rango.
+  var rangoP1=(function(){ var vs=[]; ids.forEach(function(id){ var g=covGet(id,anio,"seleccion");
+      if(g&&!g.sup&&g.pct1!=null) vs.push(g.pct1); });
+    return vs.length?[Math.min.apply(null,vs),Math.max.apply(null,vs)]:[0,1]; })();
+  function normP1(pct){ var r=rangoP1; return r[1]>r[0]?(pct-r[0])/(r[1]-r[0]):0.5; }
   var th=heads.map(function(t,i){ return h("th",{key:i,style:{textAlign:i===0?"right":"center",padding:"8px 9px",fontFamily:"var(--font-b)",fontWeight:700,fontSize:"var(--fs-overline)",color:"var(--slate)",borderBottom:"2px solid "+acc,whiteSpace:"nowrap"}},t); });
   var rows=ids.map(function(id,idx){ var eg=covGet(id,anio,"egresados");
     var egCell=h("td",{style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink2)"}}, (eg&&!eg.sup)?fmt(eg.n):SUP_SHORT);
@@ -406,10 +438,15 @@ function CobComp(ctx){
       return h("td",{key:k,style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",background:heatColor(norm(k,pct))}},
         h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink)"}},Math.round(pct)+"%"),
         h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--ink2)"}}," ("+fmt(st.n)+")")); });
-    return h("tr",{key:id}, nameCell(id,idx), egCell, cells); });
+    var gSel=covGet(id,anio,"seleccion");
+    var p1Cell = (!gSel||gSel.sup||gSel.pct1==null) ? supCell("prioridad1",false)
+      : h("td",{key:"prioridad1",style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",background:heatColor(normP1(gSel.pct1))}},
+          h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink)"}},Math.round(gSel.pct1)+"%"),
+          h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--ink2)"}}," ("+fmt(gSel.np1)+")"));
+    return h("tr",{key:id}, nameCell(id,idx), egCell, cells, p1Cell); });
   return card({},[
     h("div",{key:"lg",style:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px",flexWrap:"wrap",fontSize:"var(--fs-caption)",color:"var(--slate)"}},
-      h("span",{},"Cada celda: % de egresados (n). Heatmap por columna: menor proporción = más alerta."),
+      h("span",{},"Cada celda: % de egresados (n), salvo Prioridad 1: % de seleccionados en su 1.ª preferencia (n). Heatmap por columna: menor proporción = más alerta."),
       heatLegend("menor % (más alerta)"),
       h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"22px",height:"14px",borderRadius:"3px",background:"#E7E1D2",display:"inline-block"}}),SUP_TXT)),
     h("div",{key:"w",style:{overflowX:"auto"}}, h("table",{style:{width:"100%",minWidth:"760px"}}, h("thead",{},h("tr",{},th)), h("tbody",{},rows)))]);
