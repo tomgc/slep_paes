@@ -82,10 +82,12 @@ catalogos (real), `33` genera un motor-esqueleto autocontenido (sin CDN) con
 el doble foco. Pendiente: validacion visual de la paleta; primer push.
 
 **Sesion 2:** `31_leer_normalizar.R` y `32_agregar_territorial.R` implementados
-y verificados contra las bases reales (ver Ultimos cambios). `run_all()` corre
-30->31->32 end-to-end sobre datos reales. Pendiente: `33_generar_html.R`
-todavia sirve el motor-esqueleto de sesion 1 (no consume los parquets
-territoriales de 32 aun).
+y verificados contra las bases reales (ver Ultimos cambios).
+
+**Sesion 4:** `33_generar_html.R` + `33_motor_template.html` recrean el motor
+final (Camino A) consumiendo los parquets territoriales de 32. `run_all()`
+corre 30->31->32->33 end-to-end sobre datos reales y produce
+`docs/index.html`. Pendiente: primer push; validacion visual del titular.
 
 ## Pipeline
 
@@ -110,13 +112,43 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
   postulacion -> seleccion(estado_pref 24/26); ArchivoD/Matr sin `rbd` propio,
   ver decision 20260701) y rendimiento (puntaje por prueba/tipo_rendicion/
   vigencia + NEM/Ranking, media enmascarada si la celda se suprime).
-- `33_generar_html.R` (+ `33_motor_template.html`) — motor HTML autocontenido,
-  TODO CHILE, navegacion territorial, doble foco. Salida `40_salidas/motor_paes.html`
-  (= `docs/index.html` para Pages).
+- `33_generar_html.R` (+ `33_motor_template.html`) — motor HTML autocontenido
+  (FUNCIONAL, Camino A): recrea el diseno hi-fi del handoff adaptado al contrato
+  real de 32 (SOLO agregados; sin microdato; sin nivel establecimiento,
+  POLITICA 6.4; media en vez de mediana; embudo de 6 etapas). React/ReactDOM/D3/
+  pako locales + fuentes gobCL/Museo Sans embebidas base64 + JSON columnar
+  gzip+base64 (sin CDN). Doble foco x vista (por territorio / comparar hasta 10)
+  x periodo (actual/historica) + toggle de generaciones anteriores + modal de
+  seleccion territorial (nacional->region->SLEP->comuna) + exportadores SVG/XLSX
+  sin librerias. Salida `40_salidas/motor_paes.html` (= `docs/index.html` para Pages).
 
 ## Ultimos cambios
 
-1. **Sesion 3 — `32_agregar_territorial.R` implementado.** Decision delegada
+1. **Sesion 4 — motor `33` recreado con datos reales (Camino A).** Tras la
+   detencion de la sesion anterior (el prototipo del handoff asumia un contrato
+   que 32 no produce: 7 etapas con matricula, KPIs de prioridad, nivel
+   establecimiento, strip plots por alumno + tooltip con dependencia = microdato
+   reidentificable, mediana/sd, split rec/ant cruzado), el titular resolvio 4
+   decisiones y confirmo Camino A. `33_generar_html.R` + `33_motor_template.html`
+   recrean el diseno hi-fi del handoff (tokens/chrome/comportamiento) adaptado al
+   agregado real: SOLO agregados (nacional/region/SLEP/comuna + generaciones
+   anteriores), sin microdato, sin nivel establecimiento (POLITICA 6.4), media
+   (no mediana), embudo de 6 etapas (sin matricula), toggle de generaciones
+   anteriores (bucket `rezagados`), comparar hasta 10 territorios (default 4
+   comunas de Costa Central, ampliable a SLEP/region/nacional). React/ReactDOM/
+   D3/pako locales + fuentes gobCL/Museo Sans embebidas base64 + JSON columnar
+   gzip+base64 (136 KB), 0 CDN. Modal de seleccion territorial con busqueda;
+   exportadores SVG y XLSX sin librerias (XLSX valido, abre en `readxl`). Copy de
+   resguardo del patron hermano (`sin dato (resguardo estadistico)`), modelo
+   Rasch en notas. `anio_actual`=2025 (ultimo con denominador de egresados; 2026
+   no trae egresados). Fixes durante verificacion: paren faltante en el modal;
+   hook `useState` movido fuera de `Modal` (violaba rules-of-hooks al render
+   condicional -> React #310); marcado UTF-8 recursivo de literales `.R` (locale
+   C corrompia acentos/ñ via `enc2utf8`). Verificado: `run_all()` completo sin
+   abortar; 6 combinaciones Foco×Vista×Periodo sin error de consola; panel
+   adversarial recalculo 15 cifras (todas MATCH) contra los parquets por codigo
+   independiente. Log: `andamios/logs/20260702_motor_33_datos_reales_log.md`.
+2. **Sesion 3 — `32_agregar_territorial.R` implementado.** Decision delegada
    documentada en `decisiones/20260701_decision_territorializacion_d_matr.md`:
    ArchivoD (postulacion/seleccion) se territorializa via join por
    `(id_aux, anio_proceso)` contra `paes_inscripcion` (verificado: 100% de las
@@ -148,7 +180,7 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    `egresados` vs. `inscripcion` NO es monotonico por diseño (poblaciones
    distintas: egresados = cohorte de ESE año; inscripcion incluye rezagados de
    años previos) — esperado, no defecto.
-2. **Sesion 2 — `31_leer_normalizar.R` implementado (Fase B).** Diagnostico
+3. **Sesion 2 — `31_leer_normalizar.R` implementado (Fase B).** Diagnostico
    previo en `decisiones/20260701_decision_schema_31_leer_normalizar.md`
    (mapeo wide->long de ArchivoD 2023 + esquema LONG para ArchivoC),
    aprobado por el titular con dos resoluciones: `SITUACION_POSTULANTE[_BEA|
@@ -171,13 +203,13 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    causas de negocio conocidas — rezagados sin RBD vigente, preferencias
    rechazadas sin ponderado — no a fallas de parsing). `32_agregar_
    territorial.R` sigue como stub.
-3. **Sesion 2 — `31_leer_normalizar.R`: limpieza MODULO_*.** Las columnas
+4. **Sesion 2 — `31_leer_normalizar.R`: limpieza MODULO_*.** Las columnas
    crudas `modulo_{reg,inv}_{actual,anterior}` quedaban replicadas sin
    pivotear en `paes_rendicion_resultados.parquet` (redundantes con
    `modulo_ciencias`, ya derivada). Se excluyen del `df` base antes del pivot
    de puntajes. Verificado: parquet regenerado con 4.845.570 filas (sin
    cambio) y 22 columnas (antes 26); `modulo_ciencias` intacta.
-4. **Sesion 1 (Fase A) — migracion Rama A -> B (codigo).** Diagnostico de las
+5. **Sesion 1 (Fase A) — migracion Rama A -> B (codigo).** Diagnostico de las
    bases reales: microdato por persona (~953 MB) con PII (`MRUN`/`MRUN_IPE` de NNA
    en egresados 2023-2025; `FECHA_NACIMIENTO` en ArchivoB) y `ArchivoD_2023`
    (104 MB) sobre el limite de GitHub. Se migra a DOS RAICES: `10_configuracion.R`
@@ -196,15 +228,3 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    actualizado. PENDIENTE: el titular debe vaciar la copia vieja que quedo en el
    repo (`~/Projects/slep_paes/20_insumos/`, gitignoreada pero con PII en disco);
    diseño de 31 contra el esquema real; egresados 2026.
-5. **Sesion 1 (paso 4) — stubs de ETL y motor.** Cuatro scripts en
-   `30_procesamiento/`: `30_construir_auxiliares.R` (FUNCIONAL: catalogos
-   territoriales desde el directorio publico + listado SLEP; 10.945 EE, 345
-   comunas, Costa Central OK); `31_leer_normalizar.R` y `32_agregar_territorial.R`
-   (stubs con compuerta: se omiten sin abortar si faltan las bases DEMRE; ya traen
-   la logica de embudo, rezagados y supresion de celdas < 8); `33_generar_html.R` +
-   `33_motor_template.html` (motor autocontenido, React/d3/pako LOCALES sin CDN,
-   JSON columnar gzip+base64+pako, navegacion territorial + toggle de doble foco,
-   `PALETA_PAES` como fuente unica; copia a `docs/index.html`). React libs copiadas
-   a `10_utils/`. `run_all()` corre end-to-end (0 refs de red en el motor). Fix:
-   el comentario del template repetia el token `__JSON_DATA__` y `sub()` lo
-   reemplazaba antes que el real; reescrito.
