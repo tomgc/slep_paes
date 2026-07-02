@@ -97,6 +97,42 @@ function activeCohorte(s){ return cohorteActiva(s) ? (s.cohorte||"actual") : "to
 // Sufijo de subtitulo segun cohorte activa ("todas" no agrega sufijo).
 function cohorteSub(coh){ return coh==="actual" ? " · generación actual" : coh==="anterior" ? " · generaciones anteriores" : ""; }
 
+// --- Filtro "desglose por comuna" -------------------------------------------
+// La exclusion de comunas solo es EXACTA cuando el territorio es una REGION: sus
+// comunas la particionan (region == suma de sus comunas, verificado). Un SLEP es
+// un subconjunto TRANSVERSAL de establecimientos (su total != suma de comunas),
+// asi que ahi el desglose es solo informativo (chips no clickeables). nacional
+// no trae desglose (childComunas=[]).
+function filtroComunaActivo(s){ var p=terrParse(s.terrSel); if(p.tipo!=="region") return false;
+  var e=s.comExcl||{}; return Object.keys(e).some(function(k){return e[k];}); }
+function comunaExcluida(s,cod){ return !!(s.comExcl&&s.comExcl[cod]); }
+// Celda de cobertura del territorio seleccionado con exclusion de comunas
+// aplicada (suma de comunas incluidas). Celdas suprimidas se omiten -> el total
+// puede ser parcial. Solo activo en REGION con exclusiones; si no, pasa directo.
+function covSel(ctx, anio, etapa, coh){
+  var s=ctx.state; if(!filtroComunaActivo(s)) return covGet(s.terrSel,anio,etapa,coh);
+  var n=0, nsel=0, np1=0, vistos=0, ocultos=0;
+  childComunas(s.terrSel).forEach(function(cid){ var cp=terrParse(cid); if(comunaExcluida(s,cp.cod)) return;
+    var g=covGet(cid,anio,etapa,coh); if(!g) return;
+    if(g.sup){ ocultos++; return; } vistos++; n+=g.n;
+    if(g.nsel!=null) nsel+=g.nsel; if(g.np1!=null) np1+=g.np1; });
+  if(vistos===0 && ocultos===0) return null;
+  return {n:(vistos?n:null), sup:false, parcial:ocultos>0,
+          nsel:(nsel||null), np1:(np1||null), pct1:(etapa==="seleccion"&&nsel>0)?100*np1/nsel:null};
+}
+// Analogo para rendimiento: media ponderada por n de las comunas incluidas.
+function renSel(ctx, anio, prueba, coh){
+  var s=ctx.state; if(!filtroComunaActivo(s)) return renGet(s.terrSel,anio,prueba,coh);
+  var sw=0, n=0;
+  childComunas(s.terrSel).forEach(function(cid){ var cp=terrParse(cid); if(comunaExcluida(s,cp.cod)) return;
+    var g=renGet(cid,anio,prueba,coh); if(!g||g.sup) return; sw+=g.media*g.n; n+=g.n; });
+  if(n===0) return null; return {n:n, media:sw/n, sup:false};
+}
+// Sufijo de subtitulo cuando hay comunas excluidas (region).
+function filtroSub(s){ if(!filtroComunaActivo(s)) return "";
+  var kids=childComunas(s.terrSel), incl=kids.filter(function(cid){return !comunaExcluida(s,terrParse(cid).cod);}).length;
+  return " · "+incl+" de "+kids.length+" comunas"; }
+
 // ==== Formato =============================================================
 function fmt(n){ if(n==null||isNaN(n)) return "—"; return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,"."); }
 function fmtPct(x){ if(x==null||isNaN(x)) return "—"; return (x<100? x.toFixed(1).replace(".",",") : "100")+"%"; }
@@ -114,6 +150,7 @@ function App(){
     notesOpen:false, hoverExp:null,
     terrSel:"slep:"+CC.slep,
     compSel: CC.comunas.map(function(c){return "comuna:"+c;}),
+    comExcl:{},  // comunas excluidas del agregado (solo aplica a REGION; ver covSel)
     modalOpen:false, modalQuery:"", modalTab:"comuna"
   });
   var state = st[0], setState = st[1];
@@ -229,14 +266,24 @@ function ContextStrip(ctx){
     // desglose por comuna; si el territorio no tiene comunas hijas, no se muestra.
     var kids=childComunas(s.terrSel);
     if(!kids.length) return null;
+    // Filtrable solo en REGION (sus comunas la particionan). En SLEP el desglose
+    // es informativo (chips no clickeables): el total del SLEP es un subconjunto
+    // transversal de establecimientos, no la suma de sus comunas.
+    var esRegion = terrParse(s.terrSel).tipo==="region";
     inner=h("div",{style:{display:"flex",alignItems:"center",gap:"10px",flexWrap:"wrap"}},
-      h("span",{style:{fontSize:"var(--fs-body)",color:"var(--slate)"}},"con desglose por comuna:"),
-      kids.slice(0,12).map(function(cid,i){ var eg=covGet(cid,M.anio_actual,"egresados");
-        return h("span",{key:cid,style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"5px 10px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px"}},
-          h("span",{style:{width:"11px",height:"11px",background:terrColor(cid,i),borderRadius:"2px"}}),
-          h("span",{style:{display:"flex",flexDirection:"column",lineHeight:1.15}},
-            h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:"var(--ink)"}},terrName(cid)),
-            h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--slate)"}}, (eg&&!eg.sup? fmt(eg.n)+" egresados" : SUP_SHORT)))); }));
+      h("span",{style:{fontSize:"var(--fs-body)",color:"var(--slate)"}}, esRegion?"Desglose por comuna · clic para incluir o excluir del agregado":"Desglose por comuna"),
+      kids.slice(0,12).map(function(cid,i){ var cod=terrParse(cid).cod, eg=covGet(cid,M.anio_actual,"egresados"), off=esRegion&&comunaExcluida(s,cod);
+        var contenido=[
+          esRegion
+            ? h("span",{key:"ck",style:{width:"14px",height:"14px",flex:"none",borderRadius:"3px",border:"1.5px solid "+(off?"var(--slate)":ctx.acc),background:off?"transparent":ctx.acc,display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"var(--fs-overline)",fontWeight:700}}, off?"":"✓")
+            : h("span",{key:"dot",style:{width:"11px",height:"11px",flex:"none",background:terrColor(cid,i),borderRadius:"2px"}}),
+          h("span",{key:"nm",style:{display:"flex",flexDirection:"column",lineHeight:1.15,textAlign:"left"}},
+            h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:"var(--ink)",textDecoration:off?"line-through":"none"}},terrName(cid)),
+            h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--slate)"}}, (eg&&!eg.sup? fmt(eg.n)+" egresados" : SUP_SHORT)))];
+        var stl={display:"inline-flex",alignItems:"center",gap:"8px",padding:"5px 10px",background:off?"var(--cream200)":"#fff",border:"1px solid var(--line2)",borderRadius:"4px",opacity:off?0.65:1};
+        return esRegion
+          ? h("button",{key:cid,onClick:function(){ var e=Object.assign({},s.comExcl); if(off){delete e[cod];}else{e[cod]=true;} ctx.upd({comExcl:e}); },style:Object.assign({cursor:"pointer",fontFamily:"var(--font-b)"},stl)}, contenido)
+          : h("span",{key:cid,style:stl}, contenido); }));
   }
   return h("div",{style:{padding:"14px 40px",background:"var(--cream50)",borderBottom:"1px solid var(--line)"}},
     h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-caption)",letterSpacing:".02em",color:"var(--slate)",marginBottom:"10px"}},"Territorio en pantalla"),
@@ -286,9 +333,9 @@ function WorkArea(ctx){
 // ===========================================================================
 // VISTAS (Fase 3)
 // ===========================================================================
-function funnelStages(id, anio, coh){
+function funnelStages(ctx, anio, coh){
   return ETAPAS.map(function(e){
-    var g=covGet(id,anio,e.k,coh);
+    var g=covSel(ctx,anio,e.k,coh);  // respeta la exclusion de comunas (region)
     return {k:e.k,label:e.label,n:(g?g.n:null),sup:(g?g.sup:false),present:!!g};
   });
 }
@@ -349,7 +396,7 @@ function retencionComunas(ctx){
 // n_seleccionados < 8) -- no se inventa un umbral separado.
 function prioridadKpiCard(ctx){
   var acc=ctx.acc, id=ctx.state.terrSel;
-  var g=covGet(id, M.anio_actual, "seleccion", activeCohorte(ctx.state));
+  var g=covSel(ctx, M.anio_actual, "seleccion", activeCohorte(ctx.state));  // respeta exclusion de comunas
   var suprimido = !g || g.sup || g.pct1==null;
   return card({},[cardTitle("Prioridad de la carrera seleccionada", terrName(id)+" · % de seleccionados en su 1.ª preferencia · admisión "+M.anio_actual),
     suprimido
@@ -360,8 +407,8 @@ function prioridadKpiCard(ctx){
 }
 function CobActual(ctx){
   var acc=ctx.acc, id=ctx.state.terrSel, coh=activeCohorte(ctx.state);
-  var stages=funnelStages(id, M.anio_actual, coh);
-  var out=[ card({},[cardTitle("Embudo de participación", terrName(id)+" · admisión "+M.anio_actual+cohorteSub(coh)), funnelSvg(stages,acc)]),
+  var stages=funnelStages(ctx, M.anio_actual, coh);
+  var out=[ card({},[cardTitle("Embudo de participación", terrName(id)+" · admisión "+M.anio_actual+cohorteSub(coh)+filtroSub(ctx.state)), funnelSvg(stages,acc)]),
             h("div",{key:"kpiprio",style:{marginTop:"14px"}}, prioridadKpiCard(ctx)) ];
   var ret=retencionComunas(ctx);
   if(ret) out.push(h("div",{key:"ret",style:{marginTop:"14px"}}, ret));
@@ -470,7 +517,7 @@ function meanBars(ctx, items, muted){
   var acc=ctx.acc, id=ctx.state.terrSel, anio=M.anio_actual, coh=activeCohorte(ctx.state);
   var lo=M.escala.min, hi=M.escala.max;
   return items.map(function(p){
-    var g=renGet(id,anio,p.k,coh);
+    var g=renSel(ctx,anio,p.k,coh);  // respeta la exclusion de comunas (region)
     var col=muted?"#8A7C86":acc;
     var head=h("div",{style:{display:"flex",alignItems:"baseline",gap:"9px",marginBottom:"3px"}},
       p.sigla?h("span",{style:{background:col,color:"#fff",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-overline)",padding:"2px 6px",borderRadius:"3px"}},p.sigla):h("span",{style:{width:"10px",height:"10px",background:col,borderRadius:"2px"}}),
@@ -490,7 +537,7 @@ function RenActual(ctx){
   rows.push(h("div",{key:"ctxh",style:{marginTop:"6px",paddingTop:"10px",borderTop:"2px solid var(--line2)",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-caption)",color:"var(--slate)"}},"Contexto — NEM y Ranking (no son pruebas PAES)"));
   meanBars(ctx, CONTEXTO, true).forEach(function(r){ rows.push(r); });
   var foot=h("div",{style:{fontSize:"var(--fs-overline)",color:"var(--slate)",marginTop:"8px"}},"Barra: media en la escala "+M.escala.min+"–"+M.escala.max+" · se reporta la media agregada, no puntajes individuales.");
-  return card({},[cardTitle("Media de puntaje por prueba", terrName(ctx.state.terrSel)+" · admisión "+M.anio_actual+cohorteSub(activeCohorte(ctx.state))), h("div",{},rows), foot]);
+  return card({},[cardTitle("Media de puntaje por prueba", terrName(ctx.state.terrSel)+" · admisión "+M.anio_actual+cohorteSub(activeCohorte(ctx.state))+filtroSub(ctx.state)), h("div",{},rows), foot]);
 }
 function RenHist(ctx){
   var acc=ctx.acc, id=ctx.state.terrSel, years=M.anios;
@@ -549,7 +596,7 @@ function Modal(ctx){
       if(i>=0){ if(arr.length>1) arr.splice(i,1); }
       else { if(arr.length<maxSel) arr.push(id); }
       ctx.upd({compSel:arr});
-    } else { ctx.upd({terrSel:id, modalOpen:false}); }
+    } else { ctx.upd({terrSel:id, modalOpen:false, comExcl:{}}); }  // nuevo territorio -> limpia exclusiones
   }
   var qn=norm(query.trim());
   // Fila-boton reutilizable por tab. En "comparar" es checklist (cuadrado); en
