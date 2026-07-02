@@ -305,18 +305,19 @@ function funnelSvg(stages, acc){
   });
   return h("svg",{viewBox:"0 0 "+W+" "+H,style:{width:"100%",height:"auto",display:"block"}},els);
 }
-// bucket "generaciones anteriores" (rezagados) — nacional, siempre visible
+// bucket "generaciones anteriores" (rezagados) — nacional. Su montaje lo
+// controla CobActual segun showRez (control de cohorte); aqui ya no se lee
+// showRez (antes solo atenuaba la opacidad sin retirar el bloque del DOM).
 function genAntSlab(ctx){
-  var acc=ctx.acc, soft=ctx.accSoft, on=ctx.state.showRez;
+  var acc=ctx.acc, soft=ctx.accSoft;
   var g=covGet(REZ_ID,M.anio_actual,"inscripcion");
   var val = g? (g.sup? SUP_SHORT : fmt(g.n)) : "—";
-  return h("div",{style:{border:"1px dashed "+acc,background:soft,borderRadius:"8px",padding:"16px 18px",display:"flex",gap:"24px",alignItems:"center",flexWrap:"wrap",opacity:on?1:0.55}},
+  return h("div",{style:{border:"1px dashed "+acc,background:soft,borderRadius:"8px",padding:"16px 18px",display:"flex",gap:"24px",alignItems:"center",flexWrap:"wrap"}},
     h("div",{style:{flex:"none"}},
       h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-overline)",letterSpacing:".02em",color:acc}},"Siempre reportada · generaciones anteriores (nacional)"),
       h("div",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"var(--fs-h2)",color:acc,lineHeight:1.05}},val)),
     h("p",{style:{flex:"1 1 240px",fontSize:"var(--fs-body)",color:"var(--slate)",lineHeight:1.5,margin:0}},
-      on ? "Personas que rinden la PAES sin establecimiento de egreso vigente en el año. Se reportan como categoría propia agregada a nivel nacional (no son asignables a un territorio); nunca se ocultan ni se tratan como error."
-         : "Categoría oculta del detalle por el control de cohorte, pero siempre reportada aquí. Son quienes rinden sin establecimiento de egreso vigente en el año (agregado nacional)."));
+      "Personas que rinden la PAES sin establecimiento de egreso vigente en el año. Se reportan como categoría propia agregada a nivel nacional (no son asignables a un territorio); nunca se ocultan ni se tratan como error."));
 }
 // Retención por comuna (derivada de las 6 etapas reales: egresados -> selección)
 function retencionComunas(ctx){
@@ -363,8 +364,11 @@ function CobActual(ctx){
   var acc=ctx.acc, id=ctx.state.terrSel;
   var stages=funnelStages(id, M.anio_actual);
   var out=[ card({},[cardTitle("Embudo de participación", terrName(id)+" · admisión "+M.anio_actual), funnelSvg(stages,acc)]),
-            h("div",{key:"kpiprio",style:{marginTop:"14px"}}, prioridadKpiCard(ctx)),
-            h("div",{key:"rz",style:{marginTop:"14px"}}, genAntSlab(ctx)) ];
+            h("div",{key:"kpiprio",style:{marginTop:"14px"}}, prioridadKpiCard(ctx)) ];
+  // Fix cohorte: el bloque de generaciones anteriores se MONTA solo si showRez.
+  // Antes se renderizaba siempre y showRez unicamente bajaba la opacidad (nunca
+  // se retiraba del DOM). Mismo patron condicional que `ret` mas abajo.
+  if(ctx.state.showRez) out.push(h("div",{key:"rz",style:{marginTop:"14px"}}, genAntSlab(ctx)));
   var ret=retencionComunas(ctx);
   if(ret) out.push(h("div",{key:"ret",style:{marginTop:"14px"}}, ret));
   return h("div",{}, out);
