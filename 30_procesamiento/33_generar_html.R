@@ -271,10 +271,26 @@ for (ph in names(libs)) html <- sub(ph, leer_txt(libs[[ph]]), html, fixed = TRUE
 html <- sub("__FONTS_CSS__", fonts_css, html, fixed = TRUE)
 html <- sub("__JSON_DATA__", json_b64, html, fixed = TRUE)
 
+html_raw <- charToRaw(enc2utf8(html))
+
+# --- Guarda de regresion: mojibake UTF-8 (doble codificacion) ---------------
+# La secuencia de bytes c3 83 = "Ã" es el sintoma inequivoco de doble-encode
+# UTF-8: ningun literal legitimo del motor (nombres de comuna/region/SLEP,
+# pruebas, etapas, notas) contiene "Ã", y los blobs base64 (fuentes, JSON) y
+# las libs ASCII no la producen. Si aparece, un literal acentuado escapo del
+# marcado UTF-8 (marcar_utf8) -> abortar antes de publicar HTML corrupto.
+mojibake <- which(html_raw[-length(html_raw)] == as.raw(0xc3) & html_raw[-1] == as.raw(0x83))
+if (length(mojibake) > 0) {
+  stop(sprintf("Mojibake UTF-8 en el HTML final: %d secuencia(s) c3 83 ('Ã'). ",
+               length(mojibake)),
+       "Un literal acentuado no quedo marcado UTF-8; revisa que marcar_utf8() ",
+       "cubra su ruta de serializacion antes de escribir.", call. = FALSE)
+}
+
 ruta_salida <- ruta_salidas("motor_paes.html")
 dir.create(dirname(ruta_salida), recursive = TRUE, showWarnings = FALSE)
 con <- file(ruta_salida, open = "wb", encoding = "UTF-8")
-writeBin(charToRaw(enc2utf8(html)), con); close(con)
+writeBin(html_raw, con); close(con)
 message(sprintf("    OK: %s (%.0f KB)", fs::path_rel(ruta_salida, here::here()),
                 file.info(ruta_salida)$size / 1024))
 
