@@ -145,8 +145,8 @@ cfg <- list(
          )),
     list(n=4, titulo='Agregación territorial (doble foco)', sub='30_procesamiento/',
          head='<span class="code">32_agregar_territorial.R</span> <span class="bg bg--r">R</span>',
-         d='Agrega los <strong>dos focos</strong> al árbol RBD &rarr; comuna &rarr; SLEP &rarr; región &rarr; nacional<br><strong>Cobertura:</strong> embudo egresados &rarr; inscripción &rarr; rendición &rarr; resultados &rarr; postulación &rarr; selección<br><strong>Rendimiento:</strong> media de puntaje por prueba + NEM / Ranking<br>Categoría explícita de generaciones anteriores (sin RBD de egreso vigente)<br>Supresión de celdas con <span class="code-sm">n &lt; 8</span> &middot; escritura atómica &rarr; dos parquets',
-         flags=c('Umbral de supresión k = 8 (constante nombrada)','Generaciones anteriores etiquetadas, nunca descartadas','Media enmascarada si la celda se suprime'),
+         d='Agrega los <strong>dos focos</strong> al árbol RBD &rarr; comuna &rarr; SLEP &rarr; región &rarr; nacional<br><strong>Cobertura:</strong> embudo egresados &rarr; inscripción &rarr; rendición &rarr; resultados &rarr; postulación &rarr; selección<br><strong>Rendimiento:</strong> media de puntaje por prueba + NEM / Ranking<br>Categoría explícita de cohortes anteriores (sin RBD de egreso vigente)<br>Supresión de celdas con <span class="code-sm">n &lt; 8</span> &middot; escritura atómica &rarr; dos parquets',
+         flags=c('Umbral de supresión k = 8 (constante nombrada)','Cohortes anteriores etiquetadas, nunca descartadas','Media enmascarada si la celda se suprime'),
          norm=list()),
     list(n=5, titulo='Generación del motor', sub='30_procesamiento/',
          head='<span class="code">33_generar_html.R</span> <span class="bg bg--r">R</span> + <span class="code">33_motor_template.html</span> <span class="bg bg--html">HTML</span>',
@@ -164,7 +164,7 @@ cfg <- list(
   # ---- 1.4 Diccionario de datos (referencia tecnica) -----------------------
   dic_crudos = list(
     list(campo='id_aux', tipo='character', d='Identificador anonimizado y único de cada postulante. Reemplaza al RUN y es la llave de cruce entre las bases del DEMRE.'),
-    list(campo='rbd', tipo='character', d='Rol Base de Datos del establecimiento educacional de egreso. Ausente o "0" para quienes egresaron en años previos &rarr; generaciones anteriores.'),
+    list(campo='rbd', tipo='character', d='Rol Base de Datos del establecimiento educacional de egreso. Ausente o "0" para quienes egresaron en años previos &rarr; cohortes anteriores.'),
     list(campo='anio_proceso', tipo='integer', d='Año del proceso de admisión (2023&ndash;2026).'),
     list(campo='prueba', tipo='character', d='Prueba PAES: <b>clec</b> (Competencia Lectora), <b>mate1</b> (M1), <b>mate2</b> (M2), <b>cien</b> (Ciencias), <b>hcsoc</b> (Historia y Ciencias Sociales).'),
     list(campo='tipo_rendicion', tipo='character', d='Aplicación del puntaje: <b>reg</b> (Regular, fin de año) o <b>inv</b> (Invierno, junio).'),
@@ -227,7 +227,7 @@ cfg <- list(
     '<strong>UMBRAL_SUPRESION_CELDA</strong> &mdash; constante de gobernanza (=8): toda celda territorial con menos de 8 personas se suprime, alineada al k-anonimato que el DEMRE aplica en origen.',
     '<strong>parquet</strong> &mdash; formato columnar comprimido para los datos intermedios.',
     '<strong>Escritura atómica</strong> &mdash; escribir a un archivo temporal y renombrar al final, para no dejar salidas a medias.',
-    '<strong>Generaciones anteriores</strong> &mdash; quienes rinden sin RBD de egreso vigente (egresaron en años previos); se agregan en una categoría explícita, nunca como hueco.'
+    '<strong>Cohortes anteriores</strong> &mdash; quienes rinden sin RBD de egreso vigente (egresaron en años previos); se agregan en una categoría explícita, nunca como hueco.'
   ),
   glosario_doc = c(
     '<strong>PAES</strong> &mdash; Prueba de Acceso a la Educación Superior; el examen con que se postula a las universidades del sistema de acceso.',
@@ -237,7 +237,7 @@ cfg <- list(
     '<strong>Escala 100&ndash;1000</strong> &mdash; el rango de puntajes de la PAES; está calibrado para ser comparable de un año a otro.',
     '<strong>NEM</strong> &mdash; Notas de Enseñanza Media; un factor de contexto que acompaña a los puntajes.',
     '<strong>Ranking</strong> &mdash; puntaje del Ranking de notas; reconoce la trayectoria del estudiante dentro de su establecimiento educacional.',
-    '<strong>Generaciones anteriores</strong> &mdash; personas que rinden la PAES habiendo egresado en años previos.',
+    '<strong>Cohortes anteriores</strong> &mdash; personas que rinden la PAES habiendo egresado en años previos.',
     '<strong>SLEP</strong> &mdash; Servicio Local de Educación Pública; sostenedor estatal de los establecimientos educacionales.',
     '<strong>Establecimiento educacional</strong> &mdash; el término general para escuelas, liceos y jardines infantiles.'
   ),
@@ -248,14 +248,14 @@ cfg <- list(
     list(ct='SLEP', cd='Agrupación de las comunas de un Servicio Local de Educación Pública.'),
     list(ct='Región', cd='Agrupación de todas las comunas de una región.'),
     list(ct='Nacional ("Chile")', cd='El total país.'),
-    list(ct='Generaciones anteriores', cd='Quienes rinden sin RBD de egreso vigente, agregados en una categoría propia.')
+    list(ct='Cohortes anteriores', cd='Quienes rinden sin RBD de egreso vigente, agregados en una categoría propia.')
   ),
   entidades_gen = list(
     list(ct='Una comuna', cd='Todos sus establecimientos educacionales juntos.'),
     list(ct='Un Servicio Local', cd='Las comunas de un SLEP.'),
     list(ct='Una región', cd='Todas las comunas de la región.'),
     list(ct='Todo el país', cd='El total nacional, "Chile".'),
-    list(ct='Generaciones anteriores', cd='Quienes rindieron habiendo egresado en años previos.')
+    list(ct='Cohortes anteriores', cd='Quienes rindieron habiendo egresado en años previos.')
   ),
 
   # ---- 1.9 Linea de produccion (arquitectura general) ----------------------
@@ -280,7 +280,7 @@ cfg <- list(
          chip_in=list(ico='percent', tx='Agregados por territorio'),
          chip_out=list(ico='file-code-2', tx='Un archivo navegable')),
     list(icon='monitor', color='var(--plum)', paso='Paso 5 &middot; Producto terminado', titulo='La herramienta lista para usar',
-         parrafos=c('El resultado es un <strong>tablero que se abre en cualquier navegador</strong>, sin instalar nada. Permite elegir una comuna, un Servicio Local, una región o el país y ver el embudo de cobertura y la distribución de puntajes, con las generaciones anteriores como categoría aparte.',
+         parrafos=c('El resultado es un <strong>tablero que se abre en cualquier navegador</strong>, sin instalar nada. Permite elegir una comuna, un Servicio Local, una región o el país y ver el embudo de cobertura y la distribución de puntajes, con las cohortes anteriores como categoría aparte.',
                     'Está publicado en línea para consulta y se actualiza repitiendo la línea de producción completa cuando llegan datos nuevos.'),
          chip_in=NULL, chip_out=list(ico='globe', tx='Tablero publicado y consultable'))
   ),
@@ -292,7 +292,7 @@ cfg <- list(
     list(icon='shield', titulo='Nunca publicamos datos de personas', d='Las bases traen información por persona, incluidos datos de niños, niñas y adolescentes. La herramienta solo muestra totales por territorio; el detalle individual jamás sale del resguardo institucional.'),
     list(icon='users', titulo='Ocho personas es el mínimo', d='Cualquier cifra que represente a menos de ocho personas se oculta. Así ningún resultado, por más desagregado que esté, permite identificar a alguien.'),
     list(icon='git-merge', titulo='Dos miradas, ninguna por sobre la otra', d='La cobertura &mdash;cuántos avanzan en cada etapa&mdash; y el rendimiento &mdash;cómo les va en los puntajes&mdash; se muestran como focos pares. Ni el embudo tapa los puntajes ni al revés.'),
-    list(icon='flag', titulo='Las generaciones anteriores se ven', d='Quienes rinden habiendo egresado en años previos no calzan con un establecimiento educacional de egreso vigente. En vez de descartarlos, se muestran en una categoría propia y etiquetada.'),
+    list(icon='flag', titulo='Las cohortes anteriores se ven', d='Quienes rinden habiendo egresado en años previos no calzan con un establecimiento educacional de egreso vigente. En vez de descartarlos, se muestran en una categoría propia y etiquetada.'),
     list(icon='layers', titulo='Cada prueba se lee por separado', d='Competencia Lectora, Matemática 1 y 2, Ciencias e Historia miden cosas distintas. Sus puntajes se muestran prueba por prueba, nunca sumados en un único número.'),
     list(icon='book-open', titulo='No inventamos metodología', d='Las definiciones y los conteos salen de la documentación oficial del DEMRE y del Ministerio de Educación. Lo que no consta en una fuente no se fabrica: se deja pendiente o se documenta su alcance.')
   ),
@@ -301,7 +301,7 @@ cfg <- list(
   # REVISAR (voz): claves de lectura redactadas para comunidad; tono del titular.
   notas = list(
     list(icon='filter', tx='<strong>Hay dos focos, y conviene mirarlos juntos.</strong> El embudo de cobertura dice cuántos avanzan en cada etapa; el rendimiento dice con qué puntajes. Una comuna puede tener mucha cobertura y puntajes medios, o al revés.'),
-    list(icon='flag', tx='<strong>"Generaciones anteriores" es una categoría, no un error.</strong> Reúne a quienes rinden habiendo egresado en años previos. Aparecen aparte porque no calzan con un establecimiento educacional de egreso vigente.'),
+    list(icon='flag', tx='<strong>"Cohortes anteriores" es una categoría, no un error.</strong> Reúne a quienes rinden habiendo egresado en años previos. Aparecen aparte porque no calzan con un establecimiento educacional de egreso vigente.'),
     list(icon='eye-off', tx='<strong>Verás celdas sin dato.</strong> Cuando un resultado representaría a menos de ocho personas, se oculta a propósito, como resguardo estadístico. No es un dato que falte.'),
     list(icon='calendar', tx='<strong>El año "actual" es el último con denominador completo.</strong> El embudo necesita saber cuántos egresaron; mientras ese dato no llega para el año más reciente, el foco de cobertura usa el último año que sí lo tiene.'),
     list(icon='ruler', tx='<strong>Los puntajes van de 100 a 1000 y son comparables entre años.</strong> La PAES se calibra para que un mismo puntaje signifique lo mismo en distintas aplicaciones, así que se puede mirar la evolución en el tiempo.')
@@ -314,7 +314,7 @@ cfg <- list(
     list(q='&iquest;Qué significa que haya "dos focos"?', a='La herramienta mira el proceso PAES de dos maneras a la vez. La cobertura cuenta cuántas personas avanzan en cada etapa, desde quienes egresan de enseñanza media hasta quienes resultan seleccionados. El rendimiento muestra los puntajes de quienes rinden. Ninguna de las dos miradas está por sobre la otra.', abierta=FALSE),
     list(q='&iquest;La herramienta muestra datos de estudiantes o de mi colegio?', a='No. Aunque las bases originales vienen por persona, la herramienta solo publica totales por comuna, Servicio Local, región y país. Nunca muestra información de una persona ni de un establecimiento educacional en particular, y oculta cualquier cifra que represente a menos de ocho personas.', abierta=FALSE),
     list(q='&iquest;Por qué a veces aparece "sin dato"?', a='Porque esa cifra representaría a muy pocas personas &mdash;menos de ocho&mdash; y mostrarla podría permitir identificar a alguien. Es un resguardo estadístico deliberado, no un error ni un dato que falte.', abierta=FALSE),
-    list(q='&iquest;Quiénes son las "generaciones anteriores"?', a='Son las personas que rinden la PAES habiendo egresado de enseñanza media en años previos. Como no tienen un establecimiento educacional de egreso vigente en el año del proceso, se agrupan en una categoría propia y visible, en vez de descartarlas.', abierta=FALSE),
+    list(q='&iquest;Quiénes son las "cohortes anteriores"?', a='Son las personas que rinden la PAES habiendo egresado de enseñanza media en años previos. Como no tienen un establecimiento educacional de egreso vigente en el año del proceso, se agrupan en una categoría propia y visible, en vez de descartarlas.', abierta=FALSE),
     list(q='&iquest;Necesito instalar algo para usarla?', a='No. Es un archivo que se abre en cualquier navegador y funciona sin conexión a internet. También está publicada en línea para consultarla directamente.', abierta=FALSE),
     list(q='&iquest;Cada cuánto se actualiza?', a='Se actualiza cuando el DEMRE y el Ministerio de Educación publican nuevos datos del proceso. El equipo vuelve a correr el pipeline completo y publica la versión al día.', abierta=FALSE)
   ),
@@ -393,7 +393,7 @@ cfg <- list(
     anom_intro        = 'Particularidades de las bases crudas del DEMRE y del Ministerio de Educación que el pipeline resuelve de forma trazable <strong>antes</strong> de cualquier cálculo. No son errores del proyecto.',
     # Manual
     doc_s2_intro      = 'El panorama permite comparar el proceso PAES entre distintas <strong>entidades</strong> territoriales:',
-    doc_s2_cierre     = 'Para cualquier entidad se muestran los <strong>dos focos</strong>: el embudo de cobertura etapa por etapa y la distribución de puntajes por prueba, con NEM y Ranking como contexto. Las generaciones anteriores aparecen como una categoría aparte.',
+    doc_s2_cierre     = 'Para cualquier entidad se muestran los <strong>dos focos</strong>: el embudo de cobertura etapa por etapa y la distribución de puntajes por prueba, con NEM y Ranking como contexto. Las cohortes anteriores aparecen como una categoría aparte.',
     doc_dec_intro     = 'Reglas que gobiernan la construcción del panorama. Cada una fija una interpretación trazable de los datos, no una elección arbitraria.',
     doc_s5_intro      = 'Los datos provienen del <strong>DEMRE</strong> (proceso PAES) y del <strong>Ministerio de Educación</strong> (egresados de enseñanza media). Las bases crudas traen particularidades de origen que el pipeline normaliza antes de cualquier cálculo:',
     # Arquitectura general
@@ -408,7 +408,7 @@ cfg <- list(
     doc_gen_porque_titulo = 'Por qué existe',
     doc_gen_hacer_titulo  = 'Qué puedes hacer con ella',
     doc_gen_hacer_intro   = 'Eliges <strong>qué territorio quieres mirar</strong> y la herramienta te muestra sus dos focos:',
-    doc_gen_hacer_cierre  = 'Para lo que elijas, verás el <strong>embudo de cobertura</strong> etapa por etapa y la <strong>distribución de puntajes</strong> por prueba, con las generaciones anteriores como categoría aparte.',
+    doc_gen_hacer_cierre  = 'Para lo que elijas, verás el <strong>embudo de cobertura</strong> etapa por etapa y la <strong>distribución de puntajes</strong> por prueba, con las cohortes anteriores como categoría aparte.',
     doc_gen_fijarte_titulo= 'En qué fijarte al leerla',
     doc_gen_fijarte_intro = 'Cinco claves para interpretar la herramienta sin malentendidos:',
     doc_gen_datos_titulo  = 'De dónde vienen los datos',

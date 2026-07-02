@@ -5398,7 +5398,7 @@ function renGet(id, anio, prueba, coh){ var p=terrParse(id); return REN[p.tipo+"
 // (incluida la serie historica; encargo 2, Fase 3).
 function activeCohorte(s){ return s.cohorte||"actual"; }
 // Sufijo de subtitulo segun cohorte activa ("todas" no agrega sufijo).
-function cohorteSub(coh){ return coh==="actual" ? " · generación actual" : coh==="anterior" ? " · generaciones anteriores" : ""; }
+function cohorteSub(coh){ return coh==="actual" ? " · cohorte actual" : coh==="anterior" ? " · cohortes anteriores" : ""; }
 
 // --- Filtro "desglose por comuna" -------------------------------------------
 // La exclusion de comunas solo es EXACTA cuando el territorio es una REGION: sus
@@ -5519,7 +5519,7 @@ function territoryBtn(ctx){
 // Control de cohorte de 3 estados (segmented, patron seg()). Reemplaza al
 // checkbox binario: la cohorte es una eleccion mutuamente excluyente, no un
 // on/off. "Actual" = generacion fresca (egreso el año previo); "Anteriores" =
-// generaciones previas (territorializadas por su RBD de egreso); "Todas" = ambas.
+// cohortes anteriores (territorializadas por su RBD de egreso); "Todas" = ambas.
 function cohorteSeg(ctx){
   return seg([{v:"actual",label:"Actual"},{v:"anterior",label:"Anteriores"},{v:"todas",label:"Todas"}],
              ctx.state.cohorte, function(v){ctx.upd({cohorte:v});}, ctx.acc);
@@ -5602,8 +5602,8 @@ function viewMeta(ctx){
   var s=ctx.state, f=s.foco, v=s.vista, m=s.modo;
   if(f==="cob"){
     if(v==="terr") return m==="hist"
-      ? {t:"Cobertura en el tiempo", sub:terrName(s.terrSel)+" · participación PAES · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica por proceso de admisión. El control de cohorte también aplica aquí (generación actual, generaciones anteriores o todas); en «Anteriores», sin egresados propios del año, la serie se expresa sobre inscritos."}
-      : {t:"Embudo de participación PAES", sub:terrName(s.terrSel)+" · admisión "+M.anio_actual+" · egresados → selección", note:"El embudo tiene 6 etapas (sin matrícula, no disponible en el agregado). El control de cohorte separa la generación actual (egreso el año previo) de las generaciones anteriores, o suma todas; ambas se territorializan por el establecimiento de egreso."};
+      ? {t:"Cobertura en el tiempo", sub:terrName(s.terrSel)+" · participación PAES · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica por proceso de admisión. El control de cohorte también aplica aquí (cohorte actual, cohortes anteriores o todas); en «Anteriores», sin egresados propios del año, la serie se expresa sobre inscritos."}
+      : {t:"Embudo de participación PAES", sub:terrName(s.terrSel)+" · admisión "+M.anio_actual+" · egresados → selección", note:"El embudo tiene 6 etapas (sin matrícula, no disponible en el agregado). El control de cohorte separa la cohorte actual (egreso el año previo) de las cohortes anteriores, o suma todas; ambas se territorializan por el establecimiento de egreso."};
     return {t:"Cobertura — comparación entre territorios", sub:"Embudo por territorio · admisión "+M.anio_actual+" · porcentaje (n)", note:"Comparación en porcentaje sobre egresados, con el número de casos entre paréntesis: % (n). Celdas con n < "+M.umbral+" se muestran como «"+SUP_TXT+"»."};
   } else {
     if(v==="terr") return m==="hist"
@@ -5660,7 +5660,7 @@ function funnelSvg(stages, acc){
   });
   return h("svg",{viewBox:"0 0 "+W+" "+H,style:{width:"100%",height:"auto",display:"block"}},els);
 }
-// (genAntSlab eliminado: "generaciones anteriores" dejo de ser un bucket
+// (genAntSlab eliminado: "cohortes anteriores" dejo de ser un bucket
 //  nacional aparte; ahora es la cohorte "anterior", integrada al embudo y al
 //  rendimiento de cada territorio via el control de cohorte.)
 // Retención por comuna (derivada de las 6 etapas reales: egresados -> selección)
@@ -6013,7 +6013,7 @@ function sheetXml(aoa){ var rows=""; aoa.forEach(function(row,r){ var cells=""; 
   return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'+rows+'</sheetData></worksheet>'; }
 function currentSheet(ctx){
   var s=ctx.state, anio=M.anio_actual, name="Datos", aoa=[], coh=activeCohorte(s);
-  var cohLbl = coh==="todas" ? "todas las cohortes" : (coh==="actual" ? "generacion actual (egreso año previo)" : "generaciones anteriores");
+  var cohLbl = coh==="todas" ? "todas las cohortes" : (coh==="actual" ? "cohorte actual (egreso año previo)" : "cohortes anteriores");
   if(s.foco==="cob"){
     if(s.vista==="comp"){ name="Cobertura comparacion";
       aoa=[["Cohorte: "+cohLbl],[],["Territorio","Egresados","Inscritos %","Inscritos n","Rindio %","Rindio n","Validos %","Validos n","Postulo %","Postulo n","Seleccionado %","Seleccionado n"]];
@@ -6064,7 +6064,7 @@ function Notes(ctx){
     h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(270px,1fr))",gap:"16px 34px"}},
       item("Fuente","DEMRE — bases públicas del proceso de admisión (inscripción, rendición, resultados, postulación, selección) y MINEDUC (egresados de enseñanza media). Agregadas a nivel territorial por el pipeline del proyecto."),
       item("Cobertura temporal","Procesos de admisión "+M.anios[0]+"–"+M.anios[M.anios.length-1]+". La vista actual usa "+M.anio_actual+"; la histórica, toda la serie. El denominador del embudo son las y los egresados de enseñanza media del año."),
-      item("Generaciones anteriores","Personas que rinden la PAES sin establecimiento de egreso vigente ese año. Se reportan como categoría propia agregada a nivel nacional (no son asignables a un territorio); nunca se ocultan de forma permanente ni se tratan como error.",true),
+      item("Cohortes anteriores","Personas que rinden la PAES habiendo egresado de enseñanza media en años anteriores (no la generación fresca del año previo). Se territorializan por su establecimiento educacional de egreso, igual que la cohorte actual, y el control de cohorte permite verlas por separado, ver solo la cohorte actual, o sumar ambas.",true),
       item("Resguardo de celdas","Las celdas con menos de "+M.umbral+" casos (n < "+M.umbral+") no muestran su valor: aparecen como «"+SUP_TXT+"» en gris plano. Nunca se dejan vacías ni como error visual.",true),
       item("Rendimiento","Se reporta la media de puntaje por prueba en escala "+M.escala.min+"–"+M.escala.max+" (Competencia Lectora, Matemática 1 y 2, Ciencias, Historia y Ciencias Sociales). La mediana y la desviación no están disponibles en el agregado. NEM y Ranking se muestran como contexto."),
       item("Modelo de puntajes","Los puntajes PAES se construyen con el modelo de Rasch (teoría de respuesta al ítem), comparables entre aplicaciones. No se asume azar ni discriminación por ítem en esta presentación."),
