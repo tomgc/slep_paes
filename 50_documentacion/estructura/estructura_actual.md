@@ -1,82 +1,106 @@
-# Estructura actual — slep_paes
+# Estructura actual <e2><80><94> slep_paes
 
 - **Raiz:** `/Users/tomgc/Projects/slep_paes`
-- **Fecha:** 2026-07-01 11:42:49
-- **Totales:** 12 carpetas, 45 archivos
-- **Nota:** todos los datos son publicos (bases PAES del DEMRE) y se versionan en el repo.
+- **Fecha:** 2026-07-02 07:41:01
+- **Totales:** 16 carpetas, 63 archivos
+- **Nota:** Rama B: codigo versionado en el repo; datos reales en la raiz de OneDrive (SLEP_PAES_DATA_ROOT), fuera del repo. 20_insumos/ y 40_salidas/ del repo contienen solo README.md de referencia.
 
 ## Arbol
 
 ```
 slep_paes/
-├── 10_utils/
-│   ├── 10_configuracion.R  (7.39K)
-│   ├── 10_utils.R  (1.94K)
-│   ├── d3.min.js  (273K)
-│   ├── pako.min.js  (45.8K)
-│   ├── react-dom.production.min.js  (129K)
-│   └── react.production.min.js  (10.5K)
-├── 20_insumos/
-│   └── README.md  (1.28K)
-├── 30_procesamiento/
-│   ├── 30_construir_auxiliares.R  (8.22K)
-│   ├── 31_leer_normalizar.R  (5.13K)
-│   ├── 32_agregar_territorial.R  (7.01K)
-│   ├── 33_generar_html.R  (6.91K)
-│   └── 33_motor_template.html  (7.45K)
-├── 40_salidas/
-│   └── README.md  (530)
-├── 50_documentacion/
-│   ├── activa/
-│   │   ├── decisiones/
-│   │   │   ├── .gitkeep  (0)
-│   │   │   └── 20260630_decision_patron_comun_y_paleta.md  (11.1K)
-│   │   ├── .DS_Store  (6K)
-│   │   ├── backlog_acumulativo.md  (4.09K)
-│   │   ├── contexto_paes.md  (51.2K)
-│   │   ├── gobernanza_datos.md  (7.16K)
-│   │   ├── manifiesto_insumos.md  (5.77K)
-│   │   ├── POLITICA_PROYECTO.md  (33K)
-│   │   └── SETTINGS_Y_PROMPTS_OPERACIONALES.md  (46.7K)
-│   ├── andamios/
-│   │   ├── .gitkeep  (0)
-│   │   └── 20260701_renombrado_insumos_datos.md  (5.86K)
-│   ├── estructura/
-│   │   ├── 20260701_112834_estructura.md  (2.56K)
-│   │   ├── 20260701_112834_estructura.txt  (2.56K)
-│   │   ├── 20260701_113741_estructura.md  (4.74K)
-│   │   ├── 20260701_113741_estructura.txt  (4.74K)
-│   │   ├── estructura_actual.md  (4.74K)
-│   │   └── estructura_actual.txt  (4.74K)
-│   ├── traspasos/
-│   │   ├── .gitkeep  (0)
-│   │   └── traspaso_cierre_v01.md  (38K)
-│   └── .DS_Store  (8K)
-├── docs/
-│   ├── .gitkeep  (0)
-│   └── index.html  (673K)
-├── tests/
-│   └── .gitkeep  (0)
-├── .DS_Store  (10K)
-├── .gitignore  (1.09K)
-├── .Renviron.example  (771)
-├── 00_escanear_proyecto.R  (9.07K)
-├── 00_run_all.R  (8.23K)
-├── CLAUDE.md  (9.68K)
-├── LICENSE  (1.9K)
-├── README.md  (5.47K)
-└── slep_paes.Rproj  (220)
+<e2><94><9c><e2><94><80><e2><94><80> .claude/
+<e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> launch.json  (198)
+<e2><94><9c><e2><94><80><e2><94><80> 10_utils/
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 10_configuracion.R  (7.39K)
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 10_utils.R  (1.94K)
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> d3.min.js  (273K)
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> pako.min.js  (45.8K)
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> react-dom.production.min.js  (129K)
+<e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> react.production.min.js  (10.5K)
+<e2><94><9c><e2><94><80><e2><94><80> 20_insumos/
+<e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> README.md  (1.28K)
+<e2><94><9c><e2><94><80><e2><94><80> 30_procesamiento/
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 30_construir_auxiliares.R  (8.22K)
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 31_leer_normalizar.R  (18.5K)
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 32_agregar_territorial.R  (16.2K)
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 33_generar_html.R  (15.3K)
+<e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> 33_motor_template.html  (57.7K)
+<e2><94><9c><e2><94><80><e2><94><80> 40_salidas/
+<e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> README.md  (530)
+<e2><94><9c><e2><94><80><e2><94><80> 50_documentacion/
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> activa/
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> decisiones/
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> .gitkeep  (0)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 20260630_decision_patron_comun_y_paleta.md  (11.1K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 20260701_decision_schema_31_leer_normalizar.md  (14.6K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 20260701_decision_territorializacion_d_matr.md  (2.67K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> 20260702_decision_camino_a_motor_33.md  (3.59K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> .DS_Store  (6K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> backlog_acumulativo.md  (4.09K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> contexto_paes.md  (66.3K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> gobernanza_datos.md  (7.16K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> manifiesto_insumos.md  (5.77K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> POLITICA_PROYECTO.md  (34.6K)
+<e2><94><82>   <e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> SETTINGS_Y_PROMPTS_OPERACIONALES.md  (57.3K)
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> andamios/
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> design_handoff_ui_ux/
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> fonts/
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> gobCL_Heavy.otf  (43.7K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> gobCL_Regular.otf  (35.7K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> MuseoSans-300.otf  (61.5K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> MuseoSans_500.otf  (61K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> MuseoSans_700.otf  (62.1K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> README.md  (14K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> slep_paes - motor.dc.html  (69.4K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> logs/
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 20260701_escala_anterior_archivoc_2023.md  (2.3K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 20260701_hallazgos_actualizacion_contexto_paes.html  (14.4K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 20260701_hallazgos_actualizacion_contexto_paes.md  (10.4K)
+<e2><94><82>   <e2><94><82>   <e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> 20260702_motor_33_datos_reales_log.md  (8.72K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> .DS_Store  (10K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> .gitkeep  (0)
+<e2><94><82>   <e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> 20260701_renombrado_insumos_datos.md  (5.86K)
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> estructura/
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 20260702_072402_estructura.md  (3.83K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 20260702_072402_estructura.txt  (3.85K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 20260702_072822_estructura.md  (3.88K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> 20260702_072822_estructura.txt  (3.9K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> estructura_actual.md  (3.88K)
+<e2><94><82>   <e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> estructura_actual.txt  (3.9K)
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> traspasos/
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> .gitkeep  (0)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> traspaso_cierre_v01.md  (38K)
+<e2><94><82>   <e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> traspaso_cierre_v02.md  (41.4K)
+<e2><94><82>   <e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> traspaso_cierre_v03.md  (29.8K)
+<e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> .DS_Store  (10K)
+<e2><94><9c><e2><94><80><e2><94><80> docs/
+<e2><94><82>   <e2><94><9c><e2><94><80><e2><94><80> .gitkeep  (0)
+<e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> index.html  (1009K)
+<e2><94><9c><e2><94><80><e2><94><80> tests/
+<e2><94><82>   <e2><94><94><e2><94><80><e2><94><80> .gitkeep  (0)
+<e2><94><9c><e2><94><80><e2><94><80> .DS_Store  (10K)
+<e2><94><9c><e2><94><80><e2><94><80> .gitignore  (1.09K)
+<e2><94><9c><e2><94><80><e2><94><80> .Renviron.example  (771)
+<e2><94><9c><e2><94><80><e2><94><80> 00_escanear_proyecto.R  (9.41K)
+<e2><94><9c><e2><94><80><e2><94><80> 00_run_all.R  (8.23K)
+<e2><94><9c><e2><94><80><e2><94><80> CLAUDE.md  (14.4K)
+<e2><94><9c><e2><94><80><e2><94><80> LICENSE  (1.9K)
+<e2><94><9c><e2><94><80><e2><94><80> README.md  (5.47K)
+<e2><94><94><e2><94><80><e2><94><80> slep_paes.Rproj  (220)
 ```
 
 ## Conteo por extension
 
 | Extension | Archivos |
 |---|---|
-| md | 16 |
-| (sin extension) | 10 |
+| md | 25 |
+| (sin extension) | 11 |
 | r | 8 |
+| otf | 5 |
+| html | 4 |
 | js | 4 |
 | txt | 3 |
-| html | 2 |
 | example | 1 |
+| json | 1 |
 | rproj | 1 |

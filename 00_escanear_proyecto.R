@@ -46,8 +46,10 @@ RETENER_SNAPSHOTS <- 2L
 DIRS_EXCLUIR <- c(".git", "renv", ".Rproj.user")
 if (EXCLUIR_ARCHIVO) DIRS_EXCLUIR <- c(DIRS_EXCLUIR, "_archivo")
 
-# Nota: en este proyecto todos los datos son publicos (bases PAES del DEMRE,
-# datos abiertos) y se versionan dentro del repo. No hay data root externo.
+# Nota: RAMA B (dos raices). El repo versiona solo codigo, docs y docs/index.html
+# (agregados); los datos reales (microdato PAES con PII) viven fuera del repo, en
+# la raiz de OneDrive (SLEP_PAES_DATA_ROOT). 20_insumos/ y 40_salidas/ del repo
+# contienen solo README.md de referencia.
 
 # --- Funciones --------------------------------------------------------------
 
@@ -186,7 +188,7 @@ contenido_txt <- c(
   paste0("Raiz   : ", ruta_raiz),
   paste0("Fecha  : ", fecha_legible),
   paste0("Totales: ", n_carpetas, " carpetas, ", n_archivos, " archivos"),
-  "Nota   : todos los datos son publicos (bases PAES del DEMRE) y se versionan en el repo.",
+  "Nota   : Rama B: codigo versionado en el repo; datos reales en la raiz de OneDrive (SLEP_PAES_DATA_ROOT), fuera del repo. 20_insumos/ y 40_salidas/ del repo contienen solo README.md de referencia.",
   "",
   arbol,
   "",
@@ -201,7 +203,7 @@ contenido_md <- c(
   paste0("- **Raiz:** `", ruta_raiz, "`"),
   paste0("- **Fecha:** ", fecha_legible),
   paste0("- **Totales:** ", n_carpetas, " carpetas, ", n_archivos, " archivos"),
-  "- **Nota:** todos los datos son publicos (bases PAES del DEMRE) y se versionan en el repo.",
+  "- **Nota:** Rama B: codigo versionado en el repo; datos reales en la raiz de OneDrive (SLEP_PAES_DATA_ROOT), fuera del repo. 20_insumos/ y 40_salidas/ del repo contienen solo README.md de referencia.",
   "",
   "## Arbol",
   "",
