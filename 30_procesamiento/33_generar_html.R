@@ -157,10 +157,10 @@ cc_orden   <- c("5109", "5103", "5107", "5105")
 ren_f <- df_ren |>
   dplyr::filter((tipo_rendicion == "reg" & vigencia == "actual") |
                 prueba %in% c("nem", "ranking")) |>
-  dplyr::select(cod_entidad, anio_proceso, prueba, tipo_entidad, n, media, suprimida)
+  dplyr::select(cod_entidad, anio_proceso, prueba, tipo_entidad, cohorte, n, media, suprimida)
 
 cob_f <- df_cob |>
-  dplyr::select(cod_entidad, anio_proceso, etapa, orden_etapa, tipo_entidad, n, suprimida,
+  dplyr::select(cod_entidad, anio_proceso, etapa, orden_etapa, tipo_entidad, cohorte, n, suprimida,
                 n_seleccionados, n_prioridad_1, pct_prioridad_1)
 
 # ============================================================================
