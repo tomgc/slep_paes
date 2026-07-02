@@ -478,7 +478,7 @@ function supCell(key,leftBorder){ return h("td",{key:key,style:{padding:"9px 9px
 function CobComp(ctx){
   var acc=ctx.acc, ids=ctx.state.compSel, anio=M.anio_actual, coh=activeCohorte(ctx.state);
   var keys=["inscripcion","rendicion","resultados","postulacion","seleccion"];
-  var heads=["Territorio","Egresados","Inscritos","Rindió","Válidos","Postuló","Seleccionado","Prioridad 1"];
+  var heads=["Territorio","Egresados","Inscritos","Rindió","Válidos","Postuló","Seleccionado","1.ª prioridad"];
   // Denominador por territorio: egresados si existe (cohortes actual/todas). En
   // "anterior" no hay egresados propios del año -> se rebasa a inscritos = 100%,
   // igual que el embudo de Cobertura·Actual. eg ausente NO es supresion (es N/A).
@@ -515,7 +515,7 @@ function CobComp(ctx){
     return h("tr",{key:id}, nameCell(id,idx), egCell, cells, p1Cell); });
   return card({},[
     h("div",{key:"lg",style:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px",flexWrap:"wrap",fontSize:"var(--fs-caption)",color:"var(--slate)"}},
-      h("span",{},"Cada celda: % de egresados (n), salvo Prioridad 1: % de seleccionados en su 1.ª preferencia (n). En la cohorte «Anteriores» (sin egresados propios del año) el 100% es la inscripción. Heatmap por columna: menor proporción = más alerta."),
+      h("span",{},"Cada celda: % de egresados (n), salvo 1.ª prioridad: % de seleccionados en su 1.ª preferencia (n). En la cohorte «Anteriores» (sin egresados propios del año) el 100% es la inscripción. Heatmap por columna: menor proporción = más alerta."),
       heatLegend("menor % (más alerta)"),
       h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"22px",height:"14px",borderRadius:"3px",background:"#E7E1D2",display:"inline-block"}}),SUP_TXT)),
     h("div",{key:"w",style:{overflowX:"auto"}}, h("table",{style:{width:"100%",minWidth:"760px"}}, h("thead",{},h("tr",{},th)), h("tbody",{},rows)))]);
