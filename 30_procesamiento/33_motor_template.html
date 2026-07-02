@@ -473,7 +473,7 @@ function nameCell(id,idx){ return h("td",{style:{padding:"9px 9px",textAlign:"ri
   h("span",{style:{display:"inline-flex",alignItems:"center",gap:"7px",justifyContent:"flex-end"}},
     h("span",{style:{width:"10px",height:"10px",flex:"none",background:terrColor(id,idx),borderRadius:"2px"}}),
     h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink)"}},terrName(id)))); }
-function supCell(key,leftBorder){ return h("td",{key:key,style:{padding:"9px 9px",textAlign:"center",background:"#E7E1D2",borderBottom:"1px solid var(--line)",borderLeft:leftBorder?"1px solid var(--line2)":"none"}},
+function supCell(key,leftBorder){ return h("td",{key:key,style:{padding:"9px 9px",textAlign:"center",background:"#E7E1D2",borderBottom:"1px solid var(--line)",borderLeft:leftBorder?"2px solid var(--line2)":"none"}},
   h("span",{style:{fontSize:"var(--fs-overline)",fontWeight:700,color:"var(--slate)"}},SUP_SHORT)); }
 function CobComp(ctx){
   var acc=ctx.acc, ids=ctx.state.compSel, anio=M.anio_actual, coh=activeCohorte(ctx.state);
@@ -498,7 +498,17 @@ function CobComp(ctx){
       if(g&&!g.sup&&g.pct1!=null) vs.push(g.pct1); });
     return vs.length?[Math.min.apply(null,vs),Math.max.apply(null,vs)]:[0,1]; })();
   function normP1(pct){ var r=rangoP1; return r[1]>r[0]?(pct-r[0])/(r[1]-r[0]):0.5; }
-  var th=heads.map(function(t,i){ return h("th",{key:i,style:{textAlign:i===0?"right":"center",padding:"8px 9px",fontFamily:"var(--font-b)",fontWeight:700,fontSize:"var(--fs-overline)",color:"var(--slate)",borderBottom:"2px solid "+acc,whiteSpace:"nowrap"}},t); });
+  // "1.ª prioridad" (ultima col) cambia de base: denominador = seleccionados, no
+  // egresados. Se separa con borde izq mas oscuro (var(--line2)) y una flecha
+  // "Seleccionado -> 1.ª prioridad" con title explicativo al hover.
+  var th=heads.map(function(t,i){
+    var esP1=(i===heads.length-1);
+    var stl={textAlign:i===0?"right":"center",padding:"8px 9px",fontFamily:"var(--font-b)",fontWeight:700,fontSize:"var(--fs-overline)",color:"var(--slate)",borderBottom:"2px solid "+acc,whiteSpace:"nowrap"};
+    if(esP1) stl.borderLeft="2px solid var(--line2)";
+    var cont=esP1
+      ? [h("span",{key:"arr",title:"% sobre seleccionados, no sobre egresados",style:{color:"var(--slate)",marginRight:"5px",cursor:"help"}},"→"), t]
+      : t;
+    return h("th",{key:i,style:stl}, cont); });
   var rows=ids.map(function(id,idx){ var eg=covGet(id,anio,"egresados",coh), b=baseN(id);
     var egCell=h("td",{style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink2)"}}, (eg&&!eg.sup)?fmt(eg.n):((eg&&eg.sup)?SUP_SHORT:"—"));
     var cells=keys.map(function(k){ var st=covGet(id,anio,k,coh);
@@ -508,8 +518,8 @@ function CobComp(ctx){
         h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink)"}},Math.round(pct)+"%"),
         h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--ink2)"}}," ("+fmt(st.n)+")")); });
     var gSel=covGet(id,anio,"seleccion",coh);
-    var p1Cell = (!gSel||gSel.sup||gSel.pct1==null) ? supCell("prioridad1",false)
-      : h("td",{key:"prioridad1",style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",background:heatColor(normP1(gSel.pct1))}},
+    var p1Cell = (!gSel||gSel.sup||gSel.pct1==null) ? supCell("prioridad1",true)
+      : h("td",{key:"prioridad1",style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",borderLeft:"2px solid var(--line2)",background:heatColor(normP1(gSel.pct1))}},
           h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink)"}},Math.round(gSel.pct1)+"%"),
           h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--ink2)"}}," ("+fmt(gSel.np1)+")"));
     return h("tr",{key:id}, nameCell(id,idx), egCell, cells, p1Cell); });
