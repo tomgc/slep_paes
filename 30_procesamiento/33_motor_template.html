@@ -224,16 +224,13 @@ function ContextStrip(ctx){
         h("span",{style:{width:"9px",height:"9px",background:terrColor(id,i),borderRadius:"2px"}}),
         h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-caption)",color:"var(--ink)"}},terrName(id))); }));
   } else {
-    var id=s.terrSel, p=terrParse(id);
-    var chip=h("span",{style:{display:"inline-flex",alignItems:"center",gap:"9px",padding:"8px 14px",background:"var(--plum)",borderRadius:"4px"}},
-      h("span",{style:{width:"13px",height:"13px",background:"var(--cream)",borderRadius:"2px"}}),
-      h("span",{style:{display:"flex",flexDirection:"column",lineHeight:1.15}},
-        h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:"var(--cream)"}},terrName(id)),
-        h("span",{style:{fontSize:"var(--fs-overline)",color:"rgba(255,246,224,.7)"}}, terrTipoLabel(p.tipo)+" · admisión "+M.anio_actual)));
-    var kids=childComunas(id);
+    // Se retira el chip grande del territorio: es redundante con el selector de
+    // arriba (territoryBtn ya muestra el nombre). La franja queda solo con el
+    // desglose por comuna; si el territorio no tiene comunas hijas, no se muestra.
+    var kids=childComunas(s.terrSel);
+    if(!kids.length) return null;
     inner=h("div",{style:{display:"flex",alignItems:"center",gap:"10px",flexWrap:"wrap"}},
-      chip,
-      kids.length? h("span",{style:{fontSize:"var(--fs-body)",color:"var(--slate)"}},"con desglose por comuna:") : null,
+      h("span",{style:{fontSize:"var(--fs-body)",color:"var(--slate)"}},"con desglose por comuna:"),
       kids.slice(0,12).map(function(cid,i){ var eg=covGet(cid,M.anio_actual,"egresados");
         return h("span",{key:cid,style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"5px 10px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px"}},
           h("span",{style:{width:"11px",height:"11px",background:terrColor(cid,i),borderRadius:"2px"}}),
