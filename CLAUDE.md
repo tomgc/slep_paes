@@ -124,7 +124,21 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 ## Ultimos cambios
 
-1. **Sesion — rotulo «1.ª prioridad», marca visual de cambio de base, y
+1. **Sesion — bloque «Universo de seleccionados» en la tabla comparativa de
+   Cobertura (handoff Claude Design).** Reemplaza el tratamiento visual de la Fase 2
+   anterior (`1d22d44`: borde simple + flecha, rechazado «2/10») por el bloque del
+   handoff en `CobComp`: banda superior `colSpan=2` sobre Seleccionado +
+   1.ª prioridad («UNIVERSO DE SELECCIONADOS · la 1.ª prioridad es % de este
+   grupo», fondo `rgba(21,62,94,.05)`), marco exterior `BRK` (1.5px plum .42)
+   envolviendo ambas columnas por los cuatro lados, separacion interna `BRK_IN`
+   (1px `var(--line2)`) + flecha en `--plum`, header 1.ª prioridad en `--plum`,
+   heatmap P1 con rango propio (`rangoP1`). `supCell` pasa a firma `(key,bl,br)`
+   (bordes de grupo tambien en celdas suprimidas); caller de `RenComp` adaptado
+   (preserva su 1px `var(--line2)`). Nota al pie con la redaccion corregida de la
+   cohorte «Anteriores». Interfaz pura: `pct_prioridad_1` sin cambios. Verificado
+   B.4 en navegador (banda/marco/flecha, rango propio P1, 0 errores). Commit
+   `8a614c3`. Log: `andamios/logs/20260702_universo_seleccionados_log.md`.
+2. **Sesion — rotulo «1.ª prioridad», marca visual de cambio de base, y
    DETENCION (a) en conteo invierno/regular.** Fase 1: rename «Prioridad 1» ->
    «1.ª prioridad» en texto visible del motor (header `heads` + nota
    metodologica; identificadores `n_prioridad_1`/`pct_prioridad_1` intactos)
@@ -220,9 +234,3 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    causas de negocio conocidas — rezagados sin RBD vigente, preferencias
    rechazadas sin ponderado — no a fallas de parsing). `32_agregar_
    territorial.R` sigue como stub.
-4. **Sesion 2 — `31_leer_normalizar.R`: limpieza MODULO_*.** Las columnas
-   crudas `modulo_{reg,inv}_{actual,anterior}` quedaban replicadas sin
-   pivotear en `paes_rendicion_resultados.parquet` (redundantes con
-   `modulo_ciencias`, ya derivada). Se excluyen del `df` base antes del pivot
-   de puntajes. Verificado: parquet regenerado con 4.845.570 filas (sin
-   cambio) y 22 columnas (antes 26); `modulo_ciencias` intacta.
