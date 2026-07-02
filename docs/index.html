@@ -5020,6 +5020,9 @@ AAABrwBBAPMAAA==) format('opentype');}
   --terra:#C45A3E;
   --font-d:"gobCL","Arial Black",system-ui,sans-serif;
   --font-b:"Museo Sans","gobCL",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  /* Escala tipografica nombrada (patron ade); piso 12px */
+  --fs-overline:12px;--fs-caption:14px;--fs-body:16px;--fs-body-lg:18px;
+  --fs-h4:18px;--fs-h3:22px;--fs-h2:28px;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;background:#E9E0CC;}
@@ -5411,28 +5414,28 @@ function App(){
 // ---- Chrome ---------------------------------------------------------------
 function TopStrip(){
   return h("div",{style:{display:"flex",alignItems:"center",gap:"14px",background:"var(--ink)",color:"var(--cream)",padding:"8px 24px",flexWrap:"wrap"}},
-    h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",letterSpacing:".02em",color:"rgba(255,246,224,.85)"}},"Motor slep_paes"),
+    h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-caption)",letterSpacing:".02em",color:"rgba(255,246,224,.85)"}},"Motor slep_paes"),
     h("span",{style:{width:"1px",height:"13px",background:"rgba(255,246,224,.25)"}}),
-    h("span",{style:{fontSize:"11.5px",color:"rgba(255,246,224,.6)"}},"El foco (cobertura / rendimiento) es el modo primario y define el color de la vista."),
+    h("span",{style:{fontSize:"var(--fs-caption)",color:"rgba(255,246,224,.6)"}},"El foco (cobertura / rendimiento) es el modo primario y define el color de la vista."),
     h("span",{style:{flex:1}}),
-    h("span",{style:{fontSize:"11px",color:"rgba(255,246,224,.55)"}},"Datos públicos del DEMRE · agregados territoriales"));
+    h("span",{style:{fontSize:"var(--fs-caption)",color:"rgba(255,246,224,.55)"}},"Datos públicos del DEMRE · agregados territoriales"));
 }
 function Header(){
   return h("div",{style:{background:"var(--plum)",color:"var(--cream)",padding:"26px 40px 22px"}},
-    h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",letterSpacing:".02em",color:"rgba(255,246,224,.7)",marginBottom:"7px"}},"Área de Monitoreo y Seguimiento de Procesos y Resultados Educativos"),
-    h("h1",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"30px",letterSpacing:"-.01em",lineHeight:1.08,margin:"0 0 8px",color:"var(--cream)"}},
+    h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-caption)",letterSpacing:".02em",color:"rgba(255,246,224,.7)",marginBottom:"7px"}},"Área de Monitoreo y Seguimiento de Procesos y Resultados Educativos"),
+    h("h1",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"var(--fs-h2)",letterSpacing:"-.01em",lineHeight:1.08,margin:"0 0 8px",color:"var(--cream)"}},
       "Resultados Prueba de Acceso a la Educación Superior (PAES)", h("br"),
-      h("span",{style:{fontWeight:400,fontSize:"22px",color:"rgba(255,246,224,.82)"}},"Participación y desempeño")),
-    h("div",{style:{fontSize:"14px",color:"rgba(255,246,224,.72)",fontWeight:400}},"Datos públicos del DEMRE · cobertura nacional"),
-    h("p",{style:{margin:"15px 0 0",paddingTop:"15px",borderTop:"1px solid rgba(255,246,224,.16)",color:"rgba(255,246,224,.8)",fontSize:"13px",lineHeight:1.6,maxWidth:"940px",fontWeight:300}},
+      h("span",{style:{fontWeight:400,fontSize:"var(--fs-h3)",color:"rgba(255,246,224,.82)"}},"Participación y desempeño")),
+    h("div",{style:{fontSize:"var(--fs-body-lg)",color:"rgba(255,246,224,.72)",fontWeight:400}},"Datos públicos del DEMRE · cobertura nacional"),
+    h("p",{style:{margin:"15px 0 0",paddingTop:"15px",borderTop:"1px solid rgba(255,246,224,.16)",color:"rgba(255,246,224,.8)",fontSize:"var(--fs-body)",lineHeight:1.6,maxWidth:"940px",fontWeight:300}},
       "Reporte HTML autocontenido con datos públicos del DEMRE sobre la PAES. Dos focos pares, ninguno subordinado al otro: la cobertura —el embudo de participación— y el rendimiento —la distribución de puntajes—, sobre la misma navegación territorial. Solo se muestran agregados por territorio (nacional, región, SLEP, comuna)."));
 }
 
 // ---- Controles ------------------------------------------------------------
-function lbl(t){ return h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",letterSpacing:".01em",color:"var(--slate)"}},t); }
+function lbl(t){ return h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-caption)",letterSpacing:".01em",color:"var(--slate)"}},t); }
 function seg(items,val,on,activeColor){
   return h("div",{style:{display:"inline-flex",background:"var(--cream200)",border:"1px solid var(--line)",borderRadius:"4px",padding:"2px"}},
-    items.map(function(it){ return h("button",{key:it.v,onClick:function(){on(it.v);},style:{border:0,padding:"6px 14px",borderRadius:"3px",cursor:"pointer",fontFamily:"var(--font-b)",fontSize:"13px",fontWeight:val===it.v?700:500,background:val===it.v?"#fff":"transparent",color:val===it.v?(activeColor||"var(--plum)"):"var(--ink2)",boxShadow:val===it.v?"0 1px 2px rgba(74,39,70,.14)":"none"}},it.label); }));
+    items.map(function(it){ return h("button",{key:it.v,onClick:function(){on(it.v);},style:{border:0,padding:"6px 14px",borderRadius:"3px",cursor:"pointer",fontFamily:"var(--font-b)",fontSize:"var(--fs-body)",fontWeight:val===it.v?700:500,background:val===it.v?"#fff":"transparent",color:val===it.v?(activeColor||"var(--plum)"):"var(--ink2)",boxShadow:val===it.v?"0 1px 2px rgba(74,39,70,.14)":"none"}},it.label); }));
 }
 function FocoTabs(ctx){
   var foco=ctx.state.foco;
@@ -5443,22 +5446,22 @@ function FocoTabs(ctx){
       return h("button",{key:tb.v,onClick:function(){ctx.upd({foco:tb.v});},style:{flex:1,textAlign:"left",padding:"14px 22px",cursor:"pointer",background:on?"#fff":"transparent",border:0,borderRight:i===0?"1px solid var(--line)":"0",borderBottom:on?("3px solid "+tb.col):"3px solid transparent"}},
         h("div",{style:{display:"flex",alignItems:"center",gap:"9px",marginBottom:"2px"}},
           h("span",{style:{width:"12px",height:"12px",background:tb.col,borderRadius:"2px",opacity:on?1:.35}}),
-          h("span",{style:{fontFamily:"var(--font-d)",fontWeight:on?900:400,fontSize:"18px",color:on?tb.col:"var(--ink2)",letterSpacing:"-.01em"}},tb.t)),
-        h("div",{style:{fontSize:"11.5px",color:"var(--slate)",paddingLeft:"21px"}},tb.d)); }));
+          h("span",{style:{fontFamily:"var(--font-d)",fontWeight:on?900:400,fontSize:"var(--fs-h4)",color:on?tb.col:"var(--ink2)",letterSpacing:"-.01em"}},tb.t)),
+        h("div",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)",paddingLeft:"21px"}},tb.d)); }));
 }
 function territoryBtn(ctx){
   var label = ctx.state.vista==="comp" ? ("Comparar "+ctx.state.compSel.length+" territorios") : terrName(ctx.state.terrSel);
-  return h("button",{onClick:function(){ctx.upd({modalOpen:true});},style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"7px 12px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px",cursor:"pointer",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"13px",color:"var(--ink)"}},
+  return h("button",{onClick:function(){ctx.upd({modalOpen:true});},style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"7px 12px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px",cursor:"pointer",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink)"}},
     h("span",{style:{width:"11px",height:"11px",background:"var(--plum)",borderRadius:"2px"}}), label,
-    h("span",{style:{color:"var(--slate)",fontSize:"11px"}},"▾"));
+    h("span",{style:{color:"var(--slate)",fontSize:"var(--fs-caption)"}},"▾"));
 }
 function genAntToggle(ctx){
   var on=ctx.state.showRez, acc=ctx.acc;
   return h("button",{onClick:function(){ctx.upd({showRez:!on});},title:"Mostrar u ocultar la categoría generaciones anteriores",style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"6px 11px",background:on?"#fff":"transparent",border:"1px solid "+(on?"var(--line2)":"var(--line)"),borderRadius:"4px",cursor:"pointer"}},
-    h("span",{style:{width:"15px",height:"15px",flex:"none",borderRadius:"3px",border:"1.5px solid "+(on?acc:"var(--slate)"),background:on?acc:"transparent",display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"10px",fontWeight:700}}, on?"✓":""),
+    h("span",{style:{width:"15px",height:"15px",flex:"none",borderRadius:"3px",border:"1.5px solid "+(on?acc:"var(--slate)"),background:on?acc:"transparent",display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"var(--fs-overline)",fontWeight:700}}, on?"✓":""),
     h("span",{style:{display:"flex",flexDirection:"column",lineHeight:1.15,textAlign:"left"}},
-      h("span",{style:{fontSize:"12.5px",fontWeight:600,color:"var(--ink)"}},"Generaciones anteriores"),
-      h("span",{style:{fontSize:"10px",color:"var(--slate)"}}, on?"visibles en el detalle":"ocultas del detalle (categoría siempre reportada)")));
+      h("span",{style:{fontSize:"var(--fs-body)",fontWeight:600,color:"var(--ink)"}},"Generaciones anteriores"),
+      h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--slate)"}}, on?"visibles en el detalle":"ocultas del detalle (categoría siempre reportada)")));
 }
 function Controls(ctx){
   var s=ctx.state, acc=ctx.acc;
@@ -5472,7 +5475,7 @@ function Controls(ctx){
   var sub=h("div",{style:{display:"flex",alignItems:"center",gap:"24px",padding:"11px 40px",background:"var(--cream50)",borderBottom:"1px solid var(--line)",flexWrap:"wrap"}},
     (s.vista==="terr" && s.modo==="actual")
       ? h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl("Cohorte"), genAntToggle(ctx))
-      : h("span",{style:{fontSize:"11.5px",color:"var(--slate)"}}, s.modo==="hist" ? ("Serie "+M.anios[0]+"–"+M.anios[M.anios.length-1]+" · proceso de cada año") : ("Comparación entre territorios · admisión "+M.anio_actual)));
+      : h("span",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)"}}, s.modo==="hist" ? ("Serie "+M.anios[0]+"–"+M.anios[M.anios.length-1]+" · proceso de cada año") : ("Comparación entre territorios · admisión "+M.anio_actual)));
   return h("div",{}, FocoTabs(ctx), secondary, sub);
 }
 
@@ -5488,40 +5491,40 @@ function ContextStrip(ctx){
   var s=ctx.state, inner;
   if(s.vista==="comp"){
     inner=h("div",{style:{display:"flex",alignItems:"center",gap:"8px",flexWrap:"wrap"}},
-      h("span",{style:{fontSize:"12px",color:"var(--slate)",fontWeight:500}},"Comparando "+s.compSel.length+" territorios · admite hasta 10:"),
+      h("span",{style:{fontSize:"var(--fs-body)",color:"var(--slate)",fontWeight:500}},"Comparando "+s.compSel.length+" territorios · admite hasta 10:"),
       s.compSel.map(function(id,i){ return h("span",{key:id,style:{display:"inline-flex",alignItems:"center",gap:"6px",padding:"4px 9px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px"}},
         h("span",{style:{width:"9px",height:"9px",background:terrColor(id,i),borderRadius:"2px"}}),
-        h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"11.5px",color:"var(--ink)"}},terrName(id))); }));
+        h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-caption)",color:"var(--ink)"}},terrName(id))); }));
   } else {
     var id=s.terrSel, p=terrParse(id);
     var chip=h("span",{style:{display:"inline-flex",alignItems:"center",gap:"9px",padding:"8px 14px",background:"var(--plum)",borderRadius:"4px"}},
       h("span",{style:{width:"13px",height:"13px",background:"var(--cream)",borderRadius:"2px"}}),
       h("span",{style:{display:"flex",flexDirection:"column",lineHeight:1.15}},
-        h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"13px",color:"var(--cream)"}},terrName(id)),
-        h("span",{style:{fontSize:"10px",color:"rgba(255,246,224,.7)"}}, terrTipoLabel(p.tipo)+" · admisión "+M.anio_actual)));
+        h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:"var(--cream)"}},terrName(id)),
+        h("span",{style:{fontSize:"var(--fs-overline)",color:"rgba(255,246,224,.7)"}}, terrTipoLabel(p.tipo)+" · admisión "+M.anio_actual)));
     var kids=childComunas(id);
     inner=h("div",{style:{display:"flex",alignItems:"center",gap:"10px",flexWrap:"wrap"}},
       chip,
-      kids.length? h("span",{style:{fontSize:"12px",color:"var(--slate)"}},"con desglose por comuna:") : null,
+      kids.length? h("span",{style:{fontSize:"var(--fs-body)",color:"var(--slate)"}},"con desglose por comuna:") : null,
       kids.slice(0,12).map(function(cid,i){ var eg=covGet(cid,M.anio_actual,"egresados");
         return h("span",{key:cid,style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"5px 10px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px"}},
           h("span",{style:{width:"11px",height:"11px",background:terrColor(cid,i),borderRadius:"2px"}}),
           h("span",{style:{display:"flex",flexDirection:"column",lineHeight:1.15}},
-            h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"12px",color:"var(--ink)"}},terrName(cid)),
-            h("span",{style:{fontSize:"10px",color:"var(--slate)"}}, (eg&&!eg.sup? fmt(eg.n)+" egresados" : SUP_SHORT)))); }));
+            h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:"var(--ink)"}},terrName(cid)),
+            h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--slate)"}}, (eg&&!eg.sup? fmt(eg.n)+" egresados" : SUP_SHORT)))); }));
   }
   return h("div",{style:{padding:"14px 40px",background:"var(--cream50)",borderBottom:"1px solid var(--line)"}},
-    h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",letterSpacing:".02em",color:"var(--slate)",marginBottom:"10px"}},"Territorio en pantalla"),
+    h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-caption)",letterSpacing:".02em",color:"var(--slate)",marginBottom:"10px"}},"Territorio en pantalla"),
     inner);
 }
 
 // ---- Utilidades de tarjeta / nota ----------------------------------------
-function noteStrip(text,acc,soft){ return h("div",{style:{background:soft,borderLeft:"3px solid "+acc,padding:"10px 14px",borderRadius:"0 4px 4px 0",fontSize:"12.5px",color:"var(--ink2)",lineHeight:1.5,maxWidth:"940px"}},text); }
+function noteStrip(text,acc,soft){ return h("div",{style:{background:soft,borderLeft:"3px solid "+acc,padding:"10px 14px",borderRadius:"0 4px 4px 0",fontSize:"var(--fs-body)",color:"var(--ink2)",lineHeight:1.5,maxWidth:"940px"}},text); }
 function card(extra,children){ return h("div",{style:Object.assign({background:"#fff",border:"1px solid var(--line)",borderRadius:"8px",padding:"18px",boxShadow:"0 2px 8px rgba(74,39,70,.08)"},extra||{})},children); }
-function cardTitle(t,sub){ return h("div",{style:{marginBottom:"12px"}}, h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"15px",color:"var(--ink)"}},t), sub?h("div",{style:{fontSize:"11px",color:"var(--slate)",marginTop:"2px"}},sub):null); }
+function cardTitle(t,sub){ return h("div",{style:{marginBottom:"12px"}}, h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-h4)",color:"var(--ink)"}},t), sub?h("div",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginTop:"2px"}},sub):null); }
 function supBox(hgt){ return h("div",{style:{height:hgt+"px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#E7E1D2",borderRadius:"4px"}},
-  h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"12px",color:"var(--slate)"}},"Sin dato"),
-  h("span",{style:{fontSize:"10px",color:"var(--slate)",marginTop:"2px"}},"resguardo estadístico · n < "+M.umbral)); }
+  h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:"var(--slate)"}},"Sin dato"),
+  h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--slate)",marginTop:"2px"}},"resguardo estadístico · n < "+M.umbral)); }
 
 // ---- Meta de vista --------------------------------------------------------
 function viewMeta(ctx){
@@ -5542,10 +5545,10 @@ function ResultsSection(ctx){
   var vm=viewMeta(ctx), acc=ctx.acc, soft=ctx.accSoft;
   return h("div",{style:{padding:"24px 40px 8px"}},
     h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:"16px"}},
-      h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",letterSpacing:".02em",color:"var(--slate)",marginBottom:"4px"}},"Resultados"),
+      h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-caption)",letterSpacing:".02em",color:"var(--slate)",marginBottom:"4px"}},"Resultados"),
       ExportBar(ctx)),
-    h("h2",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"23px",letterSpacing:"-.005em",lineHeight:1.15,margin:0,color:"var(--ink)"}},vm.t),
-    h("div",{style:{fontSize:"13px",color:"var(--slate)",marginTop:"3px",fontWeight:400}},vm.sub),
+    h("h2",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"var(--fs-h3)",letterSpacing:"-.005em",lineHeight:1.15,margin:0,color:"var(--ink)"}},vm.t),
+    h("div",{style:{fontSize:"var(--fs-body)",color:"var(--slate)",marginTop:"3px",fontWeight:400}},vm.sub),
     h("div",{style:{marginTop:"14px"}}, noteStrip(vm.note,acc,soft)),
     h("div",{id:"paesWork",style:{marginTop:"16px"}}, WorkArea(ctx)));
 }
@@ -5580,9 +5583,9 @@ function funnelSvg(stages, acc){
     var pct=pctOf(s), y=top+i*(slabH+gap);
     var w=Math.max((pct!=null?pct:0)/100*areaW,2), x=cx-w/2;
     els.push(h("rect",{key:"r"+i,x:x,y:y,width:w,height:slabH,rx:3,fill:acc,opacity:(0.4+i*0.1).toFixed(2)}));
-    els.push(h("text",{key:"l"+i,x:labelW,y:y+slabH/2+4,textAnchor:"end",fill:"var(--ink)",fontFamily:"var(--font-b)",fontWeight:500,fontSize:11.5},s.label));
+    els.push(h("text",{key:"l"+i,x:labelW,y:y+slabH/2+4,textAnchor:"end",fill:"var(--ink)",fontFamily:"var(--font-b)",fontWeight:500,fontSize:"var(--fs-caption)"},s.label));
     var rot = s.sup ? SUP_SHORT : (pct!=null? (fmtPct(pct)+" ("+fmt(s.n)+")") : "—");
-    els.push(h("text",{key:"p"+i,x:labelW+20+areaW+14,y:y+slabH/2+4,textAnchor:"start",fill:"var(--ink2)",fontFamily:"var(--font-b)",fontWeight:500,fontSize:12.5},rot));
+    els.push(h("text",{key:"p"+i,x:labelW+20+areaW+14,y:y+slabH/2+4,textAnchor:"start",fill:"var(--ink2)",fontFamily:"var(--font-b)",fontWeight:500,fontSize:"var(--fs-body)"},rot));
   });
   return h("svg",{viewBox:"0 0 "+W+" "+H,style:{width:"100%",height:"auto",display:"block"}},els);
 }
@@ -5593,9 +5596,9 @@ function genAntSlab(ctx){
   var val = g? (g.sup? SUP_SHORT : fmt(g.n)) : "—";
   return h("div",{style:{border:"1px dashed "+acc,background:soft,borderRadius:"8px",padding:"16px 18px",display:"flex",gap:"24px",alignItems:"center",flexWrap:"wrap",opacity:on?1:0.55}},
     h("div",{style:{flex:"none"}},
-      h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"10px",letterSpacing:".02em",color:acc}},"Siempre reportada · generaciones anteriores (nacional)"),
-      h("div",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"34px",color:acc,lineHeight:1.05}},val)),
-    h("p",{style:{flex:"1 1 240px",fontSize:"12px",color:"var(--slate)",lineHeight:1.5,margin:0}},
+      h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-overline)",letterSpacing:".02em",color:acc}},"Siempre reportada · generaciones anteriores (nacional)"),
+      h("div",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"var(--fs-h2)",color:acc,lineHeight:1.05}},val)),
+    h("p",{style:{flex:"1 1 240px",fontSize:"var(--fs-body)",color:"var(--slate)",lineHeight:1.5,margin:0}},
       on ? "Personas que rinden la PAES sin establecimiento de egreso vigente en el año. Se reportan como categoría propia agregada a nivel nacional (no son asignables a un territorio); nunca se ocultan ni se tratan como error."
          : "Categoría oculta del detalle por el control de cohorte, pero siempre reportada aquí. Son quienes rinden sin establecimiento de egreso vigente en el año (agregado nacional)."));
 }
@@ -5616,12 +5619,12 @@ function retencionComunas(ctx){
         return h("div",{key:cid,style:{border:"1px solid var(--line)",borderRadius:"6px",padding:"10px"}},
           h("div",{style:{display:"flex",alignItems:"center",gap:"6px",marginBottom:"4px"}},
             h("span",{style:{width:"10px",height:"10px",background:col,borderRadius:"2px"}}),
-            h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"12px",color:"var(--ink)"}},terrName(cid))),
+            h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:"var(--ink)"}},terrName(cid))),
           h("svg",{viewBox:"0 0 200 60",style:{width:"100%",height:"auto",display:"block"}},
             h("polygon",{points:"10,50 "+poly+" 190,50",fill:col,opacity:0.1}),
             h("polyline",{points:poly,fill:"none",stroke:col,strokeWidth:2}),
             pts.map(function(p,i){return h("circle",{key:i,cx:p[0],cy:p[1],r:2.2,fill:col});})),
-          h("div",{style:{fontSize:"11px",color:"var(--slate)",marginTop:"4px"}}, (base&&sel!=null)? ("seleccionados "+(sel/base*100).toFixed(0)+"% · "+fmt(sel)+" de "+fmt(base)) : SUP_SHORT));
+          h("div",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginTop:"4px"}}, (base&&sel!=null)? ("seleccionados "+(sel/base*100).toFixed(0)+"% · "+fmt(sel)+" de "+fmt(base)) : SUP_SHORT));
       }))]);
 }
 function CobActual(ctx){
@@ -5640,8 +5643,8 @@ function lineChart(series,yMin,yMax,unit,W,H,ticks,years){
   var sy=function(v){return padT+(yMax-v)/(yMax-yMin)*(H-padT-padB);};
   var els=[];
   ticks.forEach(function(t){ els.push(h("line",{key:"g"+t,x1:padL,y1:sy(t),x2:W-padR,y2:sy(t),stroke:"var(--line)",strokeWidth:1}));
-    els.push(h("text",{key:"yl"+t,x:padL-10,y:sy(t)+3,textAnchor:"end",fontSize:9,fill:"var(--slate)",fontFamily:"var(--font-b)"},t+(unit||""))); });
-  years.forEach(function(y,i){ els.push(h("text",{key:"xl"+i,x:sx(i),y:H-8,textAnchor:"middle",fontSize:9.5,fill:"var(--slate)",fontFamily:"var(--font-b)"},y)); });
+    els.push(h("text",{key:"yl"+t,x:padL-10,y:sy(t)+3,textAnchor:"end",fontSize:"var(--fs-overline)",fill:"var(--slate)",fontFamily:"var(--font-b)"},t+(unit||""))); });
+  years.forEach(function(y,i){ els.push(h("text",{key:"xl"+i,x:sx(i),y:H-8,textAnchor:"middle",fontSize:"var(--fs-overline)",fill:"var(--slate)",fontFamily:"var(--font-b)"},y)); });
   series.forEach(function(s,si){
     var pts=s.vals.map(function(v,i){return v==null?null:[sx(i),sy(v)];});
     var poly=pts.filter(Boolean).map(function(p){return p[0].toFixed(1)+","+p[1].toFixed(1);}).join(" ");
@@ -5649,7 +5652,7 @@ function lineChart(series,yMin,yMax,unit,W,H,ticks,years){
     var below=s.labelPos==="below";
     s.vals.forEach(function(v,i){ if(v==null) return;
       els.push(h("circle",{key:"d"+si+"_"+i,cx:sx(i),cy:sy(v),r:4.5,fill:s.color}));
-      els.push(h("text",{key:"t"+si+"_"+i,x:sx(i),y:sy(v)+(below?15:-9),textAnchor:"middle",fontSize:10.5,fontWeight:700,fill:s.color,fontFamily:"var(--font-d)"},v+(unit||""))); });
+      els.push(h("text",{key:"t"+si+"_"+i,x:sx(i),y:sy(v)+(below?15:-9),textAnchor:"middle",fontSize:"var(--fs-overline)",fontWeight:700,fill:s.color,fontFamily:"var(--font-d)"},v+(unit||""))); });
   });
   return h("svg",{viewBox:"0 0 "+W+" "+H,style:{width:"100%",height:"auto",display:"block"}},els);
 }
@@ -5660,15 +5663,15 @@ function CobHist(ctx){
     if(!eg||eg.sup||!st||st.sup||!eg.n) return null; return Math.round(st.n/eg.n*100); }); }
   var rin=pctSerie("rendicion"), sel=pctSerie("seleccion");
   var mat2="#B0855F";
-  var legend=h("div",{style:{display:"flex",gap:"18px",flexWrap:"wrap",marginBottom:"10px",fontSize:"11.5px",color:"var(--ink2)"}},
+  var legend=h("div",{style:{display:"flex",gap:"18px",flexWrap:"wrap",marginBottom:"10px",fontSize:"var(--fs-caption)",color:"var(--ink2)"}},
     h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:acc,display:"inline-block"}}),"Rindió al menos una prueba (% de egresados)"),
     h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:mat2,display:"inline-block",borderTop:"2px dashed "+mat2}}),"Seleccionado (% de egresados)"));
   var rezStrip=h("div",{style:{marginTop:"16px",borderTop:"1px solid var(--line)",paddingTop:"12px"}},
-    h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",color:acc,marginBottom:"8px"}},"Generaciones anteriores por año · siempre reportada (agregado nacional)"),
+    h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-caption)",color:acc,marginBottom:"8px"}},"Generaciones anteriores por año · siempre reportada (agregado nacional)"),
     h("div",{style:{display:"flex",gap:"10px",flexWrap:"wrap"}}, years.map(function(y){ var g=covGet(REZ_ID,y,"inscripcion");
       return h("div",{key:y,style:{flex:"1 1 80px",border:"1px dashed "+acc,background:ctx.accSoft,borderRadius:"6px",padding:"8px 10px",textAlign:"center"}},
-        h("div",{style:{fontSize:"11px",color:"var(--slate)"}},y),
-        h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"17px",color:acc}}, g?(g.sup?SUP_SHORT:fmt(g.n)):"—")); })));
+        h("div",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)"}},y),
+        h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-h4)",color:acc}}, g?(g.sup?SUP_SHORT:fmt(g.n)):"—")); })));
   return card({},[cardTitle("Participación en el tiempo", terrName(id)+" · "+years[0]+"–"+years[years.length-1]+" · proceso de cada año"),
     legend,
     lineChart([{color:acc,vals:rin,labelPos:"above"},{color:mat2,vals:sel,dashed:true,labelPos:"below"}],0,100,"%",720,240,[0,25,50,75,100],years),
@@ -5681,16 +5684,16 @@ function heatColor(t){ if(t==null||isNaN(t)) return "transparent";
   var c=a.map(function(x,i){return Math.round(x+(b[i]-x)*f);});
   return "rgba("+c[0]+","+c[1]+","+c[2]+",0.45)"; }
 function heatLegend(dirLabel){ var grad="linear-gradient(90deg,rgba(214,69,69,.5),rgba(236,228,208,.45),rgba(13,130,190,.45))";
-  return h("span",{style:{display:"inline-flex",alignItems:"center",gap:"8px",fontSize:"11px",color:"var(--slate)"}},
+  return h("span",{style:{display:"inline-flex",alignItems:"center",gap:"8px",fontSize:"var(--fs-caption)",color:"var(--slate)"}},
     h("span",{},dirLabel||"menor (más alerta)"),
     h("span",{style:{width:"90px",height:"12px",borderRadius:"3px",background:grad,border:"1px solid var(--line)"}}),
     h("span",{},"mayor")); }
 function nameCell(id,idx){ return h("td",{style:{padding:"9px 9px",textAlign:"right",borderBottom:"1px solid var(--line)"}},
   h("span",{style:{display:"inline-flex",alignItems:"center",gap:"7px",justifyContent:"flex-end"}},
     h("span",{style:{width:"10px",height:"10px",flex:"none",background:terrColor(id,idx),borderRadius:"2px"}}),
-    h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"12.5px",color:"var(--ink)"}},terrName(id)))); }
+    h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink)"}},terrName(id)))); }
 function supCell(key,leftBorder){ return h("td",{key:key,style:{padding:"9px 9px",textAlign:"center",background:"#E7E1D2",borderBottom:"1px solid var(--line)",borderLeft:leftBorder?"1px solid var(--line2)":"none"}},
-  h("span",{style:{fontSize:"10px",fontWeight:700,color:"var(--slate)"}},SUP_SHORT)); }
+  h("span",{style:{fontSize:"var(--fs-overline)",fontWeight:700,color:"var(--slate)"}},SUP_SHORT)); }
 function CobComp(ctx){
   var acc=ctx.acc, ids=ctx.state.compSel, anio=M.anio_actual;
   var keys=["inscripcion","rendicion","resultados","postulacion","seleccion"];
@@ -5700,18 +5703,18 @@ function CobComp(ctx){
       if(eg&&!eg.sup&&eg.n&&st&&!st.sup) vs.push(st.n/eg.n*100); });
     ranges[k]=vs.length?[Math.min.apply(null,vs),Math.max.apply(null,vs)]:[0,1]; });
   function norm(k,pct){ var r=ranges[k]; return r[1]>r[0]?(pct-r[0])/(r[1]-r[0]):0.5; }
-  var th=heads.map(function(t,i){ return h("th",{key:i,style:{textAlign:i===0?"right":"center",padding:"8px 9px",fontFamily:"var(--font-b)",fontWeight:700,fontSize:"10.5px",color:"var(--slate)",borderBottom:"2px solid "+acc,whiteSpace:"nowrap"}},t); });
+  var th=heads.map(function(t,i){ return h("th",{key:i,style:{textAlign:i===0?"right":"center",padding:"8px 9px",fontFamily:"var(--font-b)",fontWeight:700,fontSize:"var(--fs-overline)",color:"var(--slate)",borderBottom:"2px solid "+acc,whiteSpace:"nowrap"}},t); });
   var rows=ids.map(function(id,idx){ var eg=covGet(id,anio,"egresados");
-    var egCell=h("td",{style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"13px",color:"var(--ink2)"}}, (eg&&!eg.sup)?fmt(eg.n):SUP_SHORT);
+    var egCell=h("td",{style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink2)"}}, (eg&&!eg.sup)?fmt(eg.n):SUP_SHORT);
     var cells=keys.map(function(k){ var st=covGet(id,anio,k);
       if(!st||st.sup||!eg||eg.sup||!eg.n) return supCell(k,false);
       var pct=st.n/eg.n*100;
       return h("td",{key:k,style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",background:heatColor(norm(k,pct))}},
-        h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"13px",color:"var(--ink)"}},Math.round(pct)+"%"),
-        h("span",{style:{fontSize:"10.5px",color:"var(--ink2)"}}," ("+fmt(st.n)+")")); });
+        h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink)"}},Math.round(pct)+"%"),
+        h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--ink2)"}}," ("+fmt(st.n)+")")); });
     return h("tr",{key:id}, nameCell(id,idx), egCell, cells); });
   return card({},[
-    h("div",{key:"lg",style:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px",flexWrap:"wrap",fontSize:"11px",color:"var(--slate)"}},
+    h("div",{key:"lg",style:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px",flexWrap:"wrap",fontSize:"var(--fs-caption)",color:"var(--slate)"}},
       h("span",{},"Cada celda: % de egresados (n). Heatmap por columna: menor proporción = más alerta."),
       heatLegend("menor % (más alerta)"),
       h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"22px",height:"14px",borderRadius:"3px",background:"#E7E1D2",display:"inline-block"}}),SUP_TXT)),
@@ -5725,23 +5728,23 @@ function meanBars(ctx, items, muted){
     var g=renGet(id,anio,p.k);
     var col=muted?"#8A7C86":acc;
     var head=h("div",{style:{display:"flex",alignItems:"baseline",gap:"9px",marginBottom:"3px"}},
-      p.sigla?h("span",{style:{background:col,color:"#fff",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"10px",padding:"2px 6px",borderRadius:"3px"}},p.sigla):h("span",{style:{width:"10px",height:"10px",background:col,borderRadius:"2px"}}),
-      h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"13px",color:"var(--ink)",flex:1}},p.name),
-      (g&&!g.sup)?h("span",{style:{fontSize:"11px",color:"var(--slate)"}},"media "+fmtMean(g.media)+" · n = "+fmt(g.n)):null);
+      p.sigla?h("span",{style:{background:col,color:"#fff",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-overline)",padding:"2px 6px",borderRadius:"3px"}},p.sigla):h("span",{style:{width:"10px",height:"10px",background:col,borderRadius:"2px"}}),
+      h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:"var(--ink)",flex:1}},p.name),
+      (g&&!g.sup)?h("span",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)"}},"media "+fmtMean(g.media)+" · n = "+fmt(g.n)):null);
     var body;
-    if(!g||g.sup){ body=h("div",{style:{height:"22px",display:"flex",alignItems:"center",paddingLeft:"4px",background:"#E7E1D2",borderRadius:"4px",fontSize:"11px",color:"var(--slate)"}},SUP_TXT); }
+    if(!g||g.sup){ body=h("div",{style:{height:"22px",display:"flex",alignItems:"center",paddingLeft:"4px",background:"#E7E1D2",borderRadius:"4px",fontSize:"var(--fs-caption)",color:"var(--slate)"}},SUP_TXT); }
     else { var w=(g.media-lo)/(hi-lo)*100;
       body=h("div",{style:{position:"relative",height:"22px",background:"var(--cream200)",borderRadius:"4px"}},
         h("div",{style:{position:"absolute",left:0,top:0,bottom:0,width:w+"%",background:col,opacity:muted?0.4:0.8,borderRadius:"4px"}}),
-        h("div",{style:{position:"absolute",left:"calc("+w+"% + 4px)",top:0,bottom:0,display:"flex",alignItems:"center",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"11px",color:"var(--ink)"}},fmtMean(g.media))); }
+        h("div",{style:{position:"absolute",left:"calc("+w+"% + 4px)",top:0,bottom:0,display:"flex",alignItems:"center",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-caption)",color:"var(--ink)"}},fmtMean(g.media))); }
     return h("div",{key:p.k,style:{padding:"9px 0",borderTop:"1px solid var(--line)"}}, head, body);
   });
 }
 function RenActual(ctx){
   var rows=meanBars(ctx, PRUEBAS, false);
-  rows.push(h("div",{key:"ctxh",style:{marginTop:"6px",paddingTop:"10px",borderTop:"2px solid var(--line2)",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",color:"var(--slate)"}},"Contexto — NEM y Ranking (no son pruebas PAES)"));
+  rows.push(h("div",{key:"ctxh",style:{marginTop:"6px",paddingTop:"10px",borderTop:"2px solid var(--line2)",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-caption)",color:"var(--slate)"}},"Contexto — NEM y Ranking (no son pruebas PAES)"));
   meanBars(ctx, CONTEXTO, true).forEach(function(r){ rows.push(r); });
-  var foot=h("div",{style:{fontSize:"10px",color:"var(--slate)",marginTop:"8px"}},"Barra: media en la escala "+M.escala.min+"–"+M.escala.max+" · se reporta la media agregada, no puntajes individuales.");
+  var foot=h("div",{style:{fontSize:"var(--fs-overline)",color:"var(--slate)",marginTop:"8px"}},"Barra: media en la escala "+M.escala.min+"–"+M.escala.max+" · se reporta la media agregada, no puntajes individuales.");
   return card({},[cardTitle("Media de puntaje por prueba", terrName(ctx.state.terrSel)+" · admisión "+M.anio_actual), h("div",{},rows), foot]);
 }
 function RenHist(ctx){
@@ -5750,13 +5753,13 @@ function RenHist(ctx){
     var vals=years.map(function(y){ var g=renGet(id,y,p.k); return (g&&!g.sup)?g.media:null; });
     return h("div",{key:p.k,style:{border:"1px solid var(--line)",borderRadius:"8px",padding:"12px",background:"#fff",boxShadow:"0 1px 4px rgba(74,39,70,.06)"}},
       h("div",{style:{display:"flex",alignItems:"center",gap:"7px",marginBottom:"6px"}},
-        p.sigla?h("span",{style:{background:col,color:"#fff",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"10px",padding:"2px 6px",borderRadius:"3px"}},p.sigla):h("span",{style:{width:"10px",height:"10px",background:col,borderRadius:"2px"}}),
-        h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"12px",color:"var(--ink)"}},p.name)),
+        p.sigla?h("span",{style:{background:col,color:"#fff",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-overline)",padding:"2px 6px",borderRadius:"3px"}},p.sigla):h("span",{style:{width:"10px",height:"10px",background:col,borderRadius:"2px"}}),
+        h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:"var(--ink)"}},p.name)),
       lineChart([{color:col,vals:vals}],M.escala.min,M.escala.max,"",250,140,[300,500,700],years));
   }
   var items=PRUEBAS.map(function(p){return mini(p,acc);});
   return h("div",{},[
-    h("div",{key:"n",style:{fontSize:"11px",color:"var(--slate)",marginBottom:"12px"}},"Media de puntaje por prueba, "+years[0]+"–"+years[years.length-1]+" · escala "+M.escala.min+"–"+M.escala.max+" · NEM y Ranking se omiten en la serie histórica."),
+    h("div",{key:"n",style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginBottom:"12px"}},"Media de puntaje por prueba, "+years[0]+"–"+years[years.length-1]+" · escala "+M.escala.min+"–"+M.escala.max+" · NEM y Ranking se omiten en la serie histórica."),
     h("div",{key:"g",style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:"12px"}},items)]);
 }
 function RenComp(ctx){
@@ -5768,18 +5771,18 @@ function RenComp(ctx){
     ranges[k]=vs.length?[Math.min.apply(null,vs),Math.max.apply(null,vs)]:[0,1]; });
   function norm(k,v){ var r=ranges[k]; return r[1]>r[0]?(v-r[0])/(r[1]-r[0]):0.5; }
   var heads=["Territorio"].concat(allCols.map(function(p){return p.short||p.sigla||p.name;}));
-  var th=heads.map(function(t,i){ return h("th",{key:i,style:{textAlign:i===0?"right":"center",padding:"8px 9px",fontFamily:"var(--font-b)",fontWeight:700,fontSize:"10.5px",color:i>PRUEBAS.length?"var(--slate)":"var(--ink2)",borderBottom:"2px solid "+acc,borderLeft:i===PRUEBAS.length+1?"1px solid var(--line2)":"none",whiteSpace:"nowrap"}},t); });
+  var th=heads.map(function(t,i){ return h("th",{key:i,style:{textAlign:i===0?"right":"center",padding:"8px 9px",fontFamily:"var(--font-b)",fontWeight:700,fontSize:"var(--fs-overline)",color:i>PRUEBAS.length?"var(--slate)":"var(--ink2)",borderBottom:"2px solid "+acc,borderLeft:i===PRUEBAS.length+1?"1px solid var(--line2)":"none",whiteSpace:"nowrap"}},t); });
   var rows=ids.map(function(id,idx){
     var cells=allCols.map(function(p,j){ var isCtx=j>=PRUEBAS.length; var g=renGet(id,anio,p.k);
       var left=(j===PRUEBAS.length);
       if(!g||g.sup) return supCell(p.k,left);
       var bg=isCtx?"transparent":heatColor(norm(p.k,g.media));
       return h("td",{key:p.k,style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",borderLeft:left?"1px solid var(--line2)":"none",background:bg}},
-        h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"13px",color:isCtx?"var(--slate)":"var(--ink)"}},fmtMean(g.media)),
-        h("span",{style:{fontSize:"10.5px",color:"var(--ink2)"}}," ("+fmt(g.n)+")")); });
+        h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:isCtx?"var(--slate)":"var(--ink)"}},fmtMean(g.media)),
+        h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--ink2)"}}," ("+fmt(g.n)+")")); });
     return h("tr",{key:id}, nameCell(id,idx), cells); });
   return card({},[
-    h("div",{key:"lg",style:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px",flexWrap:"wrap",fontSize:"11px",color:"var(--slate)"}},
+    h("div",{key:"lg",style:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px",flexWrap:"wrap",fontSize:"var(--fs-caption)",color:"var(--slate)"}},
       h("span",{},"Cada celda: media de puntaje (n). Heatmap por columna en las pruebas: menor media = más alerta. NEM y Ranking van como contexto."),
       heatLegend("menor media (más alerta)"),
       h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"22px",height:"14px",borderRadius:"3px",background:"#E7E1D2",display:"inline-block"}}),SUP_TXT)),
@@ -5829,18 +5832,18 @@ function Modal(ctx){
   var rowEls=nodes.map(function(nd){
     var on=isSel(nd.id);
     return h("button",{key:nd.id,onClick:function(){pick(nd.id);},style:{display:"flex",alignItems:"center",gap:"8px",width:"100%",textAlign:"left",padding:"6px 8px",paddingLeft:(8+nd.lvl*18)+"px",border:0,borderBottom:"1px solid var(--line)",background:on?ctx.accSoft:"#fff",cursor:"pointer"}},
-      h("span",{style:{width:"14px",height:"14px",flex:"none",borderRadius:multi?"3px":"50%",border:"1.5px solid "+(on?ctx.acc:"var(--line2)"),background:on?ctx.acc:"transparent",display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"9px",fontWeight:700}}, on?"✓":""),
-      h("span",{style:{fontFamily:nd.tipo==="comuna"?"var(--font-b)":"var(--font-d)",fontWeight:nd.tipo==="comuna"?500:400,fontSize:nd.lvl===0?"13px":"12px",color:"var(--ink)"}},terrName(nd.id)),
-      h("span",{style:{marginLeft:"auto",fontSize:"9.5px",color:"var(--slate)",textTransform:"none"}},terrTipoLabel(nd.tipo))); });
+      h("span",{style:{width:"14px",height:"14px",flex:"none",borderRadius:multi?"3px":"50%",border:"1.5px solid "+(on?ctx.acc:"var(--line2)"),background:on?ctx.acc:"transparent",display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"var(--fs-overline)",fontWeight:700}}, on?"✓":""),
+      h("span",{style:{fontFamily:nd.tipo==="comuna"?"var(--font-b)":"var(--font-d)",fontWeight:nd.tipo==="comuna"?500:400,fontSize:"var(--fs-body)",color:"var(--ink)"}},terrName(nd.id)),
+      h("span",{style:{marginLeft:"auto",fontSize:"var(--fs-overline)",color:"var(--slate)",textTransform:"none"}},terrTipoLabel(nd.tipo))); });
   return h("div",{onClick:function(){ctx.upd({modalOpen:false});},style:{position:"fixed",inset:0,background:"rgba(21,18,18,.45)",zIndex:9998,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}},
     h("div",{onClick:function(e){e.stopPropagation();},style:{background:"#fff",borderRadius:"8px",width:"560px",maxWidth:"100%",maxHeight:"80vh",display:"flex",flexDirection:"column",boxShadow:"0 10px 40px rgba(21,62,94,.28)"}},
       h("div",{style:{padding:"18px 20px 12px",borderBottom:"1px solid var(--line)"}},
-        h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"16px",color:"var(--ink)"}}, multi?"Comparar territorios":"Elegir territorio"),
-        h("div",{style:{fontSize:"11.5px",color:"var(--slate)",marginTop:"3px"}}, multi?("Selección múltiple · hasta 10 · "+s.compSel.length+" elegidos · nivel máximo: comuna"):"Selección única · nacional, región, SLEP o comuna"),
-        h("input",{value:query,onChange:function(e){setQuery(e.target.value);},placeholder:"Buscar territorio…",style:{marginTop:"10px",width:"100%",padding:"8px 10px",border:"1px solid var(--line2)",borderRadius:"4px",fontFamily:"var(--font-b)",fontSize:"13px"}})),
+        h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-h4)",color:"var(--ink)"}}, multi?"Comparar territorios":"Elegir territorio"),
+        h("div",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginTop:"3px"}}, multi?("Selección múltiple · hasta 10 · "+s.compSel.length+" elegidos · nivel máximo: comuna"):"Selección única · nacional, región, SLEP o comuna"),
+        h("input",{value:query,onChange:function(e){setQuery(e.target.value);},placeholder:"Buscar territorio…",style:{marginTop:"10px",width:"100%",padding:"8px 10px",border:"1px solid var(--line2)",borderRadius:"4px",fontFamily:"var(--font-b)",fontSize:"var(--fs-body)"}})),
       h("div",{style:{overflowY:"auto",flex:1}}, rowEls),
       h("div",{style:{padding:"12px 20px",borderTop:"1px solid var(--line)",display:"flex",justifyContent:"flex-end",gap:"10px"}},
-        h("button",{onClick:function(){ctx.upd({modalOpen:false});},style:{padding:"8px 16px",border:"1px solid var(--line2)",borderRadius:"4px",background:ctx.acc,color:"#fff",fontWeight:600,fontSize:"13px",cursor:"pointer"}}, multi?"Listo":"Cerrar"))));
+        h("button",{onClick:function(){ctx.upd({modalOpen:false});},style:{padding:"8px 16px",border:"1px solid var(--line2)",borderRadius:"4px",background:ctx.acc,color:"#fff",fontWeight:600,fontSize:"var(--fs-body)",cursor:"pointer"}}, multi?"Listo":"Cerrar"))));
 }
 
 // ===========================================================================
@@ -5850,7 +5853,7 @@ function ExportBar(ctx){
   var acc=ctx.acc, hv=ctx.state.hoverExp;
   function iconSvg(paths){ return h("svg",{width:16,height:16,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2,strokeLinecap:"round",strokeLinejoin:"round",style:{flex:"none"}},paths); }
   function btn(key,label,paths,onClick){ var on=hv===key;
-    return h("button",{key:key,onClick:onClick,onMouseEnter:function(){ctx.upd({hoverExp:key});},onMouseLeave:function(){ctx.upd({hoverExp:null});},title:label,"aria-label":label,style:{display:"inline-flex",alignItems:"center",gap:on?"8px":"0",height:"32px",padding:"0 8px",background:on?"#fff":"var(--cream50)",border:"1px solid "+(on?acc:"var(--line2)"),borderRadius:"4px",color:on?acc:"var(--slate)",cursor:"pointer",overflow:"hidden",maxWidth:on?"240px":"34px",transition:"max-width .24s ease, gap .24s ease",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"12px",whiteSpace:"nowrap"}},
+    return h("button",{key:key,onClick:onClick,onMouseEnter:function(){ctx.upd({hoverExp:key});},onMouseLeave:function(){ctx.upd({hoverExp:null});},title:label,"aria-label":label,style:{display:"inline-flex",alignItems:"center",gap:on?"8px":"0",height:"32px",padding:"0 8px",background:on?"#fff":"var(--cream50)",border:"1px solid "+(on?acc:"var(--line2)"),borderRadius:"4px",color:on?acc:"var(--slate)",cursor:"pointer",overflow:"hidden",maxWidth:on?"240px":"34px",transition:"max-width .24s ease, gap .24s ease",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",whiteSpace:"nowrap"}},
       iconSvg(paths), h("span",{style:{opacity:on?1:0,transition:"opacity .2s"}},label)); }
   var imgPaths=[h("rect",{key:1,x:3,y:3,width:18,height:18,rx:2}),h("circle",{key:2,cx:9,cy:9,r:2}),h("path",{key:3,d:"m21 15-3.5-3.5L9 20"})];
   var sheetPaths=[h("rect",{key:1,x:3,y:3,width:18,height:18,rx:2}),h("path",{key:2,d:"M3 9h18M3 15h18M9 3v18M15 3v18"})];
@@ -5940,10 +5943,10 @@ function exportXLSX(ctx){ var sh=currentSheet(ctx); var nm=xmlEsc(sh.name.slice(
 function Notes(ctx){
   var open=ctx.state.notesOpen, acc=ctx.acc;
   var head=h("button",{onClick:function(){ctx.upd({notesOpen:!open});},style:{width:"100%",display:"flex",alignItems:"center",gap:"10px",background:"var(--cream50)",border:"1px solid var(--line)",borderTop:"2px solid var(--plum)",borderRadius:open?"6px 6px 0 0":"6px",padding:"14px 18px",cursor:"pointer",textAlign:"left"}},
-    h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"13px",color:"var(--plum)",flex:1}},"Notas metodológicas"),
-    h("span",{style:{fontSize:"12px",color:"var(--slate)"}}, open?"Ocultar":"Fuente, cobertura temporal, resguardo de celdas"),
-    h("span",{style:{fontSize:"13px",color:"var(--plum)",transform:open?"rotate(180deg)":"none"}},"▾"));
-  function item(t,d,em){ return h("div",{key:t}, h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"12px",color:em?acc:"var(--ink)",marginBottom:"3px"}},t), h("div",{style:{fontSize:"12px",color:"var(--slate)",lineHeight:1.55}},d)); }
+    h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:"var(--plum)",flex:1}},"Notas metodológicas"),
+    h("span",{style:{fontSize:"var(--fs-body)",color:"var(--slate)"}}, open?"Ocultar":"Fuente, cobertura temporal, resguardo de celdas"),
+    h("span",{style:{fontSize:"var(--fs-body)",color:"var(--plum)",transform:open?"rotate(180deg)":"none"}},"▾"));
+  function item(t,d,em){ return h("div",{key:t}, h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-body)",color:em?acc:"var(--ink)",marginBottom:"3px"}},t), h("div",{style:{fontSize:"var(--fs-body)",color:"var(--slate)",lineHeight:1.55}},d)); }
   var body=open?h("div",{style:{border:"1px solid var(--line)",borderTop:0,borderRadius:"0 0 6px 6px",padding:"18px",background:"#fff"}},
     h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(270px,1fr))",gap:"16px 34px"}},
       item("Fuente","DEMRE — bases públicas del proceso de admisión (inscripción, rendición, resultados, postulación, selección) y MINEDUC (egresados de enseñanza media). Agregadas a nivel territorial por el pipeline del proyecto."),
