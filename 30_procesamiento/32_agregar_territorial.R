@@ -181,6 +181,45 @@ agregar_promedio_territorial <- function(df_personas, mapa, valor_col, by = char
 }
 
 # ============================================================================
+# Cohorte por recencia de egreso (dimension nueva: actual / anterior / todas)
+# ============================================================================
+# "actual"   = generacion fresca: egreso el año inmediatamente previo al proceso
+#              (anyo_egreso == anio_proceso - 1). En las bases DEMRE NUNCA hay
+#              anyo_egreso == anio_proceso (el proceso de admision P corre a fines
+#              de P-1), por eso "actual" es P-1, no P (verificado en los datos).
+# "anterior" = generaciones previas: egreso en P-2 o antes, o sin anyo_egreso
+#              registrado. Se territorializan por su MISMO rbd de egreso, que
+#              ArchivoB conserva aunque el egreso sea de años previos (verificado:
+#              1,2M filas con rbd valido mapean al catalogo, sin importar el año
+#              de egreso). Corrige el defecto previo: "generaciones anteriores"
+#              ya NO es un bucket nacional unico, sino una cohorte cruzada por
+#              todo el arbol territorial.
+# "todas"    = sin split; reproduce EXACTAMENTE el agregado pre-cohorte del
+#              pipeline (== actual + anterior antes de supresion). Se calcula
+#              aparte, NO se suma en cliente, para aplicar supresion sobre el
+#              conteo real de cada cohorte (una celda "todas" no suprimida puede
+#              tener una cohorte componente suprimida, y viceversa).
+clasificar_cohorte <- function(anyo_egreso, anio_proceso) {
+  dplyr::if_else(!is.na(anyo_egreso) & anyo_egreso == anio_proceso - 1L,
+                 "actual", "anterior")
+}
+
+# `df_personas` debe traer la columna `cohorte` (actual/anterior). Emite las 3
+# cohortes (actual, anterior, todas) con supresion aplicada a cada una.
+agregar_conteo_cohorte <- function(df_personas, mapa, by_base) {
+  por   <- agregar_conteo_territorial(df_personas, mapa, by = c(by_base, "cohorte"))
+  todas <- agregar_conteo_territorial(df_personas, mapa, by = by_base) |>
+    dplyr::mutate(cohorte = "todas")
+  dplyr::bind_rows(por, todas)
+}
+agregar_promedio_cohorte <- function(df_personas, mapa, valor_col, by_base) {
+  por   <- agregar_promedio_territorial(df_personas, mapa, valor_col, by = c(by_base, "cohorte"))
+  todas <- agregar_promedio_territorial(df_personas, mapa, valor_col, by = by_base) |>
+    dplyr::mutate(cohorte = "todas")
+  dplyr::bind_rows(por, todas)
+}
+
+# ============================================================================
 # Carga guardada de insumos
 # ============================================================================
 faltan_31 <- !all(file.exists(
@@ -211,34 +250,42 @@ if (faltan_31 || faltan_cat) {
   rendicion    <- arrow::read_parquet(ruta_int("paes_rendicion_resultados.parquet"))
   postulacion  <- arrow::read_parquet(ruta_int("paes_postulacion_seleccion.parquet"))
 
-  # ---- FOCO COBERTURA: embudo por etapa ----------------------------------
-  log_msg("Agregando FOCO COBERTURA (embudo egresados -> ... -> seleccionados)...", "INFO", "32")
+  # ---- FOCO COBERTURA: embudo por etapa x cohorte ------------------------
+  log_msg("Agregando FOCO COBERTURA (embudo x cohorte actual/anterior/todas)...", "INFO", "32")
 
-  # egresados (denominador): marca_egreso == 1 identifica la fila de egreso
-  # efectivo. CONFIRMADO contra glosa oficial MINEDUC (ver nota de cabecera:
-  # er_notas_y_egresados_ensenanza_media_publ_<AAAA>.pdf, pag. 3/8). agno ->
-  # anio_proceso para homologar con el resto de las etapas.
+  # Lookup id_aux+anio -> anyo_egreso. rendicion (ArchivoC) y postulacion
+  # (ArchivoD) NO traen anyo_egreso; se toma de inscripcion (ArchivoB). Verificado:
+  # (id_aux, anio_proceso) es 1:1 con anyo_egreso y con rbd (0 duplicados), asi
+  # que el join no genera fan-out y "todas" reproduce el conteo pre-cohorte.
+  egreso_lookup <- inscripcion |>
+    dplyr::distinct(id_aux, anio_proceso, anyo_egreso = as.integer(.data$anyo_egreso))
+
+  # egresados (denominador): base de la generacion; cohorte = "actual" (no existe
+  # "egresado anterior": egresados_em registra a cada persona solo en su año de
+  # egreso). "todas" queda == "actual" en esta etapa (sin filas anterior).
   etapa_egresados <- egresados |>
     dplyr::filter(.data$marca_egreso == 1) |>
-    dplyr::transmute(rbd = .data$rbd, anio_proceso = as.integer(.data$agno)) |>
-    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::transmute(rbd = .data$rbd, anio_proceso = as.integer(.data$agno), cohorte = "actual") |>
+    agregar_conteo_cohorte(mapa, by_base = "anio_proceso") |>
     dplyr::mutate(etapa = "egresados")
 
-  # inscripcion: una fila de ArchivoB = un inscrito.
+  # inscripcion: una fila de ArchivoB = un inscrito; cohorte por su anyo_egreso.
   etapa_inscripcion <- inscripcion |>
-    dplyr::distinct(id_aux, rbd, anio_proceso) |>
-    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::distinct(id_aux, rbd, anio_proceso, anyo_egreso = as.integer(.data$anyo_egreso)) |>
+    dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso)) |>
+    agregar_conteo_cohorte(mapa, by_base = "anio_proceso") |>
     dplyr::mutate(etapa = "inscripcion")
 
-  # rendicion: aparece en ArchivoC (post sentinela-0 filtrado en 31_) con
-  # vigencia == "actual" -> rindio al menos una prueba ESTE anio.
+  # rendicion: rindio al menos una prueba ESTE año (vigencia=="actual").
   etapa_rendicion <- rendicion |>
     dplyr::filter(.data$vigencia == "actual") |>
     dplyr::distinct(id_aux, rbd, anio_proceso) |>
-    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::left_join(egreso_lookup, by = c("id_aux", "anio_proceso")) |>
+    dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso)) |>
+    agregar_conteo_cohorte(mapa, by_base = "anio_proceso") |>
     dplyr::mutate(etapa = "rendicion")
 
-  # resultados validos: rindio CLEC + M1 (paquete obligatorio) este anio.
+  # resultados validos: rindio CLEC + M1 (paquete obligatorio) este año.
   # "mate" (INV sin split) no homologa a mate1 (heredado de 31_).
   ids_obligatorias_ok <- rendicion |>
     dplyr::filter(.data$vigencia == "actual", .data$prueba %in% c("clec", "mate1")) |>
@@ -249,65 +296,47 @@ if (faltan_31 || faltan_cat) {
   etapa_resultados <- rendicion |>
     dplyr::distinct(id_aux, rbd, anio_proceso) |>
     dplyr::inner_join(ids_obligatorias_ok, by = c("id_aux", "anio_proceso")) |>
-    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::left_join(egreso_lookup, by = c("id_aux", "anio_proceso")) |>
+    dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso)) |>
+    agregar_conteo_cohorte(mapa, by_base = "anio_proceso") |>
     dplyr::mutate(etapa = "resultados")
 
-  # postulacion / seleccion: ArchivoD no trae rbd -> join por (id_aux,
-  # anio_proceso) contra inscripcion (decision documentada en la cabecera).
-  inscripcion_rbd <- inscripcion |> dplyr::distinct(id_aux, anio_proceso, rbd)
+  # postulacion / seleccion: ArchivoD no trae rbd ni anyo_egreso -> ambos de
+  # inscripcion via (id_aux, anio_proceso) (1:1 verificado).
+  inscripcion_rbd <- inscripcion |>
+    dplyr::distinct(id_aux, anio_proceso, rbd, anyo_egreso = as.integer(.data$anyo_egreso))
 
   etapa_postulacion <- postulacion |>
     dplyr::distinct(id_aux, anio_proceso) |>
     dplyr::left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
-    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso)) |>
+    agregar_conteo_cohorte(mapa, by_base = "anio_proceso") |>
     dplyr::mutate(etapa = "postulacion")
 
-  # seleccion: estado_pref 24 (en lista de seleccionados) o 26 (seleccionado en
-  # preferencia anterior). 25 (lista de espera) NO cuenta como seleccionado.
+  # seleccion: estado_pref 24 o 26 (25 = lista de espera, NO cuenta).
   etapa_seleccion <- postulacion |>
     dplyr::filter(.data$estado_pref %in% c(24, 26)) |>
     dplyr::distinct(id_aux, anio_proceso) |>
     dplyr::left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
-    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso)) |>
+    agregar_conteo_cohorte(mapa, by_base = "anio_proceso") |>
     dplyr::mutate(etapa = "seleccion")
 
-  # KPI: prioridad de la preferencia seleccionada (Camino B, delegado).
-  # Fase 0 (diagnostico): ArchivoD no trae una columna "PREFERENCIA" separada;
-  # el ORDEN_PREF ya normalizado en 31_ (columna orden_pref, 1-20) ES el
-  # ordinal de prioridad de la preferencia postulada. Verificado contra los
-  # datos reales (610.871 personas-anio seleccionadas): toda persona
-  # seleccionada tiene EXACTAMENTE una fila estado_pref==24 (0 casos con >1
-  # fila 24; 0 casos "solo 26 sin 24"), y en el 100% de los 563.885 casos
-  # donde ademas existe una fila 26, su orden_pref es >= el de la fila 24 (0
-  # excepciones) -- consistente con la glosa (24="en lista de seleccionados"
-  # = colocacion activa; 26="seleccionado en preferencia anterior" = marca en
-  # una preferencia de MENOR prioridad, posterior a la ya asignada). Por eso
-  # la prioridad real de cada seleccionado se toma EXCLUSIVAMENTE de su
-  # (unica) fila estado_pref==24, nunca de una fila 26 (que reflejaria una
-  # prioridad mas baja e incorrecta). El universo estado_pref==24 coincide
-  # EXACTO (610.871 = 610.871) con el universo %in% c(24,26) de
-  # etapa_seleccion, asi que el denominador de este KPI se REUTILIZA de
-  # etapa_seleccion (mismo n, mismo suprimida) en vez de recalcularse aparte.
-  # Decision de forma (documentada, como pide el encargo): se agregan 3
-  # columnas nuevas a paes_cobertura_territorial.parquet (n_seleccionados,
-  # n_prioridad_1, pct_prioridad_1), pobladas SOLO en la fila etapa=="seleccion"
-  # (NA en las otras 5 etapas) -- el KPI es una faceta de esa unica etapa, no
-  # una etapa nueva del embudo ni una dimension cruzable como rendimiento;
-  # cramearlo en una tabla separada habria duplicado la maquinaria de
-  # supresion sin necesidad. La supresion se aplica UNICAMENTE sobre el
-  # denominador (n_seleccionados < 8), por instruccion explicita del encargo;
-  # no hay un umbral separado sobre el numerador de prioridad 1.
+  # KPI prioridad (orden_pref==1 sobre estado_pref==24), ahora tambien por cohorte.
+  # El universo estado_pref==24 coincide con el %in% c(24,26) de seleccion (ver
+  # nota historica de sesion 4); el denominador se reutiliza de etapa_seleccion.
   kpi_prioridad_1 <- postulacion |>
     dplyr::filter(.data$estado_pref == 24, .data$orden_pref == 1) |>
     dplyr::distinct(id_aux, anio_proceso) |>
     dplyr::left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
-    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
-    dplyr::transmute(tipo_entidad, cod_entidad, anio_proceso, n_prioridad_1 = n)
+    dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso)) |>
+    agregar_conteo_cohorte(mapa, by_base = "anio_proceso") |>
+    dplyr::transmute(tipo_entidad, cod_entidad, anio_proceso, cohorte, n_prioridad_1 = n)
 
   kpi_prioridad <- etapa_seleccion |>
-    dplyr::transmute(tipo_entidad, cod_entidad, anio_proceso,
+    dplyr::transmute(tipo_entidad, cod_entidad, anio_proceso, cohorte,
                      n_seleccionados = n, suprimida_sel = suprimida) |>
-    dplyr::left_join(kpi_prioridad_1, by = c("tipo_entidad", "cod_entidad", "anio_proceso")) |>
+    dplyr::left_join(kpi_prioridad_1, by = c("tipo_entidad", "cod_entidad", "anio_proceso", "cohorte")) |>
     dplyr::mutate(
       n_prioridad_1 = dplyr::coalesce(.data$n_prioridad_1, 0L),
       pct_prioridad_1 = dplyr::if_else(.data$suprimida_sel, NA_real_,
@@ -315,7 +344,7 @@ if (faltan_31 || faltan_cat) {
       n_prioridad_1 = dplyr::if_else(.data$suprimida_sel, NA_integer_, .data$n_prioridad_1),
       etapa = "seleccion"
     ) |>
-    dplyr::select(tipo_entidad, cod_entidad, anio_proceso, etapa,
+    dplyr::select(tipo_entidad, cod_entidad, anio_proceso, cohorte, etapa,
                  n_seleccionados, n_prioridad_1, pct_prioridad_1)
 
   orden_etapas <- stats::setNames(seq_along(ETAPAS_EMBUDO), names(ETAPAS_EMBUDO))
@@ -324,39 +353,42 @@ if (faltan_31 || faltan_cat) {
     etapa_resultados, etapa_postulacion, etapa_seleccion
   ) |>
     dplyr::mutate(orden_etapa = orden_etapas[.data$etapa]) |>
-    dplyr::left_join(kpi_prioridad, by = c("tipo_entidad", "cod_entidad", "anio_proceso", "etapa"))
+    dplyr::left_join(kpi_prioridad, by = c("tipo_entidad", "cod_entidad", "anio_proceso", "cohorte", "etapa"))
 
   arrow::write_parquet(cobertura, ruta_int("paes_cobertura_territorial.parquet"))
   log_msg(sprintf("OK: paes_cobertura_territorial.parquet (%d filas, %d cols).",
                   nrow(cobertura), ncol(cobertura)), "INFO", "32")
 
-  # ---- FOCO RENDIMIENTO: puntajes por prueba -----------------------------
-  log_msg("Agregando FOCO RENDIMIENTO (puntajes por prueba, NEM, Ranking)...", "INFO", "32")
+  # ---- FOCO RENDIMIENTO: puntajes por prueba x cohorte -------------------
+  log_msg("Agregando FOCO RENDIMIENTO (puntajes/NEM/Ranking x cohorte)...", "INFO", "32")
 
-  # Puntajes por prueba: agrupado por prueba/tipo_rendicion/vigencia (ambas
-  # vigencias, "actual" Y "anterior", son parte del desglose solicitado -- no
-  # se filtran aqui, a diferencia del embudo de cobertura).
-  rendimiento_puntajes <- rendicion |>
-    agregar_promedio_territorial(
+  rend_coh <- rendicion |>
+    dplyr::left_join(egreso_lookup, by = c("id_aux", "anio_proceso")) |>
+    dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso))
+
+  # Puntajes por prueba: ambas vigencias (actual y anterior) son parte del
+  # desglose (no se filtran, a diferencia del embudo).
+  rendimiento_puntajes <- rend_coh |>
+    agregar_promedio_cohorte(
       mapa, valor_col = "puntaje",
-      by = c("anio_proceso", "prueba", "tipo_rendicion", "vigencia")
+      by_base = c("anio_proceso", "prueba", "tipo_rendicion", "vigencia")
     )
 
-  # NEM y Ranking: atributos por PERSONA (constantes por id_aux+anio_proceso,
-  # verificado), no por fila pivoteada -> deduplicar antes de promediar para no
-  # sobreponderar a quienes rindieron mas pruebas. Sentinela 0 = sin valor
-  # calculado (mismo patron que puntaje), se excluye del promedio.
+  # NEM y Ranking: atributos por PERSONA -> deduplicar por id_aux+anio antes de
+  # promediar; sentinela 0 excluido. Cohorte por anyo_egreso.
   personas_contexto <- rendicion |>
-    dplyr::distinct(id_aux, anio_proceso, rbd, ptje_nem, ptje_ranking)
+    dplyr::distinct(id_aux, anio_proceso, rbd, ptje_nem, ptje_ranking) |>
+    dplyr::left_join(egreso_lookup, by = c("id_aux", "anio_proceso")) |>
+    dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso))
 
   rendimiento_nem <- personas_contexto |>
     dplyr::filter(.data$ptje_nem > 0) |>
-    agregar_promedio_territorial(mapa, valor_col = "ptje_nem", by = "anio_proceso") |>
+    agregar_promedio_cohorte(mapa, valor_col = "ptje_nem", by_base = "anio_proceso") |>
     dplyr::mutate(prueba = "nem", tipo_rendicion = NA_character_, vigencia = NA_character_)
 
   rendimiento_ranking <- personas_contexto |>
     dplyr::filter(.data$ptje_ranking > 0) |>
-    agregar_promedio_territorial(mapa, valor_col = "ptje_ranking", by = "anio_proceso") |>
+    agregar_promedio_cohorte(mapa, valor_col = "ptje_ranking", by_base = "anio_proceso") |>
     dplyr::mutate(prueba = "ranking", tipo_rendicion = NA_character_, vigencia = NA_character_)
 
   rendimiento <- dplyr::bind_rows(rendimiento_puntajes, rendimiento_nem, rendimiento_ranking)
@@ -365,5 +397,5 @@ if (faltan_31 || faltan_cat) {
   log_msg(sprintf("OK: paes_rendimiento_territorial.parquet (%d filas, %d cols).",
                   nrow(rendimiento), ncol(rendimiento)), "INFO", "32")
 
-  message("\n32_agregar_territorial.R: OK. Focos agregados: cobertura, rendimiento")
+  message("\n32_agregar_territorial.R: OK. Focos agregados: cobertura, rendimiento (x cohorte)")
 }
