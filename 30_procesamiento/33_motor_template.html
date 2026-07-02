@@ -346,7 +346,7 @@ function lineChart(series,yMin,yMax,unit,W,H,ticks,years){
     var below=s.labelPos==="below";
     s.vals.forEach(function(v,i){ if(v==null) return;
       els.push(h("circle",{key:"d"+si+"_"+i,cx:sx(i),cy:sy(v),r:4.5,fill:s.color}));
-      els.push(h("text",{key:"t"+si+"_"+i,x:sx(i),y:sy(v)+(below?15:-9),textAnchor:"middle",fontSize:"var(--fs-overline)",fontWeight:700,fill:s.color,fontFamily:"var(--font-d)"},v+(unit||""))); });
+      els.push(h("text",{key:"t"+si+"_"+i,x:sx(i),y:sy(v)+(below?15:-9),textAnchor:"middle",fontSize:"var(--fs-overline)",fontWeight:700,fill:s.color,fontFamily:"var(--font-d)"},Math.round(v)+(unit||""))); });
   });
   return h("svg",{viewBox:"0 0 "+W+" "+H,style:{width:"100%",height:"auto",display:"block"}},els);
 }
