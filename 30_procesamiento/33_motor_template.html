@@ -88,12 +88,9 @@ function terrColor(id, idx){
 // completo, == comportamiento pre-cohorte). Las vistas pasan la cohorte activa.
 function covGet(id, anio, etapa, coh){ var p=terrParse(id); return COV[p.tipo+"|"+p.cod+"|"+anio+"|"+etapa+"|"+(coh||"todas")]||null; }
 function renGet(id, anio, prueba, coh){ var p=terrParse(id); return REN[p.tipo+"|"+p.cod+"|"+anio+"|"+prueba+"|"+(coh||"todas")]||null; }
-// El control de cohorte esta activo en todas las combinaciones salvo la serie
-// historica por territorio (terr+hist), que en el encargo 1 se queda en "todas"
-// (el encargo 2 la extiende). En comparar, modo no aplica (sin toggle de periodo)
-// -> la cohorte se respeta siempre.
-function cohorteActiva(s){ return !(s.vista==="terr" && s.modo==="hist"); }
-function activeCohorte(s){ return cohorteActiva(s) ? (s.cohorte||"actual") : "todas"; }
+// El control de cohorte aplica a TODAS las combinaciones Foco x Vista x Periodo
+// (incluida la serie historica; encargo 2, Fase 3).
+function activeCohorte(s){ return s.cohorte||"actual"; }
 // Sufijo de subtitulo segun cohorte activa ("todas" no agrega sufijo).
 function cohorteSub(coh){ return coh==="actual" ? " · generación actual" : coh==="anterior" ? " · generaciones anteriores" : ""; }
 
@@ -226,12 +223,8 @@ function Controls(ctx){
   var vistaSeg=seg([{v:"terr",label:"Por territorio"},{v:"comp",label:"Comparar territorios"}],s.vista,function(v){ctx.upd({vista:v});});
   var periodSeg=seg([{v:"actual",label:"Actual"},{v:"hist",label:"Histórica"}],s.modo,function(v){ctx.upd({modo:v});},acc);
   function grupo(label,control){ return h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl(label), control); }
-  // Cohorte (3 estados) aplica a las 4 combinaciones Foco x Vista (ya no solo
-  // terr+actual). Solo la serie historica por territorio (terr+hist) muestra en
-  // su lugar el rotulo de contexto; el encargo 2 extendera la cohorte alli.
-  var cohorteOrHint = cohorteActiva(s)
-    ? grupo("Cohorte", cohorteSeg(ctx))
-    : h("span",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)"}}, "Serie "+M.anios[0]+"–"+M.anios[M.anios.length-1]+" · proceso de cada año");
+  // Cohorte (3 estados) aplica a todas las combinaciones, incluida la historica.
+  var cohorteOrHint = grupo("Cohorte", cohorteSeg(ctx));
   // Una sola fila de controles bajo los tabs de foco: Territorio, Vista,
   // Periodo (solo terr) y, a la derecha, Cohorte o el rotulo de contexto.
   // Se omiten elementos con `? ... : null`, sin generar divs vacios.
@@ -303,7 +296,7 @@ function viewMeta(ctx){
   var s=ctx.state, f=s.foco, v=s.vista, m=s.modo;
   if(f==="cob"){
     if(v==="terr") return m==="hist"
-      ? {t:"Cobertura en el tiempo", sub:terrName(s.terrSel)+" · participación PAES · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica por proceso de admisión (todas las cohortes)."}
+      ? {t:"Cobertura en el tiempo", sub:terrName(s.terrSel)+" · participación PAES · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica por proceso de admisión. El control de cohorte también aplica aquí (generación actual, generaciones anteriores o todas); en «Anteriores», sin egresados propios del año, la serie se expresa sobre inscritos."}
       : {t:"Embudo de participación PAES", sub:terrName(s.terrSel)+" · admisión "+M.anio_actual+" · egresados → selección", note:"El embudo tiene 6 etapas (sin matrícula, no disponible en el agregado). El control de cohorte separa la generación actual (egreso el año previo) de las generaciones anteriores, o suma todas; ambas se territorializan por el establecimiento de egreso."};
     return {t:"Cobertura — comparación entre territorios", sub:"Embudo por territorio · admisión "+M.anio_actual+" · porcentaje (n)", note:"Comparación en porcentaje sobre egresados, con el número de casos entre paréntesis: % (n). Celdas con n < "+M.umbral+" se muestran como «"+SUP_TXT+"»."};
   } else {
@@ -435,18 +428,21 @@ function lineChart(series,yMin,yMax,unit,W,H,ticks,years){
   return h("svg",{viewBox:"0 0 "+W+" "+H,style:{width:"100%",height:"auto",display:"block"}},els);
 }
 function CobHist(ctx){
-  var acc=ctx.acc, id=ctx.state.terrSel, years=M.anios;
+  var acc=ctx.acc, id=ctx.state.terrSel, years=M.anios, coh=activeCohorte(ctx.state);
+  // Base por año: egresados si existe; en la cohorte "anterior" (sin egresados
+  // propios del año) se rebasa a inscritos = 100%, igual que el embudo actual.
+  var baseLbl = coh==="anterior" ? "% de inscritos" : "% de egresados";
+  function baseY(y){ var eg=covSel(ctx,y,"egresados",coh); if(eg&&!eg.sup&&eg.n) return eg.n;
+    var ins=covSel(ctx,y,"inscripcion",coh); return (ins&&!ins.sup&&ins.n)?ins.n:null; }
   function pctSerie(etapa){ return years.map(function(y){
-    var eg=covGet(id,y,"egresados"), st=covGet(id,y,etapa);
-    if(!eg||eg.sup||!st||st.sup||!eg.n) return null; return Math.round(st.n/eg.n*100); }); }
+    var b=baseY(y), st=covSel(ctx,y,etapa,coh);
+    if(!b||!st||st.sup) return null; return Math.round(st.n/b*100); }); }
   var rin=pctSerie("rendicion"), sel=pctSerie("seleccion");
   var mat2="#B0855F";
   var legend=h("div",{style:{display:"flex",gap:"18px",flexWrap:"wrap",marginBottom:"10px",fontSize:"var(--fs-caption)",color:"var(--ink2)"}},
-    h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:acc,display:"inline-block"}}),"Rindió al menos una prueba (% de egresados)"),
-    h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:mat2,display:"inline-block",borderTop:"2px dashed "+mat2}}),"Seleccionado (% de egresados)"));
-  // (El bloque nacional de "generaciones anteriores por año" se retiro: dejo de
-  //  ser un bucket aparte. La cohorte se integra a la serie en el encargo 2.)
-  return card({},[cardTitle("Participación en el tiempo", terrName(id)+" · "+years[0]+"–"+years[years.length-1]+" · proceso de cada año"),
+    h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:acc,display:"inline-block"}}),"Rindió al menos una prueba ("+baseLbl+")"),
+    h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:mat2,display:"inline-block",borderTop:"2px dashed "+mat2}}),"Seleccionado ("+baseLbl+")"));
+  return card({},[cardTitle("Participación en el tiempo", terrName(id)+" · "+years[0]+"–"+years[years.length-1]+" · proceso de cada año"+cohorteSub(coh)+filtroSub(ctx.state)),
     legend,
     lineChart([{color:acc,vals:rin,labelPos:"above"},{color:mat2,vals:sel,dashed:true,labelPos:"below"}],0,100,"%",720,240,[0,25,50,75,100],years)]);
 }
@@ -540,9 +536,9 @@ function RenActual(ctx){
   return card({},[cardTitle("Media de puntaje por prueba", terrName(ctx.state.terrSel)+" · admisión "+M.anio_actual+cohorteSub(activeCohorte(ctx.state))+filtroSub(ctx.state)), h("div",{},rows), foot]);
 }
 function RenHist(ctx){
-  var acc=ctx.acc, id=ctx.state.terrSel, years=M.anios;
+  var acc=ctx.acc, id=ctx.state.terrSel, years=M.anios, coh=activeCohorte(ctx.state);
   function mini(p, col){
-    var vals=years.map(function(y){ var g=renGet(id,y,p.k); return (g&&!g.sup)?g.media:null; });
+    var vals=years.map(function(y){ var g=renSel(ctx,y,p.k,coh); return (g&&!g.sup)?g.media:null; });
     return h("div",{key:p.k,style:{border:"1px solid var(--line)",borderRadius:"8px",padding:"12px",background:"#fff",boxShadow:"0 1px 4px rgba(74,39,70,.06)"}},
       h("div",{style:{display:"flex",alignItems:"center",gap:"7px",marginBottom:"6px"}},
         p.sigla?h("span",{style:{background:col,color:"#fff",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-overline)",padding:"2px 6px",borderRadius:"3px"}},p.sigla):h("span",{style:{width:"10px",height:"10px",background:col,borderRadius:"2px"}}),
@@ -551,7 +547,7 @@ function RenHist(ctx){
   }
   var items=PRUEBAS.map(function(p){return mini(p,acc);});
   return h("div",{},[
-    h("div",{key:"n",style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginBottom:"12px"}},"Media de puntaje por prueba, "+years[0]+"–"+years[years.length-1]+" · escala "+M.escala.min+"–"+M.escala.max+" · NEM y Ranking se omiten en la serie histórica."),
+    h("div",{key:"n",style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginBottom:"12px"}},"Media de puntaje por prueba, "+years[0]+"–"+years[years.length-1]+" · escala "+M.escala.min+"–"+M.escala.max+cohorteSub(coh)+filtroSub(ctx.state)+" · NEM y Ranking se omiten en la serie histórica."),
     h("div",{key:"g",style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:"12px"}},items)]);
 }
 function RenComp(ctx){
@@ -707,9 +703,11 @@ function currentSheet(ctx){
         ["inscripcion","rendicion","resultados","postulacion","seleccion"].forEach(function(k){ var st=covGet(id,anio,k,coh);
           if(!st||st.sup||!eg||eg.sup||!eg.n){ row.push("resguardo"); row.push("resguardo"); } else { row.push(Math.round(st.n/eg.n*100)); row.push(st.n); } }); aoa.push(row); }); }
     else if(s.modo==="hist"){ name="Cobertura historica"; var id=s.terrSel;
-      aoa=[["Territorio: "+terrName(id)],[],["Ano","Rindio % egresados","Seleccionado % egresados"]];
-      M.anios.forEach(function(y){ var eg=covGet(id,y,"egresados"),ri=covGet(id,y,"rendicion"),se=covGet(id,y,"seleccion");
-        aoa.push([y, (eg&&ri&&!eg.sup&&!ri.sup&&eg.n)?Math.round(ri.n/eg.n*100):"resguardo", (eg&&se&&!eg.sup&&!se.sup&&eg.n)?Math.round(se.n/eg.n*100):"resguardo"]); }); }
+      var baseLbl=coh==="anterior"?"% inscritos":"% egresados";
+      aoa=[["Territorio: "+terrName(id)+" · "+cohLbl],[],["Ano","Rindio "+baseLbl,"Seleccionado "+baseLbl]];
+      M.anios.forEach(function(y){ var eg=covGet(id,y,"egresados",coh),ins=covGet(id,y,"inscripcion",coh),ri=covGet(id,y,"rendicion",coh),se=covGet(id,y,"seleccion",coh);
+        var b=(eg&&!eg.sup&&eg.n)?eg.n:((ins&&!ins.sup&&ins.n)?ins.n:null);
+        aoa.push([y, (b&&ri&&!ri.sup)?Math.round(ri.n/b*100):"resguardo", (b&&se&&!se.sup)?Math.round(se.n/b*100):"resguardo"]); }); }
     else { name="Cobertura actual"; var id2=s.terrSel; aoa=[["Territorio: "+terrName(id2)+" · admision "+anio+" · "+cohLbl],[],["Etapa","n","% de egresados"]];
       var eg2=covGet(id2,anio,"egresados",coh); ETAPAS.forEach(function(e){ var g=covGet(id2,anio,e.k,coh);
         var pct = (eg2&&g&&!eg2.sup&&!g.sup&&eg2.n)?Math.round(g.n/eg2.n*100):""; aoa.push([e.label, (g&&!g.sup)?g.n:"resguardo", pct]); }); }
@@ -720,8 +718,8 @@ function currentSheet(ctx){
       s.compSel.forEach(function(id){ var row=[terrName(id)]; cols.forEach(function(p){ var g=renGet(id,anio,p.k,coh);
         if(!g||g.sup){ row.push("resguardo"); row.push("resguardo"); } else { row.push(Math.round(g.media)); row.push(g.n); } }); aoa.push(row); }); }
     else if(s.modo==="hist"){ name="Rendimiento historico"; var id3=s.terrSel;
-      var hd2=["Ano"]; PRUEBAS.forEach(function(p){ hd2.push(p.name); }); aoa=[["Territorio: "+terrName(id3)],[],hd2];
-      M.anios.forEach(function(y){ var row=[y]; PRUEBAS.forEach(function(p){ var g=renGet(id3,y,p.k); row.push((g&&!g.sup)?Math.round(g.media):"resguardo"); }); aoa.push(row); }); }
+      var hd2=["Ano"]; PRUEBAS.forEach(function(p){ hd2.push(p.name); }); aoa=[["Territorio: "+terrName(id3)+" · "+cohLbl],[],hd2];
+      M.anios.forEach(function(y){ var row=[y]; PRUEBAS.forEach(function(p){ var g=renGet(id3,y,p.k,coh); row.push((g&&!g.sup)?Math.round(g.media):"resguardo"); }); aoa.push(row); }); }
     else { name="Rendimiento actual"; var id4=s.terrSel; aoa=[["Territorio: "+terrName(id4)+" · admision "+anio+" · "+cohLbl],[],["Prueba","Media","n","Tipo"]];
       PRUEBAS.forEach(function(p){ var g=renGet(id4,anio,p.k,coh); aoa.push([p.name, (g&&!g.sup)?Math.round(g.media):"resguardo", (g&&!g.sup)?g.n:"resguardo","Prueba PAES"]); });
       CONTEXTO.forEach(function(p){ var g=renGet(id4,anio,p.k,coh); aoa.push([p.name, (g&&!g.sup)?Math.round(g.media):"resguardo", (g&&!g.sup)?g.n:"resguardo","Contexto"]); }); }
