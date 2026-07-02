@@ -423,7 +423,7 @@ function lineChart(series,yMin,yMax,unit,W,H,ticks,years){
     var below=s.labelPos==="below";
     s.vals.forEach(function(v,i){ if(v==null) return;
       els.push(h("circle",{key:"d"+si+"_"+i,cx:sx(i),cy:sy(v),r:4.5,fill:s.color}));
-      els.push(h("text",{key:"t"+si+"_"+i,x:sx(i),y:sy(v)+(below?15:-9),textAnchor:"middle",fontSize:"var(--fs-overline)",fontWeight:700,fill:s.color,fontFamily:"var(--font-d)"},Math.round(v)+(unit||""))); });
+      if(!s.noLabels) els.push(h("text",{key:"t"+si+"_"+i,x:sx(i),y:sy(v)+(below?15:-9),textAnchor:"middle",fontSize:"var(--fs-overline)",fontWeight:700,fill:s.color,fontFamily:"var(--font-d)"},Math.round(v)+(unit||""))); });
   });
   return h("svg",{viewBox:"0 0 "+W+" "+H,style:{width:"100%",height:"auto",display:"block"}},els);
 }
@@ -432,19 +432,31 @@ function CobHist(ctx){
   // Base por año: egresados si existe; en la cohorte "anterior" (sin egresados
   // propios del año) se rebasa a inscritos = 100%, igual que el embudo actual.
   var baseLbl = coh==="anterior" ? "% de inscritos" : "% de egresados";
+  // Base por año: egresados. Solo la cohorte "anterior" (sin egresados propios)
+  // se rebasa a inscritos; en actual/todas, un año sin egresados (2026) queda en
+  // hueco, sin mezclar bases entre años.
   function baseY(y){ var eg=covSel(ctx,y,"egresados",coh); if(eg&&!eg.sup&&eg.n) return eg.n;
+    if(coh!=="anterior") return null;
     var ins=covSel(ctx,y,"inscripcion",coh); return (ins&&!ins.sup&&ins.n)?ins.n:null; }
   function pctSerie(etapa){ return years.map(function(y){
     var b=baseY(y), st=covSel(ctx,y,etapa,coh);
     if(!b||!st||st.sup) return null; return Math.round(st.n/b*100); }); }
   var rin=pctSerie("rendicion"), sel=pctSerie("seleccion");
-  var mat2="#B0855F";
+  // Nueva serie: seleccionado en 1.a preferencia sobre el MISMO denominador
+  // (egresados, o inscritos en "anterior"), para que sea comparable con las otras
+  // dos. Se deriva de n_prioridad_1 (32_), NO de pct_prioridad_1 (que divide por
+  // seleccionados). Si n_prioridad_1 esta suprimido, la serie deja hueco.
+  var p1=years.map(function(y){ var b=baseY(y), g=covSel(ctx,y,"seleccion",coh);
+    if(!b||!g||g.sup||g.np1==null) return null; return Math.round(g.np1/b*100); });
+  var mat2="#B0855F", p1col="#653F99";
+  function lg(col,txt,dash){ return h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:col,display:"inline-block",borderTop:dash?("2px dashed "+col):"none"}}),txt); }
   var legend=h("div",{style:{display:"flex",gap:"18px",flexWrap:"wrap",marginBottom:"10px",fontSize:"var(--fs-caption)",color:"var(--ink2)"}},
-    h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:acc,display:"inline-block"}}),"Rindió al menos una prueba ("+baseLbl+")"),
-    h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:mat2,display:"inline-block",borderTop:"2px dashed "+mat2}}),"Seleccionado ("+baseLbl+")"));
+    lg(acc,"Rindió al menos una prueba ("+baseLbl+")"),
+    lg(mat2,"Seleccionado ("+baseLbl+")",true),
+    lg(p1col,"Seleccionado en 1.ª preferencia ("+baseLbl+")"));
   return card({},[cardTitle("Participación en el tiempo", terrName(id)+" · "+years[0]+"–"+years[years.length-1]+" · proceso de cada año"+cohorteSub(coh)+filtroSub(ctx.state)),
     legend,
-    lineChart([{color:acc,vals:rin,labelPos:"above"},{color:mat2,vals:sel,dashed:true,labelPos:"below"}],0,100,"%",720,240,[0,25,50,75,100],years)]);
+    lineChart([{color:acc,vals:rin,labelPos:"above"},{color:mat2,vals:sel,dashed:true,labelPos:"below"},{color:p1col,vals:p1,noLabels:true}],0,100,"%",720,240,[0,25,50,75,100],years)]);
 }
 // Heatmap (comparación) — divergente rojo->pálido->azul, alpha .45
 function heatColor(t){ if(t==null||isNaN(t)) return "transparent";
