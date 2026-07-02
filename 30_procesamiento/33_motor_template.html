@@ -1,156 +1,656 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Panorama PAES — Área de Monitoreo y Seguimiento (SLEP Costa Central)</title>
-<!--
-  Motor autocontenido de slep_paes. Sin dependencias de red: React, ReactDOM, D3
-  y pako se inyectan LOCALES via placeholders; el JSON viaja embebido comprimido
-  (gzip+base64) y se descomprime en cliente con pako. Los placeholders reales
-  aparecen UNA sola vez cada uno mas abajo (33_generar_html.R usa sub(), primera
-  ocurrencia): no repetir sus nombres literales en comentarios.
-  Paleta: fuente unica PALETA_PAES (10_configuracion.R), inyectada en DATA.meta.paleta;
-  el chrome CSS de :root la refleja literalmente.
-  TODO(fuentes): embeber gobCL / Museo Sans en base64 (copiar .otf de un hermano
-  y generar un placeholder de fuentes en 33_generar_html.R). Por ahora, fallback
-  de sistema.
--->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resultados PAES · Cobertura y rendimiento · SLEP Costa Central</title>
 <style>
-  :root{
-    --paper:#FBF7EF; --tinta:#241B2E; --header:#3B1D5E; --acento:#C2410C;
-    --linea:#E6DECB; --panel:#FFFFFF; --cobertura:#653F99; --rendimiento:#1F5C54;
-    --font-display: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--paper);color:var(--tinta);font-family:var(--font-body);
-       line-height:1.5}
-  header.app{background:var(--header);color:#F3EEF9;padding:20px 24px;
-             border-bottom:4px solid var(--acento)}
-  header.app h1{margin:0;font-family:var(--font-display);font-size:clamp(20px,3.4vw,32px);
-                font-weight:800;letter-spacing:.2px}
-  header.app p{margin:4px 0 0;opacity:.85;font-size:14px}
-  main{max-width:1080px;margin:0 auto;padding:20px 24px}
-  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:8px 0 20px}
-  .seg{display:inline-flex;border:1px solid var(--linea);border-radius:10px;overflow:hidden;
-       background:var(--panel)}
-  .seg button{border:0;background:transparent;padding:9px 16px;font-size:14px;cursor:pointer;
-              color:var(--tinta);font-weight:600}
-  .seg button.on[data-foco="cobertura"]{background:var(--cobertura);color:#fff}
-  .seg button.on[data-foco="rendimiento"]{background:var(--rendimiento);color:#fff}
-  .nav select{padding:8px 10px;border:1px solid var(--linea);border-radius:8px;
-              background:var(--panel);font-size:14px;color:var(--tinta)}
-  .card{background:var(--panel);border:1px solid var(--linea);border-radius:12px;
-        padding:18px 20px;margin:0 0 16px}
-  .aviso{border-left:4px solid var(--acento);background:#FBEDE4}
-  .kpis{display:flex;flex-wrap:wrap;gap:14px}
-  .kpi{flex:1 1 150px;background:var(--panel);border:1px solid var(--linea);border-radius:12px;
-       padding:14px 16px}
-  .kpi .n{font-size:26px;font-weight:800;font-family:var(--font-display)}
-  .kpi .l{font-size:12px;opacity:.75;text-transform:uppercase;letter-spacing:.6px}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-  .chip{font-size:12px;padding:5px 10px;border-radius:999px;color:#fff}
-  footer{max-width:1080px;margin:0 auto;padding:16px 24px 40px;font-size:12px;opacity:.7}
-  code{background:#efe9f5;padding:1px 5px;border-radius:4px}
+__FONTS_CSS__
+:root{
+  --plum:#153E5E;--cream:#FFF6E0;--paper:#fff;--ink:#1C1212;--ink2:#2E2230;
+  --slate:#747474;--line:#E7DFC9;--line2:#C8BDA0;--cream50:#FFFBEF;--cream200:#F4E9CC;
+  --terra:#C45A3E;
+  --font-d:"gobCL","Arial Black",system-ui,sans-serif;
+  --font-b:"Museo Sans","gobCL",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:#E9E0CC;}
+body{font-family:var(--font-b);color:var(--ink);font-weight:300;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+::selection{background:#FFC92E;color:var(--ink);}
+button{font-family:var(--font-b);}
+table{border-collapse:collapse;}
 </style>
 </head>
 <body>
 <div id="root"></div>
+<div id="paesTip" style="position:fixed;z-index:9999;pointer-events:none;display:none;background:#fff;border:1px solid var(--line2);border-radius:6px;box-shadow:0 6px 20px rgba(21,62,94,.18);padding:10px 12px;max-width:260px;font-family:var(--font-b);"></div>
 
-<!-- Librerias LOCALES (sin CDN) -->
 <script>__REACT_INLINE__</script>
 <script>__REACTDOM_INLINE__</script>
 <script>__D3_INLINE__</script>
 <script>__PAKO_INLINE__</script>
-
-<!-- Datos embebidos (gzip + base64), descomprimidos con pako -->
 <script>
-  const __B64 = "__JSON_DATA__";
-  const DATA = JSON.parse(pako.inflate(Uint8Array.from(atob(__B64), c => c.charCodeAt(0)), {to:"string"}));
-</script>
+"use strict";
+// ==== Datos reales (agregados de 32), gzip+base64 -> pako -> JSON ============
+var DATA = JSON.parse(pako.inflate(
+  Uint8Array.from(atob("__JSON_DATA__"), function(c){return c.charCodeAt(0);}),
+  { to: "string" }));
+var h = React.createElement;
+var M = DATA.meta;
 
-<!-- App (React.createElement; JSX pre-transpilado, sin Babel) -->
-<script>
-(function(){
-  const h = React.createElement;
-  const M = DATA.meta;
-  const P = M.paleta;
+// ==== Indices de acceso O(1) (solo agregados) ===============================
+var COV = {}; // tipo|cod|anio|etapa -> {n, sup}
+(function(){ var c=DATA.cobertura; for(var i=0;i<c.rows;i++){
+  COV[c.tipo_entidad[i]+"|"+c.cod_entidad[i]+"|"+c.anio_proceso[i]+"|"+c.etapa[i]]={n:c.n[i],sup:c.suprimida[i]};
+}})();
+var REN = {}; // tipo|cod|anio|prueba -> {n, media, sup}
+(function(){ var r=DATA.rendimiento; for(var i=0;i<r.rows;i++){
+  REN[r.tipo_entidad[i]+"|"+r.cod_entidad[i]+"|"+r.anio_proceso[i]+"|"+r.prueba[i]]={n:r.n[i],media:r.media[i],sup:r.suprimida[i]};
+}})();
 
-  function Kpi(props){ return h("div",{className:"kpi"},
-    h("div",{className:"n"},props.n), h("div",{className:"l"},props.l)); }
+// ==== Catalogo territorial (nombres + jerarquia) ============================
+var T = M.territorios;
+var NAME = {};
+NAME["nacional:"+T.nacional.cod] = T.nacional.nombre;
+T.regiones.forEach(function(x){ NAME["region:"+x.cod]=x.nombre; });
+T.sleps.forEach(function(x){ NAME["slep:"+x.cod]=x.nombre; });
+T.comunas.forEach(function(x){ NAME["comuna:"+x.cod]=x.nombre; });
+NAME["rezagados:"+M.rezagados_label] = M.gen_ant_label;
+var REZ_ID = "rezagados:"+M.rezagados_label;
 
-  function PanelCobertura(){
-    const etapas = Object.keys(M.etapas_embudo);
-    return h("div",{className:"card"},
-      h("h2",{style:{marginTop:0}},"Foco Cobertura — el embudo"),
-      h("p",null,"Cuántos de quienes pueden rendir avanzan en cada etapa, contra el denominador de egresados de enseñanza media. Los egresados de años anteriores sin RBD vigente se agregan como categoría explícita."),
-      h("div",{className:"chips"}, etapas.map(function(k){
-        return h("span",{key:k,className:"chip",
-          style:{background:(P.cobertura&&P.cobertura[k])||"#8A65B5"}}, M.etapas_embudo[k]);
-      }).concat([
-        h("span",{key:"rez",className:"chip",style:{background:P.sin_rbd_vigente,border:"1px dashed #fff"}}, M.rezagados_label)
-      ]))
-    );
+function terrParse(id){ var i=id.indexOf(":"); return {tipo:id.slice(0,i), cod:id.slice(i+1)}; }
+function terrName(id){ return NAME[id] || id; }
+function terrTipoLabel(t){ return ({nacional:"Nacional",region:"Región",slep:"SLEP",comuna:"Comuna"})[t]||t; }
+
+var CC = M.costa_central;
+var COMPAL = ["#153E5E","#0062A0","#75924E","#4A2746","#BCA493","#C45A3E","#0BA0DA","#8A7C86","#B0855F","#5B7B8A"];
+function terrColor(id, idx){
+  var p=terrParse(id);
+  if(p.tipo==="comuna" && CC.colores[p.cod]) return CC.colores[p.cod];
+  return COMPAL[(idx||0) % COMPAL.length];
+}
+
+// ==== Accesores de datos (agregado; respetan `suprimida`) ===================
+function covGet(id, anio, etapa){ var p=terrParse(id); return COV[p.tipo+"|"+p.cod+"|"+anio+"|"+etapa]||null; }
+function renGet(id, anio, prueba){ var p=terrParse(id); return REN[p.tipo+"|"+p.cod+"|"+anio+"|"+prueba]||null; }
+
+// ==== Formato =============================================================
+function fmt(n){ if(n==null||isNaN(n)) return "—"; return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,"."); }
+function fmtPct(x){ if(x==null||isNaN(x)) return "—"; return (x<100? x.toFixed(1).replace(".",",") : "100")+"%"; }
+function fmtMean(x){ if(x==null||isNaN(x)) return "—"; return String(Math.round(x)); }
+var SUP_TXT = "sin dato (resguardo estadístico)"; // copy del patron hermano (idps)
+var SUP_SHORT = "resguardo";
+var ETAPAS = M.etapas, PRUEBAS = M.pruebas, CONTEXTO = M.contexto;
+
+// ===========================================================================
+function App(){
+  var st = React.useState({
+    foco:"cob", vista:"terr", modo:"actual", showRez:true,
+    notesOpen:false, hoverExp:null,
+    terrSel:"slep:"+CC.slep,
+    compSel: CC.comunas.map(function(c){return "comuna:"+c;}),
+    modalOpen:false, modalQuery:""
+  });
+  var state = st[0], setState = st[1];
+  function upd(patch){ setState(Object.assign({}, state, patch)); }
+  var ctx = { state:state, upd:upd,
+    acc: state.foco==="cob" ? "#0BA0DA" : "#153E5E",
+    accSoft: state.foco==="cob" ? "#DCF0FA" : "#DEE5EC" };
+  return h("div",{style:{maxWidth:"1320px",margin:"0 auto",background:"var(--cream)",minHeight:"100vh",boxShadow:"0 0 50px rgba(0,0,0,.10)"}},
+    TopStrip(), Header(), Controls(ctx), ContextStrip(ctx), ResultsSection(ctx),
+    h("div",{style:{padding:"0 40px 40px",marginTop:"26px"}}, Notes(ctx)),
+    state.modalOpen ? Modal(ctx) : null);
+}
+
+// ---- Chrome ---------------------------------------------------------------
+function TopStrip(){
+  return h("div",{style:{display:"flex",alignItems:"center",gap:"14px",background:"var(--ink)",color:"var(--cream)",padding:"8px 24px",flexWrap:"wrap"}},
+    h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",letterSpacing:".02em",color:"rgba(255,246,224,.85)"}},"Motor slep_paes"),
+    h("span",{style:{width:"1px",height:"13px",background:"rgba(255,246,224,.25)"}}),
+    h("span",{style:{fontSize:"11.5px",color:"rgba(255,246,224,.6)"}},"El foco (cobertura / rendimiento) es el modo primario y define el color de la vista."),
+    h("span",{style:{flex:1}}),
+    h("span",{style:{fontSize:"11px",color:"rgba(255,246,224,.55)"}},"Datos públicos del DEMRE · agregados territoriales"));
+}
+function Header(){
+  return h("div",{style:{background:"var(--plum)",color:"var(--cream)",padding:"26px 40px 22px"}},
+    h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",letterSpacing:".02em",color:"rgba(255,246,224,.7)",marginBottom:"7px"}},"Área de Monitoreo y Seguimiento de Procesos y Resultados Educativos"),
+    h("h1",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"30px",letterSpacing:"-.01em",lineHeight:1.08,margin:"0 0 8px",color:"var(--cream)"}},
+      "Resultados Prueba de Acceso a la Educación Superior (PAES)", h("br"),
+      h("span",{style:{fontWeight:400,fontSize:"22px",color:"rgba(255,246,224,.82)"}},"Participación y desempeño")),
+    h("div",{style:{fontSize:"14px",color:"rgba(255,246,224,.72)",fontWeight:400}},"Datos públicos del DEMRE · cobertura nacional"),
+    h("p",{style:{margin:"15px 0 0",paddingTop:"15px",borderTop:"1px solid rgba(255,246,224,.16)",color:"rgba(255,246,224,.8)",fontSize:"13px",lineHeight:1.6,maxWidth:"940px",fontWeight:300}},
+      "Reporte HTML autocontenido con datos públicos del DEMRE sobre la PAES. Dos focos pares, ninguno subordinado al otro: la cobertura —el embudo de participación— y el rendimiento —la distribución de puntajes—, sobre la misma navegación territorial. Solo se muestran agregados por territorio (nacional, región, SLEP, comuna)."));
+}
+
+// ---- Controles ------------------------------------------------------------
+function lbl(t){ return h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",letterSpacing:".01em",color:"var(--slate)"}},t); }
+function seg(items,val,on,activeColor){
+  return h("div",{style:{display:"inline-flex",background:"var(--cream200)",border:"1px solid var(--line)",borderRadius:"4px",padding:"2px"}},
+    items.map(function(it){ return h("button",{key:it.v,onClick:function(){on(it.v);},style:{border:0,padding:"6px 14px",borderRadius:"3px",cursor:"pointer",fontFamily:"var(--font-b)",fontSize:"13px",fontWeight:val===it.v?700:500,background:val===it.v?"#fff":"transparent",color:val===it.v?(activeColor||"var(--plum)"):"var(--ink2)",boxShadow:val===it.v?"0 1px 2px rgba(74,39,70,.14)":"none"}},it.label); }));
+}
+function FocoTabs(ctx){
+  var foco=ctx.state.foco;
+  var tabs=[{v:"cob",t:"Cobertura",d:"Embudo de participación · 6 etapas",col:"#0BA0DA"},
+            {v:"ren",t:"Rendimiento",d:"Distribución de puntajes · media por prueba",col:"#153E5E"}];
+  return h("div",{style:{display:"flex",background:"var(--cream50)",borderBottom:"1px solid var(--line)"}},
+    tabs.map(function(tb,i){ var on=foco===tb.v;
+      return h("button",{key:tb.v,onClick:function(){ctx.upd({foco:tb.v});},style:{flex:1,textAlign:"left",padding:"14px 22px",cursor:"pointer",background:on?"#fff":"transparent",border:0,borderRight:i===0?"1px solid var(--line)":"0",borderBottom:on?("3px solid "+tb.col):"3px solid transparent"}},
+        h("div",{style:{display:"flex",alignItems:"center",gap:"9px",marginBottom:"2px"}},
+          h("span",{style:{width:"12px",height:"12px",background:tb.col,borderRadius:"2px",opacity:on?1:.35}}),
+          h("span",{style:{fontFamily:"var(--font-d)",fontWeight:on?900:400,fontSize:"18px",color:on?tb.col:"var(--ink2)",letterSpacing:"-.01em"}},tb.t)),
+        h("div",{style:{fontSize:"11.5px",color:"var(--slate)",paddingLeft:"21px"}},tb.d)); }));
+}
+function territoryBtn(ctx){
+  var label = ctx.state.vista==="comp" ? ("Comparar "+ctx.state.compSel.length+" territorios") : terrName(ctx.state.terrSel);
+  return h("button",{onClick:function(){ctx.upd({modalOpen:true});},style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"7px 12px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px",cursor:"pointer",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"13px",color:"var(--ink)"}},
+    h("span",{style:{width:"11px",height:"11px",background:"var(--plum)",borderRadius:"2px"}}), label,
+    h("span",{style:{color:"var(--slate)",fontSize:"11px"}},"▾"));
+}
+function genAntToggle(ctx){
+  var on=ctx.state.showRez, acc=ctx.acc;
+  return h("button",{onClick:function(){ctx.upd({showRez:!on});},title:"Mostrar u ocultar la categoría generaciones anteriores",style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"6px 11px",background:on?"#fff":"transparent",border:"1px solid "+(on?"var(--line2)":"var(--line)"),borderRadius:"4px",cursor:"pointer"}},
+    h("span",{style:{width:"15px",height:"15px",flex:"none",borderRadius:"3px",border:"1.5px solid "+(on?acc:"var(--slate)"),background:on?acc:"transparent",display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"10px",fontWeight:700}}, on?"✓":""),
+    h("span",{style:{display:"flex",flexDirection:"column",lineHeight:1.15,textAlign:"left"}},
+      h("span",{style:{fontSize:"12.5px",fontWeight:600,color:"var(--ink)"}},"Generaciones anteriores"),
+      h("span",{style:{fontSize:"10px",color:"var(--slate)"}}, on?"visibles en el detalle":"ocultas del detalle (categoría siempre reportada)")));
+}
+function Controls(ctx){
+  var s=ctx.state, acc=ctx.acc;
+  var vistaSeg=seg([{v:"terr",label:"Por territorio"},{v:"comp",label:"Comparar territorios"}],s.vista,function(v){ctx.upd({vista:v});});
+  var periodSeg=seg([{v:"actual",label:"Actual"},{v:"hist",label:"Histórica"}],s.modo,function(v){ctx.upd({modo:v});},acc);
+  var secondary=h("div",{style:{display:"flex",alignItems:"center",gap:"26px",padding:"12px 40px",background:"var(--paper)",borderBottom:"1px solid var(--line)",flexWrap:"wrap"}},
+    h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl("Vista"), vistaSeg),
+    s.vista==="terr" ? h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl("Período"), periodSeg) : null,
+    h("div",{style:{flex:1}}),
+    h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl("Territorio"), territoryBtn(ctx)));
+  var sub=h("div",{style:{display:"flex",alignItems:"center",gap:"24px",padding:"11px 40px",background:"var(--cream50)",borderBottom:"1px solid var(--line)",flexWrap:"wrap"}},
+    (s.vista==="terr" && s.modo==="actual")
+      ? h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl("Cohorte"), genAntToggle(ctx))
+      : h("span",{style:{fontSize:"11.5px",color:"var(--slate)"}}, s.modo==="hist" ? ("Serie "+M.anios[0]+"–"+M.anios[M.anios.length-1]+" · proceso de cada año") : ("Comparación entre territorios · admisión "+M.anio_actual)));
+  return h("div",{}, FocoTabs(ctx), secondary, sub);
+}
+
+// ---- Franja "Territorio en pantalla" -------------------------------------
+function childComunas(id){
+  var p=terrParse(id);
+  if(p.tipo==="comuna" || p.tipo==="rezagados" || p.tipo==="nacional") return [];
+  if(p.tipo==="slep") return T.comunas.filter(function(c){return c.slep===p.cod;}).map(function(c){return "comuna:"+c.cod;});
+  if(p.tipo==="region") return T.comunas.filter(function(c){return c.reg===p.cod;}).map(function(c){return "comuna:"+c.cod;});
+  return [];
+}
+function ContextStrip(ctx){
+  var s=ctx.state, inner;
+  if(s.vista==="comp"){
+    inner=h("div",{style:{display:"flex",alignItems:"center",gap:"8px",flexWrap:"wrap"}},
+      h("span",{style:{fontSize:"12px",color:"var(--slate)",fontWeight:500}},"Comparando "+s.compSel.length+" territorios · admite hasta 10:"),
+      s.compSel.map(function(id,i){ return h("span",{key:id,style:{display:"inline-flex",alignItems:"center",gap:"6px",padding:"4px 9px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px"}},
+        h("span",{style:{width:"9px",height:"9px",background:terrColor(id,i),borderRadius:"2px"}}),
+        h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"11.5px",color:"var(--ink)"}},terrName(id))); }));
+  } else {
+    var id=s.terrSel, p=terrParse(id);
+    var chip=h("span",{style:{display:"inline-flex",alignItems:"center",gap:"9px",padding:"8px 14px",background:"var(--plum)",borderRadius:"4px"}},
+      h("span",{style:{width:"13px",height:"13px",background:"var(--cream)",borderRadius:"2px"}}),
+      h("span",{style:{display:"flex",flexDirection:"column",lineHeight:1.15}},
+        h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"13px",color:"var(--cream)"}},terrName(id)),
+        h("span",{style:{fontSize:"10px",color:"rgba(255,246,224,.7)"}}, terrTipoLabel(p.tipo)+" · admisión "+M.anio_actual)));
+    var kids=childComunas(id);
+    inner=h("div",{style:{display:"flex",alignItems:"center",gap:"10px",flexWrap:"wrap"}},
+      chip,
+      kids.length? h("span",{style:{fontSize:"12px",color:"var(--slate)"}},"con desglose por comuna:") : null,
+      kids.slice(0,12).map(function(cid,i){ var eg=covGet(cid,M.anio_actual,"egresados");
+        return h("span",{key:cid,style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"5px 10px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px"}},
+          h("span",{style:{width:"11px",height:"11px",background:terrColor(cid,i),borderRadius:"2px"}}),
+          h("span",{style:{display:"flex",flexDirection:"column",lineHeight:1.15}},
+            h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"12px",color:"var(--ink)"}},terrName(cid)),
+            h("span",{style:{fontSize:"10px",color:"var(--slate)"}}, (eg&&!eg.sup? fmt(eg.n)+" egresados" : SUP_SHORT)))); }));
   }
+  return h("div",{style:{padding:"14px 40px",background:"var(--cream50)",borderBottom:"1px solid var(--line)"}},
+    h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",letterSpacing:".02em",color:"var(--slate)",marginBottom:"10px"}},"Territorio en pantalla"),
+    inner);
+}
 
-  function PanelRendimiento(){
-    const pruebas = Object.keys(M.pruebas);
-    return h("div",{className:"card"},
-      h("h2",{style:{marginTop:0}},"Foco Rendimiento — los puntajes"),
-      h("p",null,"Distribución de puntajes de quienes rinden, por prueba (escala "+M.escala.min+"–"+M.escala.max+", IRT), con NEM y Ranking como contexto."),
-      h("div",{className:"chips"}, pruebas.map(function(k){
-        return h("span",{key:k,className:"chip",
-          style:{background:(P.pruebas&&P.pruebas[k])||"#5B3A9E"}}, M.pruebas[k]);
-      }))
-    );
+// ---- Utilidades de tarjeta / nota ----------------------------------------
+function noteStrip(text,acc,soft){ return h("div",{style:{background:soft,borderLeft:"3px solid "+acc,padding:"10px 14px",borderRadius:"0 4px 4px 0",fontSize:"12.5px",color:"var(--ink2)",lineHeight:1.5,maxWidth:"940px"}},text); }
+function card(extra,children){ return h("div",{style:Object.assign({background:"#fff",border:"1px solid var(--line)",borderRadius:"8px",padding:"18px",boxShadow:"0 2px 8px rgba(74,39,70,.08)"},extra||{})},children); }
+function cardTitle(t,sub){ return h("div",{style:{marginBottom:"12px"}}, h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"15px",color:"var(--ink)"}},t), sub?h("div",{style:{fontSize:"11px",color:"var(--slate)",marginTop:"2px"}},sub):null); }
+function supBox(hgt){ return h("div",{style:{height:hgt+"px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#E7E1D2",borderRadius:"4px"}},
+  h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"12px",color:"var(--slate)"}},"Sin dato"),
+  h("span",{style:{fontSize:"10px",color:"var(--slate)",marginTop:"2px"}},"resguardo estadístico · n < "+M.umbral)); }
+
+// ---- Meta de vista --------------------------------------------------------
+function viewMeta(ctx){
+  var s=ctx.state, f=s.foco, v=s.vista, m=s.modo;
+  if(f==="cob"){
+    if(v==="terr") return m==="hist"
+      ? {t:"Cobertura en el tiempo", sub:terrName(s.terrSel)+" · participación PAES · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica por proceso de admisión. La categoría de generaciones anteriores se reporta siempre; nunca se trata como error."}
+      : {t:"Embudo de participación PAES", sub:terrName(s.terrSel)+" · admisión "+M.anio_actual+" · egresados → selección", note:"El embudo tiene 6 etapas (sin matrícula, no disponible en el agregado). Las generaciones anteriores se reportan como bucket nacional agregado; el control de cohorte las muestra u oculta del detalle."};
+    return {t:"Cobertura — comparación entre territorios", sub:"Embudo por territorio · admisión "+M.anio_actual+" · porcentaje (n)", note:"Comparación en porcentaje sobre egresados, con el número de casos entre paréntesis: % (n). Celdas con n < "+M.umbral+" se muestran como «"+SUP_TXT+"»."};
+  } else {
+    if(v==="terr") return m==="hist"
+      ? {t:"Rendimiento en el tiempo", sub:terrName(s.terrSel)+" · media por prueba · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica de la media de puntaje por prueba (escala "+M.escala.min+"–"+M.escala.max+"). La mediana no está disponible en el agregado; se reporta la media."}
+      : {t:"Distribución de puntajes PAES", sub:terrName(s.terrSel)+" · media por prueba · escala "+M.escala.min+"–"+M.escala.max+" · NEM y Ranking como contexto", note:"Se reporta la media por prueba (agregado territorial, no microdato). NEM y Ranking se muestran como contexto (no son pruebas PAES). Celdas con n < "+M.umbral+" se resguardan."};
+    return {t:"Rendimiento — comparación entre territorios", sub:"Media de puntaje por prueba · admisión "+M.anio_actual+" · media (n)", note:"Cada celda muestra la media de puntaje y, entre paréntesis, el número de casos. Heatmap por columna: menor media = más alerta. NEM y Ranking van como contexto."};
   }
+}
+function ResultsSection(ctx){
+  var vm=viewMeta(ctx), acc=ctx.acc, soft=ctx.accSoft;
+  return h("div",{style:{padding:"24px 40px 8px"}},
+    h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:"16px"}},
+      h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",letterSpacing:".02em",color:"var(--slate)",marginBottom:"4px"}},"Resultados"),
+      ExportBar(ctx)),
+    h("h2",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"23px",letterSpacing:"-.005em",lineHeight:1.15,margin:0,color:"var(--ink)"}},vm.t),
+    h("div",{style:{fontSize:"13px",color:"var(--slate)",marginTop:"3px",fontWeight:400}},vm.sub),
+    h("div",{style:{marginTop:"14px"}}, noteStrip(vm.note,acc,soft)),
+    h("div",{id:"paesWork",style:{marginTop:"16px"}}, WorkArea(ctx)));
+}
+function WorkArea(ctx){
+  var s=ctx.state;
+  if(s.foco==="cob") return s.vista==="comp" ? CobComp(ctx) : (s.modo==="hist" ? CobHist(ctx) : CobActual(ctx));
+  return s.vista==="comp" ? RenComp(ctx) : (s.modo==="hist" ? RenHist(ctx) : RenActual(ctx));
+}
 
-  function App(){
-    const st = React.useState("cobertura"); const foco = st[0], setFoco = st[1];
-    const nComunas = DATA.comunas.rows, nSleps = (DATA.sleps.rows||0), nEstab = DATA.establecimientos.rows;
-
-    return h("div",null,
-      h("header",{className:"app"},
-        h("h1",null,"Panorama nacional de la PAES"),
-        h("p",null,"Área de Monitoreo y Seguimiento de Procesos y Resultados Educativos — SLEP Costa Central · datos públicos del DEMRE")
-      ),
-      h("main",null,
-        h("div",{className:"toolbar"},
-          h("div",{className:"seg"},
-            h("button",{"data-foco":"cobertura",className:foco==="cobertura"?"on":"",onClick:function(){setFoco("cobertura")}},"Cobertura"),
-            h("button",{"data-foco":"rendimiento",className:foco==="rendimiento"?"on":"",onClick:function(){setFoco("rendimiento")}},"Rendimiento")
-          ),
-          h("div",{className:"nav"},
-            h("select",null,
-              ["Nacional","Región","SLEP","Comuna","Establecimiento"].map(function(x){
-                return h("option",{key:x},x); }))
-          )
-        ),
-
-        (!M.hay_datos) && h("div",{className:"card aviso"},
-          h("strong",null,"Andamiaje del motor (sesión 1). "),
-          "Aún sin bases del DEMRE. Este esqueleto ya trae el chrome, la navegación territorial y el toggle de doble foco; los paneles se poblarán cuando ",
-          h("code",null,"32_agregar_territorial.R")," escriba los agregados. Umbral de supresión de celdas: ",
-          h("strong",null,"n < "+M.umbral_supresion),"."
-        ),
-
-        h("div",{className:"kpis"},
-          h(Kpi,{n:nComunas,l:"Comunas (catálogo)"}),
-          h(Kpi,{n:nSleps,l:"SLEP × RBD (catálogo)"}),
-          h(Kpi,{n:nEstab,l:"Establecimientos (catálogo)"})
-        ),
-        h("div",{style:{height:16}}),
-        foco==="cobertura" ? h(PanelCobertura) : h(PanelRendimiento)
-      ),
-      h("footer",null,
-        "Fuente: bases de datos abiertas del DEMRE (Universidad de Chile). El panorama publica sólo agregados territoriales, con supresión de celdas que individualicen (k-anonimato). Generado el "+M.fecha_generacion+"."
-      )
-    );
+// ===========================================================================
+// VISTAS (Fase 3)
+// ===========================================================================
+function funnelStages(id, anio){
+  return ETAPAS.map(function(e){
+    var g=covGet(id,anio,e.k);
+    return {k:e.k,label:e.label,n:(g?g.n:null),sup:(g?g.sup:false),present:!!g};
+  });
+}
+// Embudo trapezoidal (6 etapas) — SVG generado a mano (patron prototipo)
+function funnelSvg(stages, acc){
+  var W=740,labelW=210,areaW=340,cx=labelW+20+areaW/2,slabH=30,gap=17,top=12;
+  var base=null; stages.forEach(function(s){ if(s.k==="egresados" && s.n!=null) base=s.n; });
+  if(base==null){ stages.forEach(function(s){ if(base==null && s.n!=null) base=s.n; }); }
+  var n=stages.length, H=top+n*(slabH+gap)+6, els=[];
+  function pctOf(s){ return (base && s.n!=null)? s.n/base*100 : null; }
+  for(var i=0;i<n-1;i++){
+    var p1=pctOf(stages[i]), p2=pctOf(stages[i+1]); if(p1==null||p2==null) continue;
+    var w=p1/100*areaW, w2=p2/100*areaW, yb=top+i*(slabH+gap)+slabH, yt=top+(i+1)*(slabH+gap);
+    els.push(h("polygon",{key:"c"+i,points:(cx-w/2)+","+yb+" "+(cx+w/2)+","+yb+" "+(cx+w2/2)+","+yt+" "+(cx-w2/2)+","+yt,fill:acc,opacity:0.12}));
   }
+  stages.forEach(function(s,i){
+    var pct=pctOf(s), y=top+i*(slabH+gap);
+    var w=Math.max((pct!=null?pct:0)/100*areaW,2), x=cx-w/2;
+    els.push(h("rect",{key:"r"+i,x:x,y:y,width:w,height:slabH,rx:3,fill:acc,opacity:(0.4+i*0.1).toFixed(2)}));
+    els.push(h("text",{key:"l"+i,x:labelW,y:y+slabH/2+4,textAnchor:"end",fill:"var(--ink)",fontFamily:"var(--font-b)",fontWeight:500,fontSize:11.5},s.label));
+    var rot = s.sup ? SUP_SHORT : (pct!=null? (fmtPct(pct)+" ("+fmt(s.n)+")") : "—");
+    els.push(h("text",{key:"p"+i,x:labelW+20+areaW+14,y:y+slabH/2+4,textAnchor:"start",fill:"var(--ink2)",fontFamily:"var(--font-b)",fontWeight:500,fontSize:12.5},rot));
+  });
+  return h("svg",{viewBox:"0 0 "+W+" "+H,style:{width:"100%",height:"auto",display:"block"}},els);
+}
+// bucket "generaciones anteriores" (rezagados) — nacional, siempre visible
+function genAntSlab(ctx){
+  var acc=ctx.acc, soft=ctx.accSoft, on=ctx.state.showRez;
+  var g=covGet(REZ_ID,M.anio_actual,"inscripcion");
+  var val = g? (g.sup? SUP_SHORT : fmt(g.n)) : "—";
+  return h("div",{style:{border:"1px dashed "+acc,background:soft,borderRadius:"8px",padding:"16px 18px",display:"flex",gap:"24px",alignItems:"center",flexWrap:"wrap",opacity:on?1:0.55}},
+    h("div",{style:{flex:"none"}},
+      h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"10px",letterSpacing:".02em",color:acc}},"Siempre reportada · generaciones anteriores (nacional)"),
+      h("div",{style:{fontFamily:"var(--font-d)",fontWeight:900,fontSize:"34px",color:acc,lineHeight:1.05}},val)),
+    h("p",{style:{flex:"1 1 240px",fontSize:"12px",color:"var(--slate)",lineHeight:1.5,margin:0}},
+      on ? "Personas que rinden la PAES sin establecimiento de egreso vigente en el año. Se reportan como categoría propia agregada a nivel nacional (no son asignables a un territorio); nunca se ocultan ni se tratan como error."
+         : "Categoría oculta del detalle por el control de cohorte, pero siempre reportada aquí. Son quienes rinden sin establecimiento de egreso vigente en el año (agregado nacional)."));
+}
+// Retención por comuna (derivada de las 6 etapas reales: egresados -> selección)
+function retencionComunas(ctx){
+  var kids=childComunas(ctx.state.terrSel);
+  if(!kids.length) return null;
+  var keys=ETAPAS.map(function(e){return e.k;});
+  return card({},[cardTitle("Retención por comuna","Cada línea: egresados (100%) → selección · admisión "+M.anio_actual),
+    h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:"12px"}},
+      kids.map(function(cid,idx){
+        var col=terrColor(cid,idx);
+        var vals=keys.map(function(k){ var g=covGet(cid,M.anio_actual,k); return (g&&!g.sup)?g.n:null; });
+        var base=vals[0];
+        var pts=vals.map(function(v,i){ var p=(base&&v!=null)?v/base*100:0; return [10+i/(keys.length-1)*180, 50-p/100*42]; });
+        var poly=pts.map(function(p){return p[0].toFixed(1)+","+p[1].toFixed(1);}).join(" ");
+        var sel=vals[vals.length-1];
+        return h("div",{key:cid,style:{border:"1px solid var(--line)",borderRadius:"6px",padding:"10px"}},
+          h("div",{style:{display:"flex",alignItems:"center",gap:"6px",marginBottom:"4px"}},
+            h("span",{style:{width:"10px",height:"10px",background:col,borderRadius:"2px"}}),
+            h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"12px",color:"var(--ink)"}},terrName(cid))),
+          h("svg",{viewBox:"0 0 200 60",style:{width:"100%",height:"auto",display:"block"}},
+            h("polygon",{points:"10,50 "+poly+" 190,50",fill:col,opacity:0.1}),
+            h("polyline",{points:poly,fill:"none",stroke:col,strokeWidth:2}),
+            pts.map(function(p,i){return h("circle",{key:i,cx:p[0],cy:p[1],r:2.2,fill:col});})),
+          h("div",{style:{fontSize:"11px",color:"var(--slate)",marginTop:"4px"}}, (base&&sel!=null)? ("seleccionados "+(sel/base*100).toFixed(0)+"% · "+fmt(sel)+" de "+fmt(base)) : SUP_SHORT));
+      }))]);
+}
+function CobActual(ctx){
+  var acc=ctx.acc, id=ctx.state.terrSel;
+  var stages=funnelStages(id, M.anio_actual);
+  var out=[ card({},[cardTitle("Embudo de participación", terrName(id)+" · admisión "+M.anio_actual), funnelSvg(stages,acc)]),
+            h("div",{key:"rz",style:{marginTop:"14px"}}, genAntSlab(ctx)) ];
+  var ret=retencionComunas(ctx);
+  if(ret) out.push(h("div",{key:"ret",style:{marginTop:"14px"}}, ret));
+  return h("div",{}, out);
+}
+// Serie historica de cobertura: % rindió y % seleccionado sobre egresados
+function lineChart(series,yMin,yMax,unit,W,H,ticks,years){
+  var padL=(W>400?58:40),padR=16,padT=12,padB=28;
+  var sx=function(i){return padL+i/(years.length-1)*(W-padL-padR);};
+  var sy=function(v){return padT+(yMax-v)/(yMax-yMin)*(H-padT-padB);};
+  var els=[];
+  ticks.forEach(function(t){ els.push(h("line",{key:"g"+t,x1:padL,y1:sy(t),x2:W-padR,y2:sy(t),stroke:"var(--line)",strokeWidth:1}));
+    els.push(h("text",{key:"yl"+t,x:padL-10,y:sy(t)+3,textAnchor:"end",fontSize:9,fill:"var(--slate)",fontFamily:"var(--font-b)"},t+(unit||""))); });
+  years.forEach(function(y,i){ els.push(h("text",{key:"xl"+i,x:sx(i),y:H-8,textAnchor:"middle",fontSize:9.5,fill:"var(--slate)",fontFamily:"var(--font-b)"},y)); });
+  series.forEach(function(s,si){
+    var pts=s.vals.map(function(v,i){return v==null?null:[sx(i),sy(v)];});
+    var poly=pts.filter(Boolean).map(function(p){return p[0].toFixed(1)+","+p[1].toFixed(1);}).join(" ");
+    els.push(h("polyline",{key:"p"+si,points:poly,fill:"none",stroke:s.color,strokeWidth:2.2,strokeDasharray:s.dashed?"5 4":"0"}));
+    var below=s.labelPos==="below";
+    s.vals.forEach(function(v,i){ if(v==null) return;
+      els.push(h("circle",{key:"d"+si+"_"+i,cx:sx(i),cy:sy(v),r:4.5,fill:s.color}));
+      els.push(h("text",{key:"t"+si+"_"+i,x:sx(i),y:sy(v)+(below?15:-9),textAnchor:"middle",fontSize:10.5,fontWeight:700,fill:s.color,fontFamily:"var(--font-d)"},v+(unit||""))); });
+  });
+  return h("svg",{viewBox:"0 0 "+W+" "+H,style:{width:"100%",height:"auto",display:"block"}},els);
+}
+function CobHist(ctx){
+  var acc=ctx.acc, id=ctx.state.terrSel, years=M.anios;
+  function pctSerie(etapa){ return years.map(function(y){
+    var eg=covGet(id,y,"egresados"), st=covGet(id,y,etapa);
+    if(!eg||eg.sup||!st||st.sup||!eg.n) return null; return Math.round(st.n/eg.n*100); }); }
+  var rin=pctSerie("rendicion"), sel=pctSerie("seleccion");
+  var mat2="#B0855F";
+  var legend=h("div",{style:{display:"flex",gap:"18px",flexWrap:"wrap",marginBottom:"10px",fontSize:"11.5px",color:"var(--ink2)"}},
+    h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:acc,display:"inline-block"}}),"Rindió al menos una prueba (% de egresados)"),
+    h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"16px",height:"3px",background:mat2,display:"inline-block",borderTop:"2px dashed "+mat2}}),"Seleccionado (% de egresados)"));
+  var rezStrip=h("div",{style:{marginTop:"16px",borderTop:"1px solid var(--line)",paddingTop:"12px"}},
+    h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",color:acc,marginBottom:"8px"}},"Generaciones anteriores por año · siempre reportada (agregado nacional)"),
+    h("div",{style:{display:"flex",gap:"10px",flexWrap:"wrap"}}, years.map(function(y){ var g=covGet(REZ_ID,y,"inscripcion");
+      return h("div",{key:y,style:{flex:"1 1 80px",border:"1px dashed "+acc,background:ctx.accSoft,borderRadius:"6px",padding:"8px 10px",textAlign:"center"}},
+        h("div",{style:{fontSize:"11px",color:"var(--slate)"}},y),
+        h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"17px",color:acc}}, g?(g.sup?SUP_SHORT:fmt(g.n)):"—")); })));
+  return card({},[cardTitle("Participación en el tiempo", terrName(id)+" · "+years[0]+"–"+years[years.length-1]+" · proceso de cada año"),
+    legend,
+    lineChart([{color:acc,vals:rin,labelPos:"above"},{color:mat2,vals:sel,dashed:true,labelPos:"below"}],0,100,"%",720,240,[0,25,50,75,100],years),
+    rezStrip]);
+}
+// Heatmap (comparación) — divergente rojo->pálido->azul, alpha .45
+function heatColor(t){ if(t==null||isNaN(t)) return "transparent";
+  var s=[[214,69,69],[236,228,208],[13,130,190]], a,b,f;
+  if(t<=0.5){a=s[0];b=s[1];f=t*2;} else {a=s[1];b=s[2];f=(t-0.5)*2;}
+  var c=a.map(function(x,i){return Math.round(x+(b[i]-x)*f);});
+  return "rgba("+c[0]+","+c[1]+","+c[2]+",0.45)"; }
+function heatLegend(dirLabel){ var grad="linear-gradient(90deg,rgba(214,69,69,.5),rgba(236,228,208,.45),rgba(13,130,190,.45))";
+  return h("span",{style:{display:"inline-flex",alignItems:"center",gap:"8px",fontSize:"11px",color:"var(--slate)"}},
+    h("span",{},dirLabel||"menor (más alerta)"),
+    h("span",{style:{width:"90px",height:"12px",borderRadius:"3px",background:grad,border:"1px solid var(--line)"}}),
+    h("span",{},"mayor")); }
+function nameCell(id,idx){ return h("td",{style:{padding:"9px 9px",textAlign:"right",borderBottom:"1px solid var(--line)"}},
+  h("span",{style:{display:"inline-flex",alignItems:"center",gap:"7px",justifyContent:"flex-end"}},
+    h("span",{style:{width:"10px",height:"10px",flex:"none",background:terrColor(id,idx),borderRadius:"2px"}}),
+    h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"12.5px",color:"var(--ink)"}},terrName(id)))); }
+function supCell(key,leftBorder){ return h("td",{key:key,style:{padding:"9px 9px",textAlign:"center",background:"#E7E1D2",borderBottom:"1px solid var(--line)",borderLeft:leftBorder?"1px solid var(--line2)":"none"}},
+  h("span",{style:{fontSize:"10px",fontWeight:700,color:"var(--slate)"}},SUP_SHORT)); }
+function CobComp(ctx){
+  var acc=ctx.acc, ids=ctx.state.compSel, anio=M.anio_actual;
+  var keys=["inscripcion","rendicion","resultados","postulacion","seleccion"];
+  var heads=["Territorio","Egresados","Inscritos","Rindió","Válidos","Postuló","Seleccionado"];
+  var ranges={}; keys.forEach(function(k){ var vs=[];
+    ids.forEach(function(id){ var eg=covGet(id,anio,"egresados"), st=covGet(id,anio,k);
+      if(eg&&!eg.sup&&eg.n&&st&&!st.sup) vs.push(st.n/eg.n*100); });
+    ranges[k]=vs.length?[Math.min.apply(null,vs),Math.max.apply(null,vs)]:[0,1]; });
+  function norm(k,pct){ var r=ranges[k]; return r[1]>r[0]?(pct-r[0])/(r[1]-r[0]):0.5; }
+  var th=heads.map(function(t,i){ return h("th",{key:i,style:{textAlign:i===0?"right":"center",padding:"8px 9px",fontFamily:"var(--font-b)",fontWeight:700,fontSize:"10.5px",color:"var(--slate)",borderBottom:"2px solid "+acc,whiteSpace:"nowrap"}},t); });
+  var rows=ids.map(function(id,idx){ var eg=covGet(id,anio,"egresados");
+    var egCell=h("td",{style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"13px",color:"var(--ink2)"}}, (eg&&!eg.sup)?fmt(eg.n):SUP_SHORT);
+    var cells=keys.map(function(k){ var st=covGet(id,anio,k);
+      if(!st||st.sup||!eg||eg.sup||!eg.n) return supCell(k,false);
+      var pct=st.n/eg.n*100;
+      return h("td",{key:k,style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",background:heatColor(norm(k,pct))}},
+        h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"13px",color:"var(--ink)"}},Math.round(pct)+"%"),
+        h("span",{style:{fontSize:"10.5px",color:"var(--ink2)"}}," ("+fmt(st.n)+")")); });
+    return h("tr",{key:id}, nameCell(id,idx), egCell, cells); });
+  return card({},[
+    h("div",{key:"lg",style:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px",flexWrap:"wrap",fontSize:"11px",color:"var(--slate)"}},
+      h("span",{},"Cada celda: % de egresados (n). Heatmap por columna: menor proporción = más alerta."),
+      heatLegend("menor % (más alerta)"),
+      h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"22px",height:"14px",borderRadius:"3px",background:"#E7E1D2",display:"inline-block"}}),SUP_TXT)),
+    h("div",{key:"w",style:{overflowX:"auto"}}, h("table",{style:{width:"100%",minWidth:"760px"}}, h("thead",{},h("tr",{},th)), h("tbody",{},rows)))]);
+}
+// Rendimiento actual: media por prueba (barras horizontales) + contexto
+function meanBars(ctx, items, muted){
+  var acc=ctx.acc, id=ctx.state.terrSel, anio=M.anio_actual;
+  var lo=M.escala.min, hi=M.escala.max;
+  return items.map(function(p){
+    var g=renGet(id,anio,p.k);
+    var col=muted?"#8A7C86":acc;
+    var head=h("div",{style:{display:"flex",alignItems:"baseline",gap:"9px",marginBottom:"3px"}},
+      p.sigla?h("span",{style:{background:col,color:"#fff",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"10px",padding:"2px 6px",borderRadius:"3px"}},p.sigla):h("span",{style:{width:"10px",height:"10px",background:col,borderRadius:"2px"}}),
+      h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"13px",color:"var(--ink)",flex:1}},p.name),
+      (g&&!g.sup)?h("span",{style:{fontSize:"11px",color:"var(--slate)"}},"media "+fmtMean(g.media)+" · n = "+fmt(g.n)):null);
+    var body;
+    if(!g||g.sup){ body=h("div",{style:{height:"22px",display:"flex",alignItems:"center",paddingLeft:"4px",background:"#E7E1D2",borderRadius:"4px",fontSize:"11px",color:"var(--slate)"}},SUP_TXT); }
+    else { var w=(g.media-lo)/(hi-lo)*100;
+      body=h("div",{style:{position:"relative",height:"22px",background:"var(--cream200)",borderRadius:"4px"}},
+        h("div",{style:{position:"absolute",left:0,top:0,bottom:0,width:w+"%",background:col,opacity:muted?0.4:0.8,borderRadius:"4px"}}),
+        h("div",{style:{position:"absolute",left:"calc("+w+"% + 4px)",top:0,bottom:0,display:"flex",alignItems:"center",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"11px",color:"var(--ink)"}},fmtMean(g.media))); }
+    return h("div",{key:p.k,style:{padding:"9px 0",borderTop:"1px solid var(--line)"}}, head, body);
+  });
+}
+function RenActual(ctx){
+  var rows=meanBars(ctx, PRUEBAS, false);
+  rows.push(h("div",{key:"ctxh",style:{marginTop:"6px",paddingTop:"10px",borderTop:"2px solid var(--line2)",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"11px",color:"var(--slate)"}},"Contexto — NEM y Ranking (no son pruebas PAES)"));
+  meanBars(ctx, CONTEXTO, true).forEach(function(r){ rows.push(r); });
+  var foot=h("div",{style:{fontSize:"10px",color:"var(--slate)",marginTop:"8px"}},"Barra: media en la escala "+M.escala.min+"–"+M.escala.max+" · se reporta la media agregada, no puntajes individuales.");
+  return card({},[cardTitle("Media de puntaje por prueba", terrName(ctx.state.terrSel)+" · admisión "+M.anio_actual), h("div",{},rows), foot]);
+}
+function RenHist(ctx){
+  var acc=ctx.acc, id=ctx.state.terrSel, years=M.anios;
+  function mini(p, col){
+    var vals=years.map(function(y){ var g=renGet(id,y,p.k); return (g&&!g.sup)?g.media:null; });
+    return h("div",{key:p.k,style:{border:"1px solid var(--line)",borderRadius:"8px",padding:"12px",background:"#fff",boxShadow:"0 1px 4px rgba(74,39,70,.06)"}},
+      h("div",{style:{display:"flex",alignItems:"center",gap:"7px",marginBottom:"6px"}},
+        p.sigla?h("span",{style:{background:col,color:"#fff",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"10px",padding:"2px 6px",borderRadius:"3px"}},p.sigla):h("span",{style:{width:"10px",height:"10px",background:col,borderRadius:"2px"}}),
+        h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"12px",color:"var(--ink)"}},p.name)),
+      lineChart([{color:col,vals:vals}],M.escala.min,M.escala.max,"",250,140,[300,500,700],years));
+  }
+  var items=PRUEBAS.map(function(p){return mini(p,acc);});
+  return h("div",{},[
+    h("div",{key:"n",style:{fontSize:"11px",color:"var(--slate)",marginBottom:"12px"}},"Media de puntaje por prueba, "+years[0]+"–"+years[years.length-1]+" · escala "+M.escala.min+"–"+M.escala.max+" · NEM y Ranking se omiten en la serie histórica."),
+    h("div",{key:"g",style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:"12px"}},items)]);
+}
+function RenComp(ctx){
+  var acc=ctx.acc, ids=ctx.state.compSel, anio=M.anio_actual;
+  var heatKeys=PRUEBAS.map(function(p){return p.k;});
+  var allCols=PRUEBAS.concat(CONTEXTO);
+  var ranges={}; heatKeys.forEach(function(k){ var vs=[];
+    ids.forEach(function(id){ var g=renGet(id,anio,k); if(g&&!g.sup) vs.push(g.media); });
+    ranges[k]=vs.length?[Math.min.apply(null,vs),Math.max.apply(null,vs)]:[0,1]; });
+  function norm(k,v){ var r=ranges[k]; return r[1]>r[0]?(v-r[0])/(r[1]-r[0]):0.5; }
+  var heads=["Territorio"].concat(allCols.map(function(p){return p.short||p.sigla||p.name;}));
+  var th=heads.map(function(t,i){ return h("th",{key:i,style:{textAlign:i===0?"right":"center",padding:"8px 9px",fontFamily:"var(--font-b)",fontWeight:700,fontSize:"10.5px",color:i>PRUEBAS.length?"var(--slate)":"var(--ink2)",borderBottom:"2px solid "+acc,borderLeft:i===PRUEBAS.length+1?"1px solid var(--line2)":"none",whiteSpace:"nowrap"}},t); });
+  var rows=ids.map(function(id,idx){
+    var cells=allCols.map(function(p,j){ var isCtx=j>=PRUEBAS.length; var g=renGet(id,anio,p.k);
+      var left=(j===PRUEBAS.length);
+      if(!g||g.sup) return supCell(p.k,left);
+      var bg=isCtx?"transparent":heatColor(norm(p.k,g.media));
+      return h("td",{key:p.k,style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",borderLeft:left?"1px solid var(--line2)":"none",background:bg}},
+        h("span",{style:{fontFamily:"var(--font-b)",fontWeight:600,fontSize:"13px",color:isCtx?"var(--slate)":"var(--ink)"}},fmtMean(g.media)),
+        h("span",{style:{fontSize:"10.5px",color:"var(--ink2)"}}," ("+fmt(g.n)+")")); });
+    return h("tr",{key:id}, nameCell(id,idx), cells); });
+  return card({},[
+    h("div",{key:"lg",style:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px",flexWrap:"wrap",fontSize:"11px",color:"var(--slate)"}},
+      h("span",{},"Cada celda: media de puntaje (n). Heatmap por columna en las pruebas: menor media = más alerta. NEM y Ranking van como contexto."),
+      heatLegend("menor media (más alerta)"),
+      h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"22px",height:"14px",borderRadius:"3px",background:"#E7E1D2",display:"inline-block"}}),SUP_TXT)),
+    h("div",{key:"w",style:{overflowX:"auto"}}, h("table",{style:{width:"100%",minWidth:"760px"}}, h("thead",{},h("tr",{},th)), h("tbody",{},rows)))]);
+}
 
-  ReactDOM.createRoot(document.getElementById("root")).render(h(App));
-})();
+// ===========================================================================
+// MODAL (Fase 4)
+// ===========================================================================
+function Modal(ctx){
+  var s=ctx.state, multi=s.vista==="comp";
+  var query=s.modalQuery||""; function setQuery(v){ ctx.upd({modalQuery:v}); }
+  var sel = multi ? s.compSel.slice() : [s.terrSel];
+  function isSel(id){ return sel.indexOf(id)>=0; }
+  function pick(id){
+    if(multi){
+      var arr=s.compSel.slice(), i=arr.indexOf(id);
+      if(i>=0){ if(arr.length>1) arr.splice(i,1); }
+      else { if(arr.length<10) arr.push(id); }
+      ctx.upd({compSel:arr});
+    } else { ctx.upd({terrSel:id, modalOpen:false}); }
+  }
+  var qn=query.trim().toLowerCase();
+  function match(id){ return !qn || terrName(id).toLowerCase().indexOf(qn)>=0; }
+  // construir arbol: nacional, regiones -> sleps -> comunas ; comunas sin slep bajo region
+  var nodes=[];
+  nodes.push({id:"nacional:"+T.nacional.cod, lvl:0, tipo:"nacional"});
+  T.regiones.forEach(function(r){
+    var rid="region:"+r.cod, rkids=[];
+    var rsleps=T.sleps.filter(function(sp){return sp.reg===r.cod;});
+    var scodes={};
+    rsleps.forEach(function(sp){ scodes[sp.cod]=true; });
+    var comReg=T.comunas.filter(function(c){return c.reg===r.cod;});
+    var anyMatch=match(rid) || rsleps.some(function(sp){return match("slep:"+sp.cod);}) || comReg.some(function(c){return match("comuna:"+c.cod);});
+    if(!anyMatch) return;
+    nodes.push({id:rid,lvl:0,tipo:"region"});
+    rsleps.forEach(function(sp){
+      var spid="slep:"+sp.cod;
+      var spcom=comReg.filter(function(c){return c.slep===sp.cod;});
+      var spMatch=match(spid)||spcom.some(function(c){return match("comuna:"+c.cod);});
+      if(!spMatch) return;
+      nodes.push({id:spid,lvl:1,tipo:"slep"});
+      spcom.forEach(function(c){ var cid="comuna:"+c.cod; if(match(cid)) nodes.push({id:cid,lvl:2,tipo:"comuna"}); });
+    });
+    comReg.filter(function(c){return !c.slep;}).forEach(function(c){ var cid="comuna:"+c.cod; if(match(cid)) nodes.push({id:cid,lvl:1,tipo:"comuna"}); });
+  });
+  var rowEls=nodes.map(function(nd){
+    var on=isSel(nd.id);
+    return h("button",{key:nd.id,onClick:function(){pick(nd.id);},style:{display:"flex",alignItems:"center",gap:"8px",width:"100%",textAlign:"left",padding:"6px 8px",paddingLeft:(8+nd.lvl*18)+"px",border:0,borderBottom:"1px solid var(--line)",background:on?ctx.accSoft:"#fff",cursor:"pointer"}},
+      h("span",{style:{width:"14px",height:"14px",flex:"none",borderRadius:multi?"3px":"50%",border:"1.5px solid "+(on?ctx.acc:"var(--line2)"),background:on?ctx.acc:"transparent",display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"9px",fontWeight:700}}, on?"✓":""),
+      h("span",{style:{fontFamily:nd.tipo==="comuna"?"var(--font-b)":"var(--font-d)",fontWeight:nd.tipo==="comuna"?500:400,fontSize:nd.lvl===0?"13px":"12px",color:"var(--ink)"}},terrName(nd.id)),
+      h("span",{style:{marginLeft:"auto",fontSize:"9.5px",color:"var(--slate)",textTransform:"none"}},terrTipoLabel(nd.tipo))); });
+  return h("div",{onClick:function(){ctx.upd({modalOpen:false});},style:{position:"fixed",inset:0,background:"rgba(21,18,18,.45)",zIndex:9998,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}},
+    h("div",{onClick:function(e){e.stopPropagation();},style:{background:"#fff",borderRadius:"8px",width:"560px",maxWidth:"100%",maxHeight:"80vh",display:"flex",flexDirection:"column",boxShadow:"0 10px 40px rgba(21,62,94,.28)"}},
+      h("div",{style:{padding:"18px 20px 12px",borderBottom:"1px solid var(--line)"}},
+        h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"16px",color:"var(--ink)"}}, multi?"Comparar territorios":"Elegir territorio"),
+        h("div",{style:{fontSize:"11.5px",color:"var(--slate)",marginTop:"3px"}}, multi?("Selección múltiple · hasta 10 · "+s.compSel.length+" elegidos · nivel máximo: comuna"):"Selección única · nacional, región, SLEP o comuna"),
+        h("input",{value:query,onChange:function(e){setQuery(e.target.value);},placeholder:"Buscar territorio…",style:{marginTop:"10px",width:"100%",padding:"8px 10px",border:"1px solid var(--line2)",borderRadius:"4px",fontFamily:"var(--font-b)",fontSize:"13px"}})),
+      h("div",{style:{overflowY:"auto",flex:1}}, rowEls),
+      h("div",{style:{padding:"12px 20px",borderTop:"1px solid var(--line)",display:"flex",justifyContent:"flex-end",gap:"10px"}},
+        h("button",{onClick:function(){ctx.upd({modalOpen:false});},style:{padding:"8px 16px",border:"1px solid var(--line2)",borderRadius:"4px",background:ctx.acc,color:"#fff",fontWeight:600,fontSize:"13px",cursor:"pointer"}}, multi?"Listo":"Cerrar"))));
+}
+
+// ===========================================================================
+// EXPORTADORES (Fase 5)
+// ===========================================================================
+function ExportBar(ctx){
+  var acc=ctx.acc, hv=ctx.state.hoverExp;
+  function iconSvg(paths){ return h("svg",{width:16,height:16,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2,strokeLinecap:"round",strokeLinejoin:"round",style:{flex:"none"}},paths); }
+  function btn(key,label,paths,onClick){ var on=hv===key;
+    return h("button",{key:key,onClick:onClick,onMouseEnter:function(){ctx.upd({hoverExp:key});},onMouseLeave:function(){ctx.upd({hoverExp:null});},title:label,"aria-label":label,style:{display:"inline-flex",alignItems:"center",gap:on?"8px":"0",height:"32px",padding:"0 8px",background:on?"#fff":"var(--cream50)",border:"1px solid "+(on?acc:"var(--line2)"),borderRadius:"4px",color:on?acc:"var(--slate)",cursor:"pointer",overflow:"hidden",maxWidth:on?"240px":"34px",transition:"max-width .24s ease, gap .24s ease",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"12px",whiteSpace:"nowrap"}},
+      iconSvg(paths), h("span",{style:{opacity:on?1:0,transition:"opacity .2s"}},label)); }
+  var imgPaths=[h("rect",{key:1,x:3,y:3,width:18,height:18,rx:2}),h("circle",{key:2,cx:9,cy:9,r:2}),h("path",{key:3,d:"m21 15-3.5-3.5L9 20"})];
+  var sheetPaths=[h("rect",{key:1,x:3,y:3,width:18,height:18,rx:2}),h("path",{key:2,d:"M3 9h18M3 15h18M9 3v18M15 3v18"})];
+  return h("div",{style:{display:"flex",gap:"10px",alignItems:"center",flex:"none"}},
+    btn("svg","Descargar gráfico (SVG)",imgPaths,function(){ exportSVG(); }),
+    btn("xlsx","Descargar datos (XLSX)",sheetPaths,function(){ exportXLSX(ctx); }));
+}
+function exportBase(ctx){ var f=ctx.state.foco==="cob"?"cobertura":"rendimiento"; var v=ctx.state.vista==="comp"?"comparacion":(ctx.state.modo==="hist"?"historica":"actual"); return "slep_paes_"+f+"_"+v; }
+function downloadBlob(blob,name){ var url=URL.createObjectURL(blob); var a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},120); }
+function exportSVG(){
+  var root=document.getElementById("paesWork"); if(!root) return;
+  var svgs=[].slice.call(root.querySelectorAll("svg")); if(!svgs.length){ return; }
+  var NS="http://www.w3.org/2000/svg", pad=24, y=pad, maxW=0, groups=[];
+  svgs.forEach(function(sv){ var vb=(sv.getAttribute("viewBox")||("0 0 500 300")).split(/\s+/).map(Number); var w=vb[2],hh=vb[3];
+    var g=document.createElementNS(NS,"g"); g.setAttribute("transform","translate("+pad+","+y+")");
+    var nsvg=document.createElementNS(NS,"svg"); nsvg.setAttribute("width",w); nsvg.setAttribute("height",hh); nsvg.setAttribute("viewBox",vb.join(" "));
+    var clone=sv.cloneNode(true); while(clone.firstChild){ nsvg.appendChild(clone.firstChild); } g.appendChild(nsvg); groups.push(g); y+=hh+pad; if(w>maxW) maxW=w; });
+  var rootSvg=document.createElementNS(NS,"svg"); var totalW=maxW+pad*2; rootSvg.setAttribute("xmlns",NS); rootSvg.setAttribute("width",totalW); rootSvg.setAttribute("height",y); rootSvg.setAttribute("viewBox","0 0 "+totalW+" "+y);
+  var style=document.createElementNS(NS,"style"); style.textContent='svg{--ink:#1C1212;--ink2:#2E2230;--slate:#747474;--line:#E7DFC9;--line2:#C8BDA0;--cream:#FFF6E0;--cream200:#F4E9CC;--paper:#fff;--plum:#153E5E;font-family:"Museo Sans",system-ui,sans-serif;}'; rootSvg.appendChild(style);
+  var bg=document.createElementNS(NS,"rect"); bg.setAttribute("x",0);bg.setAttribute("y",0);bg.setAttribute("width",totalW);bg.setAttribute("height",y);bg.setAttribute("fill","#FFF6E0"); rootSvg.appendChild(bg);
+  groups.forEach(function(g){rootSvg.appendChild(g);});
+  var xml='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(rootSvg);
+  downloadBlob(new Blob([xml],{type:"image/svg+xml"}), "slep_paes_grafico.svg");
+}
+var _crcT=null;
+function crc32(bytes){ if(!_crcT){ _crcT=[]; for(var n=0;n<256;n++){ var c=n; for(var k=0;k<8;k++) c=c&1?(0xEDB88320^(c>>>1)):(c>>>1); _crcT[n]=c>>>0; } }
+  var crc=0^(-1); for(var i=0;i<bytes.length;i++) crc=(crc>>>8)^_crcT[(crc^bytes[i])&0xFF]; return (crc^(-1))>>>0; }
+function makeZip(files){ var enc=new TextEncoder(); var u16=function(n){return [n&255,(n>>>8)&255];}; var u32=function(n){return [n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255];};
+  var chunks=[],central=[],offset=0;
+  files.forEach(function(f){ var name=enc.encode(f.name); var data=typeof f.data==="string"?enc.encode(f.data):f.data; var crc=crc32(data);
+    var lh=[].concat([80,75,3,4],u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0));
+    chunks.push(new Uint8Array(lh)); chunks.push(name); chunks.push(data);
+    var ch=[].concat([80,75,1,2],u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset));
+    central.push(new Uint8Array(ch)); central.push(name); offset+=lh.length+name.length+data.length; });
+  var cSize=0; central.forEach(function(c){cSize+=c.length;});
+  var eocd=[].concat([80,75,5,6],u16(0),u16(0),u16(files.length),u16(files.length),u32(cSize),u32(offset),u16(0));
+  var all=chunks.concat(central).concat([new Uint8Array(eocd)]); var total=0; all.forEach(function(a){total+=a.length;});
+  var out=new Uint8Array(total); var p=0; all.forEach(function(a){out.set(a,p);p+=a.length;});
+  return new Blob([out],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}); }
+function xmlEsc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function colRef(c){ var s=""; c++; while(c>0){ var m=(c-1)%26; s=String.fromCharCode(65+m)+s; c=Math.floor((c-1)/26); } return s; }
+function sheetXml(aoa){ var rows=""; aoa.forEach(function(row,r){ var cells=""; row.forEach(function(val,c){ var ref=colRef(c)+(r+1);
+  if(typeof val==="number" && isFinite(val)){ cells+='<c r="'+ref+'"><v>'+val+'</v></c>'; }
+  else { cells+='<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(val==null?"":val)+'</t></is></c>'; } });
+  rows+='<row r="'+(r+1)+'">'+cells+'</row>'; });
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'+rows+'</sheetData></worksheet>'; }
+function currentSheet(ctx){
+  var s=ctx.state, anio=M.anio_actual, name="Datos", aoa=[];
+  if(s.foco==="cob"){
+    if(s.vista==="comp"){ name="Cobertura comparacion";
+      aoa=[["Territorio","Egresados","Inscritos %","Inscritos n","Rindio %","Rindio n","Validos %","Validos n","Postulo %","Postulo n","Seleccionado %","Seleccionado n"]];
+      s.compSel.forEach(function(id){ var eg=covGet(id,anio,"egresados"); var row=[terrName(id), (eg&&!eg.sup)?eg.n:"resguardo"];
+        ["inscripcion","rendicion","resultados","postulacion","seleccion"].forEach(function(k){ var st=covGet(id,anio,k);
+          if(!st||st.sup||!eg||eg.sup||!eg.n){ row.push("resguardo"); row.push("resguardo"); } else { row.push(Math.round(st.n/eg.n*100)); row.push(st.n); } }); aoa.push(row); }); }
+    else if(s.modo==="hist"){ name="Cobertura historica"; var id=s.terrSel;
+      aoa=[["Territorio: "+terrName(id)],[],["Ano","Rindio % egresados","Seleccionado % egresados","Generaciones anteriores (n, nacional)"]];
+      M.anios.forEach(function(y){ var eg=covGet(id,y,"egresados"),ri=covGet(id,y,"rendicion"),se=covGet(id,y,"seleccion"),rz=covGet(REZ_ID,y,"inscripcion");
+        aoa.push([y, (eg&&ri&&!eg.sup&&!ri.sup&&eg.n)?Math.round(ri.n/eg.n*100):"resguardo", (eg&&se&&!eg.sup&&!se.sup&&eg.n)?Math.round(se.n/eg.n*100):"resguardo", (rz&&!rz.sup)?rz.n:"resguardo"]); }); }
+    else { name="Cobertura actual"; var id2=s.terrSel; aoa=[["Territorio: "+terrName(id2)+" · admision "+anio],[],["Etapa","n","% de egresados"]];
+      var eg2=covGet(id2,anio,"egresados"); ETAPAS.forEach(function(e){ var g=covGet(id2,anio,e.k);
+        var pct = (eg2&&g&&!eg2.sup&&!g.sup&&eg2.n)?Math.round(g.n/eg2.n*100):""; aoa.push([e.label, (g&&!g.sup)?g.n:"resguardo", pct]); });
+      var rz2=covGet(REZ_ID,anio,"inscripcion"); aoa.push([]); aoa.push(["Generaciones anteriores (agregado nacional)", (rz2&&!rz2.sup)?rz2.n:"resguardo"]); }
+  } else {
+    var cols=PRUEBAS.concat(CONTEXTO);
+    if(s.vista==="comp"){ name="Rendimiento comparacion";
+      var hd=["Territorio"]; cols.forEach(function(p){ hd.push((p.sigla||p.name)+" media"); hd.push((p.sigla||p.name)+" n"); }); aoa=[hd];
+      s.compSel.forEach(function(id){ var row=[terrName(id)]; cols.forEach(function(p){ var g=renGet(id,anio,p.k);
+        if(!g||g.sup){ row.push("resguardo"); row.push("resguardo"); } else { row.push(Math.round(g.media)); row.push(g.n); } }); aoa.push(row); }); }
+    else if(s.modo==="hist"){ name="Rendimiento historico"; var id3=s.terrSel;
+      var hd2=["Ano"]; PRUEBAS.forEach(function(p){ hd2.push(p.name); }); aoa=[["Territorio: "+terrName(id3)],[],hd2];
+      M.anios.forEach(function(y){ var row=[y]; PRUEBAS.forEach(function(p){ var g=renGet(id3,y,p.k); row.push((g&&!g.sup)?Math.round(g.media):"resguardo"); }); aoa.push(row); }); }
+    else { name="Rendimiento actual"; var id4=s.terrSel; aoa=[["Territorio: "+terrName(id4)+" · admision "+anio],[],["Prueba","Media","n","Tipo"]];
+      PRUEBAS.forEach(function(p){ var g=renGet(id4,anio,p.k); aoa.push([p.name, (g&&!g.sup)?Math.round(g.media):"resguardo", (g&&!g.sup)?g.n:"resguardo","Prueba PAES"]); });
+      CONTEXTO.forEach(function(p){ var g=renGet(id4,anio,p.k); aoa.push([p.name, (g&&!g.sup)?Math.round(g.media):"resguardo", (g&&!g.sup)?g.n:"resguardo","Contexto"]); }); }
+  }
+  return {name:name, aoa:aoa};
+}
+function exportXLSX(ctx){ var sh=currentSheet(ctx); var nm=xmlEsc(sh.name.slice(0,31)); var files=[
+  {name:"[Content_Types].xml",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'},
+  {name:"_rels/.rels",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+  {name:"xl/workbook.xml",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="'+nm+'" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+  {name:"xl/_rels/workbook.xml.rels",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'},
+  {name:"xl/worksheets/sheet1.xml",data:sheetXml(sh.aoa)}
+]; downloadBlob(makeZip(files), exportBase(ctx)+".xlsx"); }
+
+// ---- Notas metodologicas --------------------------------------------------
+function Notes(ctx){
+  var open=ctx.state.notesOpen, acc=ctx.acc;
+  var head=h("button",{onClick:function(){ctx.upd({notesOpen:!open});},style:{width:"100%",display:"flex",alignItems:"center",gap:"10px",background:"var(--cream50)",border:"1px solid var(--line)",borderTop:"2px solid var(--plum)",borderRadius:open?"6px 6px 0 0":"6px",padding:"14px 18px",cursor:"pointer",textAlign:"left"}},
+    h("span",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"13px",color:"var(--plum)",flex:1}},"Notas metodológicas"),
+    h("span",{style:{fontSize:"12px",color:"var(--slate)"}}, open?"Ocultar":"Fuente, cobertura temporal, resguardo de celdas"),
+    h("span",{style:{fontSize:"13px",color:"var(--plum)",transform:open?"rotate(180deg)":"none"}},"▾"));
+  function item(t,d,em){ return h("div",{key:t}, h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"12px",color:em?acc:"var(--ink)",marginBottom:"3px"}},t), h("div",{style:{fontSize:"12px",color:"var(--slate)",lineHeight:1.55}},d)); }
+  var body=open?h("div",{style:{border:"1px solid var(--line)",borderTop:0,borderRadius:"0 0 6px 6px",padding:"18px",background:"#fff"}},
+    h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(270px,1fr))",gap:"16px 34px"}},
+      item("Fuente","DEMRE — bases públicas del proceso de admisión (inscripción, rendición, resultados, postulación, selección) y MINEDUC (egresados de enseñanza media). Agregadas a nivel territorial por el pipeline del proyecto."),
+      item("Cobertura temporal","Procesos de admisión "+M.anios[0]+"–"+M.anios[M.anios.length-1]+". La vista actual usa "+M.anio_actual+"; la histórica, toda la serie. El denominador del embudo son las y los egresados de enseñanza media del año."),
+      item("Generaciones anteriores","Personas que rinden la PAES sin establecimiento de egreso vigente ese año. Se reportan como categoría propia agregada a nivel nacional (no son asignables a un territorio); nunca se ocultan de forma permanente ni se tratan como error.",true),
+      item("Resguardo de celdas","Las celdas con menos de "+M.umbral+" casos (n < "+M.umbral+") no muestran su valor: aparecen como «"+SUP_TXT+"» en gris plano. Nunca se dejan vacías ni como error visual.",true),
+      item("Rendimiento","Se reporta la media de puntaje por prueba en escala "+M.escala.min+"–"+M.escala.max+" (Competencia Lectora, Matemática 1 y 2, Ciencias, Historia y Ciencias Sociales). La mediana y la desviación no están disponibles en el agregado. NEM y Ranking se muestran como contexto."),
+      item("Modelo de puntajes","Los puntajes PAES se construyen con el modelo de Rasch (teoría de respuesta al ítem), comparables entre aplicaciones. No se asume azar ni discriminación por ítem en esta presentación."),
+      item("Nivel territorial","El motor opera a nivel nacional, región, SLEP y comuna. No se identifica ni se reporta ningún establecimiento educacional individual."))):null;
+  return h("div",{},head,body);
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
 </script>
 </body>
 </html>
