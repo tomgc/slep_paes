@@ -8,7 +8,9 @@
 #            cliente con pako), navegacion territorial y DOBLE FOCO (cobertura /
 #            rendimiento). CAMINO A: recrea el diseno hi-fi del handoff adaptado
 #            al CONTRATO REAL de 32 (agregados territoriales, sin microdato,
-#            sin nivel establecimiento, sin matricula/prioridad, media no mediana).
+#            sin nivel establecimiento, sin matricula, media no mediana). Incluye
+#            el KPI de prioridad de carrera seleccionada (n_seleccionados,
+#            n_prioridad_1, pct_prioridad_1; solo existe en etapa=="seleccion").
 #            Patron de familia: decisiones/20260630_decision_patron_comun_y_paleta.md
 #            + handoff 50_documentacion/andamios/design_handoff_ui_ux/.
 # Insumos  : 40_salidas/intermedios/{comunas,sleps}_chile.parquet
@@ -158,7 +160,8 @@ ren_f <- df_ren |>
   dplyr::select(cod_entidad, anio_proceso, prueba, tipo_entidad, n, media, suprimida)
 
 cob_f <- df_cob |>
-  dplyr::select(cod_entidad, anio_proceso, etapa, orden_etapa, tipo_entidad, n, suprimida)
+  dplyr::select(cod_entidad, anio_proceso, etapa, orden_etapa, tipo_entidad, n, suprimida,
+                n_seleccionados, n_prioridad_1, pct_prioridad_1)
 
 # ============================================================================
 # Bloque 3 — Meta + JSON root
