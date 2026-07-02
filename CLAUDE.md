@@ -124,7 +124,24 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 ## Ultimos cambios
 
-1. **Sesion 4 — motor `33` recreado con datos reales (Camino A).** Tras la
+1. **Sesion — rotulo «1.ª prioridad», marca visual de cambio de base, y
+   DETENCION (a) en conteo invierno/regular.** Fase 1: rename «Prioridad 1» ->
+   «1.ª prioridad» en texto visible del motor (header `heads` + nota
+   metodologica; identificadores `n_prioridad_1`/`pct_prioridad_1` intactos)
+   (`363d55a`). Fase 2: marca visual de que «1.ª prioridad» cambia de
+   denominador (seleccionados, no egresados) — borde izq `2px var(--line2)` en
+   cabecera y celdas + flecha `→` con `title` al hover; heatmap y calculo sin
+   cambios; verificado B.4 (`1d22d44`). Fase 3: **DETENCION (a)** — se descubrio
+   que `convocatoria_archivo` es SIEMPRE "REGULAR" (inerte); el invierno/regular
+   real vive en `tipo_rendicion` (ArchivoC), y `etapa_rendicion`/`etapa_resultados`
+   deduplican por `distinct(id_aux, rbd, anio_proceso)` SIN `tipo_rendicion`, por
+   lo que una persona que rinde invierno+regular el mismo anio cuenta UNA vez
+   (~19k-22k personas/anio). El embudo cuenta personas unicas por anio, NO
+   participaciones intra-anio. NO se cambio el calculo ni se agrego la nota de
+   «participaciones» (seria falsa). Pendiente: decision del titular (corregir la
+   nota vs. cambiar el criterio a participaciones). Log:
+   `andamios/logs/20260702_rotulo_p1_convocatoria_log.md`.
+2. **Sesion 4 — motor `33` recreado con datos reales (Camino A).** Tras la
    detencion de la sesion anterior (el prototipo del handoff asumia un contrato
    que 32 no produce: 7 etapas con matricula, KPIs de prioridad, nivel
    establecimiento, strip plots por alumno + tooltip con dependencia = microdato
@@ -209,22 +226,3 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    `modulo_ciencias`, ya derivada). Se excluyen del `df` base antes del pivot
    de puntajes. Verificado: parquet regenerado con 4.845.570 filas (sin
    cambio) y 22 columnas (antes 26); `modulo_ciencias` intacta.
-5. **Sesion 1 (Fase A) — migracion Rama A -> B (codigo).** Diagnostico de las
-   bases reales: microdato por persona (~953 MB) con PII (`MRUN`/`MRUN_IPE` de NNA
-   en egresados 2023-2025; `FECHA_NACIMIENTO` en ArchivoB) y `ArchivoD_2023`
-   (104 MB) sobre el limite de GitHub. Se migra a DOS RAICES: `10_configuracion.R`
-   resuelve `SLEP_PAES_DATA_ROOT` (`obtener_data_root/ruta_insumos/ruta_salidas`),
-   `.gitignore` blindado, `.Renviron.example`, `gobernanza_datos.md` -> Rama B,
-   README con configuracion de maquina nueva, `30/31/32/33` leen via
-   `ruta_insumos()/ruta_salidas()`, `git rm --cached` de lo versionado bajo
-   `20_insumos/`. Hallazgos de esquema (para 31 futuro): patron
-   `<PRUEBA>_<REG|INV>_<ACTUAL|ANTERIOR>` en ArchivoC (varia por año); ArchivoD
-   wide(186 col, 2023) -> long(6 col, 2024+); ArchivoMatr = matricula
-   universitaria; egresados 2026 ausente. **Fase B/C/D completadas:** datos en el
-   data root, `~/.Renviron` con `SLEP_PAES_DATA_ROOT`, validacion 8.3.7 verde,
-   `run_all(only=30)` corre desde OneDrive. **Renombrado** de los 74 archivos a
-   snake_case + `demre/glosas/`->`demre/referencia/` (log en
-   `andamios/20260701_renombrado_insumos_datos.csv`); `manifiesto_insumos.md`
-   actualizado. PENDIENTE: el titular debe vaciar la copia vieja que quedo en el
-   repo (`~/Projects/slep_paes/20_insumos/`, gitignoreada pero con PII en disco);
-   diseño de 31 contra el esquema real; egresados 2026.
