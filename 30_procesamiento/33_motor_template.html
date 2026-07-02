@@ -169,16 +169,22 @@ function Controls(ctx){
   var s=ctx.state, acc=ctx.acc;
   var vistaSeg=seg([{v:"terr",label:"Por territorio"},{v:"comp",label:"Comparar territorios"}],s.vista,function(v){ctx.upd({vista:v});});
   var periodSeg=seg([{v:"actual",label:"Actual"},{v:"hist",label:"Histórica"}],s.modo,function(v){ctx.upd({modo:v});},acc);
-  var secondary=h("div",{style:{display:"flex",alignItems:"center",gap:"26px",padding:"12px 40px",background:"var(--paper)",borderBottom:"1px solid var(--line)",flexWrap:"wrap"}},
-    h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl("Vista"), vistaSeg),
-    s.vista==="terr" ? h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl("Período"), periodSeg) : null,
+  function grupo(label,control){ return h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl(label), control); }
+  // Cohorte solo aplica en terr+actual (misma condicion que antes); en el resto
+  // de casos la ranura derecha muestra el rotulo de contexto que vivia en `sub`.
+  var cohorteOrHint = (s.vista==="terr" && s.modo==="actual")
+    ? grupo("Cohorte", genAntToggle(ctx))
+    : h("span",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)"}}, s.modo==="hist" ? ("Serie "+M.anios[0]+"–"+M.anios[M.anios.length-1]+" · proceso de cada año") : ("Comparación entre territorios · admisión "+M.anio_actual));
+  // Una sola fila de controles bajo los tabs de foco: Territorio, Vista,
+  // Periodo (solo terr) y, a la derecha, Cohorte o el rotulo de contexto.
+  // Se omiten elementos con `? ... : null`, sin generar divs vacios.
+  var row=h("div",{style:{display:"flex",alignItems:"center",gap:"26px",padding:"12px 40px",background:"var(--paper)",borderBottom:"1px solid var(--line)",flexWrap:"wrap"}},
+    grupo("Territorio", territoryBtn(ctx)),
+    grupo("Vista", vistaSeg),
+    s.vista==="terr" ? grupo("Período", periodSeg) : null,
     h("div",{style:{flex:1}}),
-    h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl("Territorio"), territoryBtn(ctx)));
-  var sub=h("div",{style:{display:"flex",alignItems:"center",gap:"24px",padding:"11px 40px",background:"var(--cream50)",borderBottom:"1px solid var(--line)",flexWrap:"wrap"}},
-    (s.vista==="terr" && s.modo==="actual")
-      ? h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}}, lbl("Cohorte"), genAntToggle(ctx))
-      : h("span",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)"}}, s.modo==="hist" ? ("Serie "+M.anios[0]+"–"+M.anios[M.anios.length-1]+" · proceso de cada año") : ("Comparación entre territorios · admisión "+M.anio_actual)));
-  return h("div",{}, FocoTabs(ctx), secondary, sub);
+    cohorteOrHint);
+  return h("div",{}, FocoTabs(ctx), row);
 }
 
 // ---- Franja "Territorio en pantalla" -------------------------------------
