@@ -41,6 +41,13 @@ Thumbs.db
 _archivo/
 *.bak
 
+# --- Suite de documentacion: tema embebido en los *_standalone.html ---
+# Los standalone embeben CSS/fuentes/logos/iconos (0 dependencias de red); las
+# fuentes y logos del tema no se versionan. El CSS SI se versiona como fuente
+# para regenerar. Ver 50_documentacion/suite/documentar.R (SETTINGS 4.6.4).
+50_documentacion/suite/fonts/
+50_documentacion/suite/assets/
+
 # --- Configuracion local de Claude Code ---
 .claude/
 

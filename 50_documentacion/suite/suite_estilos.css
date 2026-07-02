@@ -1,0 +1,325 @@
+/* ============================================================
+   Suite de documentación de proyectos — SLEP Costa Central
+   Hoja de estilos compartida por los 4 documentos.
+
+   La genera/actualiza automáticamente generar_documentacion.R.
+   No editar a mano salvo para ajustar el sistema visual global.
+   ============================================================ */
+
+/* ---------- Webfonts de marca (carpeta fonts/ junto al HTML) ---------- */
+@font-face { font-family:"gobCL"; src:url("fonts/gobCL_Light.otf")   format("opentype"); font-weight:300; font-style:normal; font-display:swap; }
+@font-face { font-family:"gobCL"; src:url("fonts/gobCL_Regular.otf") format("opentype"); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family:"gobCL"; src:url("fonts/gobCL_Heavy.otf")   format("opentype"); font-weight:900; font-style:normal; font-display:swap; }
+@font-face { font-family:"Museo Sans"; src:url("fonts/MuseoSans-300.otf") format("opentype"); font-weight:300; font-style:normal; font-display:swap; }
+@font-face { font-family:"Museo Sans"; src:url("fonts/MuseoSans_500.otf") format("opentype"); font-weight:500; font-style:normal; font-display:swap; }
+@font-face { font-family:"Museo Sans"; src:url("fonts/MuseoSans_700.otf") format("opentype"); font-weight:700; font-style:normal; font-display:swap; }
+
+/* ---------- Tokens de marca ---------- */
+:root{
+  --plum:#4A2746; --plum-80:#66394F; --plum-20:#EEDCE5;
+  --cream:#FFF6E0; --cream-50:#FFFBEF; --cream-200:#F4E9CC;
+  --paper:#FFFFFF;
+  --ocean:#0062A0; --ocean-80:#00558A; --ocean-20:#D4E4F1;
+  --olive:#75924E; --olive-20:#E9F0DF;
+  --coral:#E88663; --coral-20:#FBE7DD;
+  --sand:#BCA493;
+  --amber:#A06D24; --amber-bg:#FBEFD7; --amber-line:#E7CD96;
+  --ink:#1C1212; --ink-2:#2E2230; --slate:#6E6A66;
+  --line:#E7DFC9; --line-strong:#C8BDA0;
+  /* mark colors (faceta lúdica, solo acentos en docs generales) */
+  --mk-red:#EE2D49; --mk-yellow:#FFC92E; --mk-green:#9BC93E; --mk-blue:#2A8FD9; --mk-pink:#F8A0AE;
+  --r1:2px; --r2:4px; --r3:8px;
+  --sh1:0 1px 0 rgba(28,18,18,.05);
+  --sh2:0 2px 10px rgba(74,39,70,.08);
+  --sh3:0 10px 30px rgba(74,39,70,.13);
+  --disp:"gobCL","Arial Black",system-ui,sans-serif;
+  --body:"Museo Sans","gobCL",system-ui,-apple-system,sans-serif;
+  --mono:ui-monospace,"SF Mono","Menlo",Consolas,monospace;
+}
+
+*,*::before,*::after{ margin:0; padding:0; box-sizing:border-box; }
+
+html{ scroll-behavior:smooth; }
+body{
+  font-family:var(--body); font-weight:300;
+  background:#EDE9E1; color:var(--ink-2);
+  line-height:1.65; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+
+/* ---------- Masthead plum (cabecera institucional) ---------- */
+.mast{ background:var(--paper); color:var(--ink-2); border-top:4px solid var(--plum); border-bottom:1px solid var(--line); }
+.mast-in{ max-width:1180px; margin:0 auto; padding:30px 40px 28px; display:flex; align-items:flex-start; gap:30px; flex-wrap:wrap; }
+.mast-logo{ display:none; }
+.mast-txt{ flex:1; min-width:280px; }
+.mast .eyebrow{
+  font-family:var(--disp); font-weight:900; font-size:11.5px; letter-spacing:.02em; text-transform:none;
+  color:var(--plum); display:inline-flex; align-items:center; gap:8px; margin-bottom:11px;
+}
+.mast .eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--coral); }
+.mast h1{
+  font-family:var(--disp); font-weight:900; text-transform:none; letter-spacing:-.01em;
+  font-size:33px; line-height:1.0; color:var(--plum);
+}
+.mast h1 .mono-name{ font-family:var(--mono); font-weight:400; text-transform:none; font-size:.62em; letter-spacing:0; color:var(--ink-2); opacity:1; display:block; margin-top:8px; }
+.mast .tagline{ font-family:var(--body); font-weight:300; font-size:14.5px; line-height:1.55; color:var(--ink-2); margin-top:13px; max-width:64ch; }
+.mast .metarow{ display:flex; gap:9px 22px; flex-wrap:wrap; margin-top:16px; }
+.mast .meta{ font-family:var(--body); font-weight:500; font-size:11.5px; letter-spacing:.02em; color:var(--slate); display:flex; align-items:center; gap:7px; }
+.mast .meta b{ color:var(--ink); font-weight:700; }
+.mast .meta .pip{ width:6px; height:6px; border-radius:50%; }
+
+/* ---------- Contenedores ---------- */
+.diagram{ max-width:1180px; margin:0 auto; padding:46px 40px 70px; }
+.doc{ max-width:880px; margin:0 auto; padding:46px 40px 70px; }
+
+/* ---------- Etiqueta de sección (diagrama) ---------- */
+.lbl{
+  font-family:var(--disp); font-weight:900; font-size:12.5px; letter-spacing:.01em; text-transform:none;
+  color:var(--plum); margin-bottom:12px; display:flex; align-items:center; gap:10px;
+}
+.lbl .n{
+  display:inline-flex; align-items:center; justify-content:center; width:23px; height:23px;
+  background:var(--plum); color:var(--cream); border-radius:var(--r2); font-size:12px; flex-shrink:0;
+}
+.lbl .sub{ font-family:var(--body); font-weight:500; font-size:11px; letter-spacing:.02em; text-transform:none; color:var(--slate); }
+.lbl--mid{ justify-content:center; }
+
+/* ---------- Tarjetas de flujo (diagrama) ---------- */
+.trk{ display:flex; gap:12px; }
+.trk--mid{ justify-content:center; }
+.c{
+  flex:1; min-width:0; background:var(--paper); border:1px solid var(--line);
+  border-radius:var(--r3); padding:15px 17px; box-shadow:var(--sh2); border-top:3px solid var(--line-strong);
+}
+.c--ocean{ border-top-color:var(--ocean); }
+.c--plum{ border-top-color:var(--plum); }
+.c--olive{ border-top-color:var(--olive); }
+.c--coral{ border-top-color:var(--coral); }
+.c--sand{ border-top-color:var(--sand); }
+.c .t{ font-family:var(--disp); font-weight:900; font-size:14px; color:var(--ink); margin-bottom:5px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; letter-spacing:-.005em; }
+.c .d{ font-size:12px; color:var(--slate); line-height:1.62; }
+.c .d strong{ color:var(--ink-2); font-weight:700; }
+
+/* código inline */
+.code{ font-family:var(--mono); font-size:12px; background:var(--cream-200); padding:2px 7px; border-radius:var(--r2); color:#5a4a52; }
+.code-sm{ font-family:var(--mono); font-size:10.5px; background:var(--cream-200); padding:1px 5px; border-radius:var(--r1); color:#5a4a52; }
+
+/* ---------- Badges ---------- */
+.bg{ display:inline-block; font-family:var(--body); font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:none; padding:2px 7px; border-radius:var(--r1); vertical-align:middle; line-height:1.4; }
+.bg--xl{ background:var(--amber-bg); color:var(--amber); }
+.bg--csv{ background:var(--ocean-20); color:var(--ocean-80); }
+.bg--pq{ background:var(--olive-20); color:#4d6b2e; }
+.bg--r{ background:var(--plum-20); color:var(--plum); }
+.bg--html{ background:var(--coral-20); color:#b0502e; }
+.bg--json{ background:#E7E1D2; color:#6b6149; }
+
+/* ---------- Banderas metodológicas ---------- */
+.flags{ display:flex; gap:8px; flex-wrap:wrap; margin-top:11px; padding-top:11px; border-top:1px dashed var(--line); }
+.flag{ font-family:var(--body); font-size:10.5px; font-weight:500; color:var(--amber); background:var(--amber-bg); border:1px solid var(--amber-line); border-radius:var(--r2); padding:3px 9px; display:flex; align-items:center; gap:6px; }
+.flag::before{ content:"\2691"; font-size:9px; }
+
+/* ---------- Normalizaciones de origen (A1–A4) en diagrama ---------- */
+.norm{ margin-top:12px; padding-top:11px; border-top:1px dashed var(--line); }
+.norm-h{ font-family:var(--disp); font-weight:900; font-size:10px; letter-spacing:.02em; text-transform:none; color:var(--olive); margin-bottom:9px; display:flex; align-items:center; gap:6px; }
+.norm-h::before{ content:"\2714"; font-size:11px; }
+.norm-row{ display:flex; gap:10px; align-items:baseline; font-size:11px; line-height:1.6; margin-bottom:7px; }
+.norm-row:last-child{ margin-bottom:0; }
+.aid, .norm-id{ flex-shrink:0; font-family:var(--mono); font-size:10px; font-weight:700; color:#4d6b2e; background:var(--olive-20); border:1px solid #c2d4a8; border-radius:var(--r1); padding:1px 7px; }
+.norm-tx{ color:var(--slate); }
+.norm-tx strong{ color:var(--ink-2); font-weight:700; }
+
+/* ---------- Flechas de flujo ---------- */
+.fl{ padding:9px 0; }
+.arr{ display:flex; justify-content:center; }
+.arr-in{ display:flex; flex-direction:column; align-items:center; }
+.arr-line{ width:2px; height:16px; background:var(--line-strong); }
+.arr-tip{ width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid var(--line-strong); }
+
+/* ---------- Usos auxiliares ---------- */
+.aux-uses{ display:flex; gap:22px; justify-content:center; margin-top:9px; flex-wrap:wrap; }
+.aux-use{ font-size:10.5px; color:var(--sand); display:flex; align-items:center; gap:5px; }
+.aux-use code{ font-family:var(--mono); font-size:10px; background:var(--cream-200); padding:1px 5px; border-radius:var(--r1); color:#8a7d70; }
+
+/* ---------- Tarjeta de salida ancha ---------- */
+.app-wrap{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r3); padding:22px; box-shadow:var(--sh2); border-top:3px solid var(--plum); }
+.app-wrap .t{ font-family:var(--disp); font-weight:900; font-size:15px; color:var(--ink); margin-bottom:4px; }
+.app-wrap .d{ font-size:12.5px; color:var(--slate); }
+.mods{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px; }
+.mod{ border:1px solid var(--line); border-radius:var(--r3); padding:15px 17px; border-left:3px solid var(--plum); background:var(--cream-50); }
+.mod .mt{ font-family:var(--disp); font-weight:900; font-size:13.5px; color:var(--ink); margin-bottom:5px; }
+.mod .md{ font-size:11.5px; color:var(--slate); line-height:1.62; margin-bottom:9px; }
+.tabs{ display:flex; gap:6px; flex-wrap:wrap; }
+.tab{ font-family:var(--body); font-size:10px; font-weight:500; padding:3px 10px; border-radius:var(--r2); background:var(--paper); border:1px solid var(--line); color:var(--slate); }
+
+/* ---------- Fila de salidas (parquets) ---------- */
+.outs{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.out{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r3); padding:15px 14px; box-shadow:var(--sh2); border-top:3px solid var(--sand); text-align:center; }
+.out .t{ font-family:var(--mono); font-size:12px; font-weight:400; color:var(--ink); margin-bottom:4px; display:block; }
+.out .d{ font-size:10.5px; color:var(--slate); line-height:1.55; }
+
+/* ---------- Bloque de ejecución / código ---------- */
+.exec, pre{
+  background:#241820; color:#E9DCE3; border-radius:var(--r3);
+  padding:18px 22px; font-family:var(--mono); font-size:12px; line-height:1.8; overflow-x:auto;
+}
+.exec{ margin-top:34px; }
+pre{ margin:12px 0 16px; font-size:12.5px; line-height:1.62; }
+.exec .cm, pre .cm{ color:#C8A2B6; }
+.exec .fn, pre .fn{ color:#8FC7F0; }
+.exec .str, pre .str{ color:#E8A87C; }
+.exec .kw, pre .kw{ color:#B9D98C; }
+
+/* ---------- Leyenda ---------- */
+.legend{ display:flex; gap:22px; justify-content:center; margin-top:30px; padding-top:20px; border-top:1px solid var(--line); flex-wrap:wrap; }
+.lg{ display:flex; align-items:center; gap:7px; font-size:11px; color:var(--slate); }
+.lg-dot{ width:11px; height:11px; border-radius:var(--r1); }
+
+/* ============================================================
+   Documentos de lectura (.doc)
+   ============================================================ */
+.callout{ background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--ocean); border-radius:var(--r3); padding:18px 22px; margin-bottom:34px; box-shadow:var(--sh2); }
+.callout .ct{ font-family:var(--disp); font-weight:900; font-size:11px; letter-spacing:.02em; text-transform:none; color:var(--ocean); margin-bottom:9px; }
+.callout p{ font-size:13px; color:var(--ink-2); max-width:none; }
+.callout p+p{ margin-top:8px; }
+.callout strong{ color:var(--ink); font-weight:700; }
+.callout ul{ list-style:none; margin-top:10px; }
+.callout li{ font-size:13px; color:var(--ink-2); padding-left:18px; position:relative; margin-bottom:7px; line-height:1.55; }
+.callout li::before{ content:"\2192"; position:absolute; left:0; color:var(--ocean); font-weight:700; }
+.callout code{ font-family:var(--mono); font-size:11.5px; background:var(--cream-200); padding:1px 6px; border-radius:var(--r1); color:#5a4a52; }
+
+section{ margin-bottom:38px; }
+section.lead{ margin-bottom:30px; }
+.snum{ display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; background:var(--plum); color:var(--cream); border-radius:var(--r2); font-family:var(--disp); font-size:15px; font-weight:900; margin-right:13px; flex-shrink:0; }
+h2{ font-family:var(--disp); font-weight:900; font-size:21px; letter-spacing:-.01em; color:var(--ink); margin-bottom:16px; display:flex; align-items:center; line-height:1.1; }
+h3{ font-family:var(--disp); font-weight:900; font-size:15px; color:var(--plum); margin-top:24px; margin-bottom:8px; letter-spacing:-.005em; }
+h4{ font-family:var(--body); font-weight:700; font-size:13.5px; color:var(--ink); margin-top:16px; margin-bottom:6px; }
+.doc p{ font-size:14px; color:var(--ink-2); margin-bottom:13px; line-height:1.7; max-width:none; }
+.doc p strong{ font-weight:700; color:var(--ink); }
+.doc a{ color:var(--ocean); text-decoration:underline; text-underline-offset:2px; text-decoration-thickness:1px; }
+.doc a:hover{ color:var(--ocean-80); text-decoration-thickness:2px; }
+.inl{ font-family:var(--mono); font-size:12.5px; background:var(--cream-200); padding:1px 6px; border-radius:var(--r1); color:#5a4a52; }
+
+/* salto de sección saltable */
+.skip{ display:inline-flex; align-items:center; gap:8px; font-family:var(--body); font-size:11px; font-weight:500; color:#4d6b2e; background:var(--olive-20); border:1px solid #c2d4a8; border-radius:var(--r2); padding:7px 13px; margin-bottom:15px; }
+.skip::before{ content:"\21B7"; font-size:13px; }
+
+/* listas de conceptos */
+.terms{ list-style:none; margin:6px 0 14px; }
+.terms li{ font-size:14px; color:var(--ink-2); padding:8px 0 8px 16px; border-left:2px solid var(--line-strong); margin-bottom:7px; line-height:1.6; }
+.terms li strong{ color:var(--plum); font-weight:700; }
+
+/* grid de tarjetas conceptuales */
+.cards{ display:grid; grid-template-columns:1fr 1fr; gap:11px; margin:8px 0 14px; }
+.card{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r3); padding:13px 16px; box-shadow:var(--sh1); }
+.card .ct{ font-family:var(--disp); font-weight:900; font-size:13px; color:var(--ocean); margin-bottom:3px; }
+.card .cd{ font-size:12px; color:var(--slate); line-height:1.55; }
+
+/* bloque de decisión metodológica */
+.dec{ background:var(--paper); border:1px solid var(--line); border-top:3px solid var(--plum); border-radius:var(--r3); padding:17px 20px; margin-bottom:14px; box-shadow:var(--sh2); }
+.dec h3{ margin-top:0; color:var(--plum); }
+.dec .why{ font-size:13px; color:var(--ink-2); background:var(--plum-20); border-radius:var(--r2); padding:11px 14px; margin-top:11px; line-height:1.6; }
+.dec .why strong{ color:var(--plum); }
+
+/* lista de anomalías */
+.anoms{ list-style:none; }
+.anoms li{ font-size:13.5px; color:var(--ink-2); padding:11px 0; border-bottom:1px dashed var(--line); display:flex; gap:12px; align-items:baseline; line-height:1.6; }
+.anoms li:last-child{ border-bottom:none; }
+
+/* tabla de datos */
+.tbl{ width:100%; border-collapse:collapse; margin:10px 0 16px; font-size:12.5px; background:var(--paper); border:1px solid var(--line); border-radius:var(--r3); overflow:hidden; box-shadow:var(--sh1); }
+.tbl thead th{ background:var(--plum); color:var(--cream); font-family:var(--disp); font-weight:900; font-size:10.5px; letter-spacing:.02em; text-transform:none; text-align:left; padding:9px 13px; }
+.tbl td{ padding:9px 13px; border-top:1px solid var(--line); color:var(--ink-2); vertical-align:top; line-height:1.5; }
+.tbl tr:nth-child(even) td{ background:var(--cream-50); }
+.tbl td code, .tbl td .mono{ font-family:var(--mono); font-size:11.5px; color:#5a4a52; }
+.tbl td b{ color:var(--ink); font-weight:700; }
+
+/* enlaces a otros documentos */
+.links{ list-style:none; }
+.links li{ font-size:14px; color:var(--ink-2); padding:11px 0; border-bottom:1px solid var(--line); line-height:1.6; }
+.links li:last-child{ border-bottom:none; }
+.links li strong{ color:var(--ocean); font-weight:700; }
+.links code{ font-family:var(--mono); font-size:12px; background:var(--cream-200); padding:1px 6px; border-radius:var(--r1); color:#5a4a52; }
+
+/* ============================================================
+   Documentos "generales" / amigables
+   ============================================================ */
+/* intro destacada */
+.hero-note{ background:var(--plum-20); border-radius:var(--r3); padding:22px 26px; margin-bottom:34px; }
+.hero-note p{ font-size:16px; color:var(--plum); line-height:1.6; max-width:none; margin:0; font-weight:300; }
+.hero-note p strong{ font-weight:700; }
+
+/* línea de producción */
+.line{ display:flex; flex-direction:column; gap:0; margin:8px 0 10px; }
+.station{ display:flex; gap:20px; align-items:flex-start; }
+.station-rail{ display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:64px; }
+.station-ico{ width:64px; height:64px; border-radius:var(--r3); display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:var(--sh2); }
+.station-ico svg{ width:32px; height:32px; stroke-width:1.8; }
+.station-pipe{ width:3px; flex:1; min-height:26px; background:repeating-linear-gradient(to bottom,var(--line-strong) 0 7px,transparent 7px 13px); margin:6px 0; }
+.station:last-child .station-pipe{ display:none; }
+.station-body{ flex:1; padding-bottom:26px; padding-top:5px; }
+.station-step{ font-family:var(--disp); font-weight:900; font-size:10.5px; letter-spacing:.03em; text-transform:none; color:var(--sand); margin-bottom:3px; }
+.station-body h3{ font-family:var(--disp); font-weight:900; font-size:19px; color:var(--ink); margin:0 0 8px; letter-spacing:-.01em; }
+.station-body p{ font-size:14px; color:var(--ink-2); line-height:1.65; max-width:62ch; margin:0 0 8px; }
+.station-body p:last-child{ margin-bottom:0; }
+.station-body strong{ color:var(--ink); font-weight:700; }
+.io{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.io-chip{ font-family:var(--body); font-size:11.5px; font-weight:500; padding:5px 12px; border-radius:var(--r2); display:inline-flex; align-items:center; gap:7px; }
+.io-in{ background:var(--cream-200); color:#6b5d3f; }
+.io-out{ background:var(--olive-20); color:#4d6b2e; }
+.io-chip .ar{ opacity:.6; }
+
+/* tarjetas de garantía (reglas en lenguaje simple) */
+.guards{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:10px 0 6px; }
+.guard{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r3); padding:18px 20px; box-shadow:var(--sh2); border-top:3px solid var(--olive); }
+.guard .gi{ width:38px; height:38px; border-radius:var(--r2); background:var(--olive-20); color:var(--olive); display:flex; align-items:center; justify-content:center; margin-bottom:11px; }
+.guard .gi svg{ width:21px; height:21px; stroke-width:1.9; }
+.guard h3{ font-family:var(--disp); font-weight:900; font-size:15px; color:var(--ink); margin:0 0 6px; }
+.guard p{ font-size:13px; color:var(--slate); line-height:1.6; margin:0; max-width:none; }
+
+/* preguntas frecuentes */
+.faq{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r3); padding:6px 22px; box-shadow:var(--sh1); margin:8px 0 6px; }
+.faq details{ border-bottom:1px solid var(--line); }
+.faq details:last-child{ border-bottom:none; }
+.faq summary{ font-family:var(--disp); font-weight:900; font-size:14.5px; color:var(--plum); cursor:pointer; padding:16px 30px 16px 0; list-style:none; position:relative; }
+.faq summary::-webkit-details-marker{ display:none; }
+.faq summary::after{ content:"+"; position:absolute; right:2px; top:14px; font-size:20px; color:var(--coral); font-weight:400; transition:transform .15s ease; }
+.faq details[open] summary::after{ content:"\2212"; }
+.faq details p{ font-size:13.5px; color:var(--ink-2); line-height:1.7; margin:0 0 16px; max-width:none; }
+
+/* destacados clave (en qué fijarse) */
+.notes{ list-style:none; margin:6px 0; }
+.notes li{ display:flex; gap:13px; align-items:flex-start; padding:13px 0; border-bottom:1px solid var(--line); }
+.notes li:last-child{ border-bottom:none; }
+.notes .ni{ flex-shrink:0; width:34px; height:34px; border-radius:var(--r2); background:var(--coral-20); color:#b0502e; display:flex; align-items:center; justify-content:center; margin-top:1px; }
+.notes .ni svg{ width:19px; height:19px; stroke-width:2; }
+.notes .nt{ font-size:13.5px; color:var(--ink-2); line-height:1.6; }
+.notes .nt strong{ color:var(--ink); font-weight:700; }
+
+/* franja de cuatro comunas */
+.comunas{ display:flex; gap:0; margin-top:4px; border-radius:var(--r2); overflow:hidden; }
+.comunas span{ flex:1; text-align:center; font-family:var(--disp); font-weight:900; font-size:11px; letter-spacing:.02em; color:#fff; padding:9px 4px; text-transform:none; }
+
+/* ---------- Nota al pie ---------- */
+.foot{ max-width:1180px; margin:0 auto; padding:0 40px; }
+.foot-in{ text-align:center; margin-top:46px; padding-top:22px; border-top:1px solid var(--line); font-size:11.5px; color:var(--sand); line-height:1.6; }
+.foot-in .mk{ display:inline-flex; gap:3px; vertical-align:middle; margin-right:8px; }
+.foot-in .mk i{ width:8px; height:8px; border-radius:50%; display:inline-block; }
+.foot-in .gob{ display:inline-block; padding:1px 8px; border-radius:10px; background:var(--cream-200); color:var(--slate); font-weight:600; font-size:10.5px; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width:760px){
+  .mast-in,.diagram,.doc,.foot{ padding-left:22px; padding-right:22px; }
+  .trk{ flex-direction:column; }
+  .mods,.cards,.guards{ grid-template-columns:1fr; }
+  .outs{ grid-template-columns:1fr; }
+  .mast h1{ font-size:26px; }
+}
+
+/* ---------- Impresión (uso secundario) ---------- */
+@media print{
+  body{ background:#fff; }
+  .mast{ background:#fff; color:var(--ink); border-bottom:2px solid var(--plum); }
+  .mast h1,.mast .tagline,.mast .meta,.mast .meta b{ color:var(--ink); }
+  .mast .eyebrow{ color:var(--plum); }
+  .exec,pre,.tbl thead th,.guard,.dec,.card,.c,.station,.faq details{ break-inside:avoid; }
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
