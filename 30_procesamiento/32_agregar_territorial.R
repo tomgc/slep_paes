@@ -271,12 +271,60 @@ if (faltan_31 || faltan_cat) {
     agregar_conteo_territorial(mapa, by = "anio_proceso") |>
     dplyr::mutate(etapa = "seleccion")
 
+  # KPI: prioridad de la preferencia seleccionada (Camino B, delegado).
+  # Fase 0 (diagnostico): ArchivoD no trae una columna "PREFERENCIA" separada;
+  # el ORDEN_PREF ya normalizado en 31_ (columna orden_pref, 1-20) ES el
+  # ordinal de prioridad de la preferencia postulada. Verificado contra los
+  # datos reales (610.871 personas-anio seleccionadas): toda persona
+  # seleccionada tiene EXACTAMENTE una fila estado_pref==24 (0 casos con >1
+  # fila 24; 0 casos "solo 26 sin 24"), y en el 100% de los 563.885 casos
+  # donde ademas existe una fila 26, su orden_pref es >= el de la fila 24 (0
+  # excepciones) -- consistente con la glosa (24="en lista de seleccionados"
+  # = colocacion activa; 26="seleccionado en preferencia anterior" = marca en
+  # una preferencia de MENOR prioridad, posterior a la ya asignada). Por eso
+  # la prioridad real de cada seleccionado se toma EXCLUSIVAMENTE de su
+  # (unica) fila estado_pref==24, nunca de una fila 26 (que reflejaria una
+  # prioridad mas baja e incorrecta). El universo estado_pref==24 coincide
+  # EXACTO (610.871 = 610.871) con el universo %in% c(24,26) de
+  # etapa_seleccion, asi que el denominador de este KPI se REUTILIZA de
+  # etapa_seleccion (mismo n, mismo suprimida) en vez de recalcularse aparte.
+  # Decision de forma (documentada, como pide el encargo): se agregan 3
+  # columnas nuevas a paes_cobertura_territorial.parquet (n_seleccionados,
+  # n_prioridad_1, pct_prioridad_1), pobladas SOLO en la fila etapa=="seleccion"
+  # (NA en las otras 5 etapas) -- el KPI es una faceta de esa unica etapa, no
+  # una etapa nueva del embudo ni una dimension cruzable como rendimiento;
+  # cramearlo en una tabla separada habria duplicado la maquinaria de
+  # supresion sin necesidad. La supresion se aplica UNICAMENTE sobre el
+  # denominador (n_seleccionados < 8), por instruccion explicita del encargo;
+  # no hay un umbral separado sobre el numerador de prioridad 1.
+  kpi_prioridad_1 <- postulacion |>
+    dplyr::filter(.data$estado_pref == 24, .data$orden_pref == 1) |>
+    dplyr::distinct(id_aux, anio_proceso) |>
+    dplyr::left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
+    agregar_conteo_territorial(mapa, by = "anio_proceso") |>
+    dplyr::transmute(tipo_entidad, cod_entidad, anio_proceso, n_prioridad_1 = n)
+
+  kpi_prioridad <- etapa_seleccion |>
+    dplyr::transmute(tipo_entidad, cod_entidad, anio_proceso,
+                     n_seleccionados = n, suprimida_sel = suprimida) |>
+    dplyr::left_join(kpi_prioridad_1, by = c("tipo_entidad", "cod_entidad", "anio_proceso")) |>
+    dplyr::mutate(
+      n_prioridad_1 = dplyr::coalesce(.data$n_prioridad_1, 0L),
+      pct_prioridad_1 = dplyr::if_else(.data$suprimida_sel, NA_real_,
+                                       100 * .data$n_prioridad_1 / .data$n_seleccionados),
+      n_prioridad_1 = dplyr::if_else(.data$suprimida_sel, NA_integer_, .data$n_prioridad_1),
+      etapa = "seleccion"
+    ) |>
+    dplyr::select(tipo_entidad, cod_entidad, anio_proceso, etapa,
+                 n_seleccionados, n_prioridad_1, pct_prioridad_1)
+
   orden_etapas <- stats::setNames(seq_along(ETAPAS_EMBUDO), names(ETAPAS_EMBUDO))
   cobertura <- dplyr::bind_rows(
     etapa_egresados, etapa_inscripcion, etapa_rendicion,
     etapa_resultados, etapa_postulacion, etapa_seleccion
   ) |>
-    dplyr::mutate(orden_etapa = orden_etapas[.data$etapa])
+    dplyr::mutate(orden_etapa = orden_etapas[.data$etapa]) |>
+    dplyr::left_join(kpi_prioridad, by = c("tipo_entidad", "cod_entidad", "anio_proceso", "etapa"))
 
   arrow::write_parquet(cobertura, ruta_int("paes_cobertura_territorial.parquet"))
   log_msg(sprintf("OK: paes_cobertura_territorial.parquet (%d filas, %d cols).",
