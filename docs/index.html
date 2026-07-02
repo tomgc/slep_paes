@@ -5376,6 +5376,9 @@ var REZ_ID = "rezagados:"+M.rezagados_label;
 function terrParse(id){ var i=id.indexOf(":"); return {tipo:id.slice(0,i), cod:id.slice(i+1)}; }
 function terrName(id){ return NAME[id] || id; }
 function terrTipoLabel(t){ return ({nacional:"Nacional",region:"Región",slep:"SLEP",comuna:"Comuna"})[t]||t; }
+// Normalizacion de acentos para el buscador del selector (patron ade): "Viña"
+// y "Vina", "Puchuncaví" y "Puchuncavi" matchean igual.
+function norm(s){ return String(s==null?"":s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(); }
 
 var CC = M.costa_central;
 var COMPAL = ["#153E5E","#0062A0","#75924E","#4A2746","#BCA493","#C45A3E","#0BA0DA","#8A7C86","#B0855F","#5B7B8A"];
@@ -5406,7 +5409,7 @@ function App(){
     notesOpen:false, hoverExp:null,
     terrSel:"slep:"+CC.slep,
     compSel: CC.comunas.map(function(c){return "comuna:"+c;}),
-    modalOpen:false, modalQuery:""
+    modalOpen:false, modalQuery:"", modalTab:"comuna"
   });
   var state = st[0], setState = st[1];
   function upd(patch){ setState(Object.assign({}, state, patch)); }
@@ -5459,7 +5462,12 @@ function FocoTabs(ctx){
 }
 function territoryBtn(ctx){
   var label = ctx.state.vista==="comp" ? ("Comparar "+ctx.state.compSel.length+" territorios") : terrName(ctx.state.terrSel);
-  return h("button",{onClick:function(){ctx.upd({modalOpen:true});},style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"7px 12px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px",cursor:"pointer",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink)"}},
+  // Abre el modal en el tab del nivel actualmente seleccionado (o comuna por
+  // defecto en modo comparar); resetea la busqueda al abrir.
+  function abrir(){ var t=ctx.state.vista==="comp" ? "comuna" : terrParse(ctx.state.terrSel).tipo;
+    if(["comuna","slep","region","nacional"].indexOf(t)<0) t="comuna";
+    ctx.upd({modalOpen:true, modalTab:t, modalQuery:""}); }
+  return h("button",{onClick:abrir,style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"7px 12px",background:"#fff",border:"1px solid var(--line2)",borderRadius:"4px",cursor:"pointer",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink)"}},
     h("span",{style:{width:"11px",height:"11px",background:"var(--plum)",borderRadius:"2px"}}), label,
     h("span",{style:{color:"var(--slate)",fontSize:"var(--fs-caption)"}},"▾"));
 }
@@ -5836,55 +5844,60 @@ function RenComp(ctx){
 // MODAL (Fase 4)
 // ===========================================================================
 function Modal(ctx){
-  var s=ctx.state, multi=s.vista==="comp";
+  var s=ctx.state, multi=s.vista==="comp", tab=s.modalTab||"comuna";
   var query=s.modalQuery||""; function setQuery(v){ ctx.upd({modalQuery:v}); }
   var sel = multi ? s.compSel.slice() : [s.terrSel];
   function isSel(id){ return sel.indexOf(id)>=0; }
+  var maxSel = multi ? 10 : 1;
   function pick(id){
     if(multi){
       var arr=s.compSel.slice(), i=arr.indexOf(id);
       if(i>=0){ if(arr.length>1) arr.splice(i,1); }
-      else { if(arr.length<10) arr.push(id); }
+      else { if(arr.length<maxSel) arr.push(id); }
       ctx.upd({compSel:arr});
     } else { ctx.upd({terrSel:id, modalOpen:false}); }
   }
-  var qn=query.trim().toLowerCase();
-  function match(id){ return !qn || terrName(id).toLowerCase().indexOf(qn)>=0; }
-  // construir arbol: nacional, regiones -> sleps -> comunas ; comunas sin slep bajo region
-  var nodes=[];
-  nodes.push({id:"nacional:"+T.nacional.cod, lvl:0, tipo:"nacional"});
-  T.regiones.forEach(function(r){
-    var rid="region:"+r.cod, rkids=[];
-    var rsleps=T.sleps.filter(function(sp){return sp.reg===r.cod;});
-    var scodes={};
-    rsleps.forEach(function(sp){ scodes[sp.cod]=true; });
-    var comReg=T.comunas.filter(function(c){return c.reg===r.cod;});
-    var anyMatch=match(rid) || rsleps.some(function(sp){return match("slep:"+sp.cod);}) || comReg.some(function(c){return match("comuna:"+c.cod);});
-    if(!anyMatch) return;
-    nodes.push({id:rid,lvl:0,tipo:"region"});
-    rsleps.forEach(function(sp){
-      var spid="slep:"+sp.cod;
-      var spcom=comReg.filter(function(c){return c.slep===sp.cod;});
-      var spMatch=match(spid)||spcom.some(function(c){return match("comuna:"+c.cod);});
-      if(!spMatch) return;
-      nodes.push({id:spid,lvl:1,tipo:"slep"});
-      spcom.forEach(function(c){ var cid="comuna:"+c.cod; if(match(cid)) nodes.push({id:cid,lvl:2,tipo:"comuna"}); });
-    });
-    comReg.filter(function(c){return !c.slep;}).forEach(function(c){ var cid="comuna:"+c.cod; if(match(cid)) nodes.push({id:cid,lvl:1,tipo:"comuna"}); });
-  });
-  var rowEls=nodes.map(function(nd){
-    var on=isSel(nd.id);
-    return h("button",{key:nd.id,onClick:function(){pick(nd.id);},style:{display:"flex",alignItems:"center",gap:"8px",width:"100%",textAlign:"left",padding:"6px 8px",paddingLeft:(8+nd.lvl*18)+"px",border:0,borderBottom:"1px solid var(--line)",background:on?ctx.accSoft:"#fff",cursor:"pointer"}},
-      h("span",{style:{width:"14px",height:"14px",flex:"none",borderRadius:multi?"3px":"50%",border:"1.5px solid "+(on?ctx.acc:"var(--line2)"),background:on?ctx.acc:"transparent",display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"var(--fs-overline)",fontWeight:700}}, on?"✓":""),
-      h("span",{style:{fontFamily:nd.tipo==="comuna"?"var(--font-b)":"var(--font-d)",fontWeight:nd.tipo==="comuna"?500:400,fontSize:"var(--fs-body)",color:"var(--ink)"}},terrName(nd.id)),
-      h("span",{style:{marginLeft:"auto",fontSize:"var(--fs-overline)",color:"var(--slate)",textTransform:"none"}},terrTipoLabel(nd.tipo))); });
+  var qn=norm(query.trim());
+  // Fila-boton reutilizable por tab. En "comparar" es checklist (cuadrado); en
+  // "por territorio" es seleccion unica (circulo). `sub` = texto secundario.
+  function rowBtn(id, tipo, sub){
+    var on=isSel(id), blk = multi && !on && sel.length>=maxSel;
+    return h("button",{key:id, disabled:blk, onClick:function(){ if(!blk) pick(id); },
+      style:{display:"flex",alignItems:"center",gap:"10px",width:"100%",textAlign:"left",padding:"9px 12px",border:0,borderBottom:"1px solid var(--line)",background:on?ctx.accSoft:"#fff",cursor:blk?"not-allowed":"pointer",opacity:blk?0.45:1}},
+      h("span",{style:{width:"15px",height:"15px",flex:"none",borderRadius:multi?"3px":"50%",border:"1.5px solid "+(on?ctx.acc:"var(--line2)"),background:on?ctx.acc:"transparent",display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"var(--fs-overline)",fontWeight:700}}, on?"✓":""),
+      h("span",{style:{fontFamily:tipo==="comuna"?"var(--font-b)":"var(--font-d)",fontWeight:tipo==="comuna"?500:400,fontSize:"var(--fs-body)",color:"var(--ink)"}}, terrName(id)),
+      sub ? h("span",{style:{marginLeft:"auto",fontSize:"var(--fs-overline)",color:"var(--slate)"}}, sub) : null);
+  }
+  // Cuerpo por tab (Comuna / SLEP / Region / Nacional -- sin Establecimiento ni
+  // Grupo, POLITICA 6.4). Buscador con norm() (acentos) sobre nombre (y region
+  // en el tab Comuna).
+  var body;
+  if(tab==="nacional"){
+    body=[ rowBtn("nacional:"+T.nacional.cod, "nacional", null) ];
+  } else if(tab==="region"){
+    body=T.regiones.filter(function(r){ return !qn || norm(r.nombre).indexOf(qn)>=0; })
+      .map(function(r){ var cnt=T.comunas.filter(function(c){return c.reg===r.cod;}).length;
+        return rowBtn("region:"+r.cod, "region", cnt+" comunas"); });
+  } else if(tab==="slep"){
+    body=T.sleps.filter(function(sp){ return !qn || norm(sp.nombre).indexOf(qn)>=0; })
+      .map(function(sp){ var cnt=T.comunas.filter(function(c){return c.slep===sp.cod;}).length;
+        return rowBtn("slep:"+sp.cod, "slep", cnt+" comunas"); });
+  } else {
+    body=T.comunas.filter(function(c){ return !qn || norm(c.nombre).indexOf(qn)>=0 || norm(terrName("region:"+c.reg)).indexOf(qn)>=0; })
+      .map(function(c){ return rowBtn("comuna:"+c.cod, "comuna", terrName("region:"+c.reg)); });
+  }
+  if(!body.length) body=[ h("div",{key:"empty",style:{padding:"18px 14px",fontSize:"var(--fs-body)",color:"var(--slate)"}}, "Sin resultados para “"+query+"”.") ];
+  var tabs=[{v:"comuna",t:"Comuna"},{v:"slep",t:"SLEP"},{v:"region",t:"Región"},{v:"nacional",t:"Nacional"}];
+  var placeholder=({comuna:"Buscar comuna…",slep:"Buscar SLEP…",region:"Buscar región…",nacional:"Solo Chile (sin busqueda)"})[tab];
   return h("div",{onClick:function(){ctx.upd({modalOpen:false});},style:{position:"fixed",inset:0,background:"rgba(21,18,18,.45)",zIndex:9998,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}},
     h("div",{onClick:function(e){e.stopPropagation();},style:{background:"#fff",borderRadius:"8px",width:"560px",maxWidth:"100%",maxHeight:"80vh",display:"flex",flexDirection:"column",boxShadow:"0 10px 40px rgba(21,62,94,.28)"}},
-      h("div",{style:{padding:"18px 20px 12px",borderBottom:"1px solid var(--line)"}},
+      h("div",{style:{padding:"18px 20px 0",borderBottom:"1px solid var(--line)"}},
         h("div",{style:{fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-h4)",color:"var(--ink)"}}, multi?"Comparar territorios":"Elegir territorio"),
-        h("div",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginTop:"3px"}}, multi?("Selección múltiple · hasta 10 · "+s.compSel.length+" elegidos · nivel máximo: comuna"):"Selección única · nacional, región, SLEP o comuna"),
-        h("input",{value:query,onChange:function(e){setQuery(e.target.value);},placeholder:"Buscar territorio…",style:{marginTop:"10px",width:"100%",padding:"8px 10px",border:"1px solid var(--line2)",borderRadius:"4px",fontFamily:"var(--font-b)",fontSize:"var(--fs-body)"}})),
-      h("div",{style:{overflowY:"auto",flex:1}}, rowEls),
+        h("div",{style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginTop:"3px"}}, multi?("Selección múltiple · hasta 10 · "+s.compSel.length+" elegidos"):"Selección única · elige un nivel y un territorio"),
+        h("input",{value:query,onChange:function(e){setQuery(e.target.value);},placeholder:placeholder,disabled:tab==="nacional",style:{margin:"10px 0",width:"100%",padding:"8px 10px",border:"1px solid var(--line2)",borderRadius:"4px",fontFamily:"var(--font-b)",fontSize:"var(--fs-body)",background:tab==="nacional"?"var(--cream50)":"#fff"}}),
+        h("div",{style:{display:"flex",gap:"2px"}}, tabs.map(function(tb){ var act=tab===tb.v;
+          return h("button",{key:tb.v,onClick:function(){ctx.upd({modalTab:tb.v,modalQuery:""});},style:{border:0,background:"transparent",padding:"9px 13px",cursor:"pointer",fontFamily:"var(--font-b)",fontSize:"var(--fs-body)",fontWeight:act?700:500,color:act?ctx.acc:"var(--ink2)",borderBottom:act?("2px solid "+ctx.acc):"2px solid transparent"}}, tb.t); }))),
+      h("div",{style:{overflowY:"auto",flex:1}}, body),
       h("div",{style:{padding:"12px 20px",borderTop:"1px solid var(--line)",display:"flex",justifyContent:"flex-end",gap:"10px"}},
         h("button",{onClick:function(){ctx.upd({modalOpen:false});},style:{padding:"8px 16px",border:"1px solid var(--line2)",borderRadius:"4px",background:ctx.acc,color:"#fff",fontWeight:600,fontSize:"var(--fs-body)",cursor:"pointer"}}, multi?"Listo":"Cerrar"))));
 }
