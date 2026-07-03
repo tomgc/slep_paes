@@ -444,7 +444,8 @@ function CobHist(ctx){
   var acc=ctx.acc, id=ctx.state.terrSel, years=M.anios, coh=activeCohorte(ctx.state);
   // Base por año: egresados SOLO en "actual". En "anterior" y "todas" el numerador
   // mezcla cohortes -> se rebasa a inscritos = 100% (evita % >100%). En "actual" un
-  // año sin egresados (2026) queda en hueco, sin mezclar bases entre años.
+  // año sin egresados (el proceso mas antiguo, sin egreso del año previo en la base)
+  // queda en hueco, sin mezclar bases entre años.
   var baseLbl = coh==="actual" ? "% de egresados" : "% de inscritos";
   function baseY(y){
     if(coh==="actual"){ var eg=covSel(ctx,y,"egresados",coh); return (eg&&!eg.sup&&eg.n)?eg.n:null; }

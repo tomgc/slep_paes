@@ -263,9 +263,17 @@ if (faltan_31 || faltan_cat) {
   # egresados (denominador): base de la generacion; cohorte = "actual" (no existe
   # "egresado anterior": egresados_em registra a cada persona solo en su año de
   # egreso). "todas" queda == "actual" en esta etapa (sin filas anterior).
+  # ALINEACION (fix F1, auditoria 20260703): la base de egreso viene indexada por
+  # AGNO (año de egreso), pero las demas etapas se indexan por año del PROCESO de
+  # admision. El proceso P se nutre de quienes egresaron en P-1 (anyo_egreso==P-1),
+  # asi que el denominador del proceso P es la promocion de egreso agno=P-1
+  # -> se coloca en anio_proceso = agno + 1L (sin esto, num>denom -> % >100% a
+  # nivel comuna, donde la promocion fluctua). Corolario: el proceso mas antiguo
+  # (2023, que necesitaria egreso 2022) queda sin denominador; el proceso 2026 pasa
+  # a tenerlo (egreso 2025).
   etapa_egresados <- egresados |>
     dplyr::filter(.data$marca_egreso == 1) |>
-    dplyr::transmute(rbd = .data$rbd, anio_proceso = as.integer(.data$agno), cohorte = "actual") |>
+    dplyr::transmute(rbd = .data$rbd, anio_proceso = as.integer(.data$agno) + 1L, cohorte = "actual") |>
     agregar_conteo_cohorte(mapa, by_base = "anio_proceso") |>
     dplyr::mutate(etapa = "egresados")
 
