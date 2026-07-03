@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:"gobCL";src:url("fonts/gobCL_Regular.otf") format("opentype");font-weight:400;font-display:swap;}
+@font-face{font-family:"gobCL";src:url("fonts/gobCL_Heavy.otf") format("opentype");font-weight:900;font-display:swap;}
+@font-face{font-family:"Museo Sans";src:url("fonts/MuseoSans-300.otf") format("opentype");font-weight:300;font-display:swap;}
+@font-face{font-family:"Museo Sans";src:url("fonts/MuseoSans_500.otf") format("opentype");font-weight:500;font-display:swap;}
+@font-face{font-family:"Museo Sans";src:url("fonts/MuseoSans_700.otf") format("opentype");font-weight:700;font-display:swap;}
+:root{--plum:#153E5E;--cream:#FFF6E0;--paper:#fff;--ink:#1C1212;--ink2:#2E2230;--slate:#747474;--line:#E7DFC9;--line2:#C8BDA0;--cream50:#FFFBEF;--cream200:#F4E9CC;--ocean:#0062A0;--olive:#75924E;--sand:#BCA493;--coral:#E88663;--terra:#C45A3E;--uva:#4A2746;--plum20:#EEDCE5;--font-d:"gobCL","Arial Black",system-ui,sans-serif;--font-b:"Museo Sans","gobCL",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:#E9E0CC;}
+body{font-family:var(--font-b);color:var(--ink);font-weight:300;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+::selection{background:#FFC92E;color:var(--ink);}
+</style>
+</helmet>
+<div style="max-width:1320px;margin:0 auto;background:var(--cream);min-height:100vh;box-shadow:0 0 50px rgba(0,0,0,.10);">
+
+  <div style="display:flex;align-items:center;gap:14px;background:var(--ink);color:var(--cream);padding:8px 24px;flex-wrap:wrap;">
+    <span style="font-family:var(--font-d);font-weight:700;font-size:11px;letter-spacing:.02em;color:rgba(255,246,224,.85);">Motor slep_paes</span>
+    <span style="width:1px;height:13px;background:rgba(255,246,224,.25);"></span>
+    <span style="font-size:11.5px;color:rgba(255,246,224,.6);">El foco (Cobertura / Rendimiento) es el modo primario y define el color de la vista.</span>
+    <span style="flex:1;"></span>
+    <span style="display:inline-flex;align-items:center;gap:6px;background:var(--terra);color:#fff;font-family:var(--font-d);font-weight:700;font-size:10px;letter-spacing:.03em;padding:4px 9px;border-radius:3px;">Datos de maqueta</span>
+  </div>
+
+  <div style="background:var(--plum);color:var(--cream);padding:26px 40px 22px;">
+    <div style="font-family:var(--font-d);font-weight:700;font-size:11px;letter-spacing:.02em;color:rgba(255,246,224,.7);margin-bottom:7px;">Área de Monitoreo y Seguimiento de Procesos y Resultados Educativos</div>
+    <h1 style="font-family:var(--font-d);font-weight:900;font-size:30px;letter-spacing:-.01em;line-height:1.08;margin:0 0 8px;color:var(--cream);">Resultados Prueba de Acceso a la Educación Superior (PAES)<br /><span style="font-weight:700;font-size:22px;color:rgba(255,246,224,.82);">Participación y desempeño</span></h1>
+    <div style="font-size:14px;color:rgba(255,246,224,.72);font-weight:400;">Datos públicos del DEMRE · cobertura nacional</div>
+    <p style="margin:15px 0 0;padding-top:15px;border-top:1px solid rgba(255,246,224,.16);color:rgba(255,246,224,.8);font-size:13px;line-height:1.6;max-width:940px;font-weight:300;">Reporte HTML autocontenido con datos públicos del DEMRE sobre la Prueba de Acceso a la Educación Superior (PAES). Dos focos pares, ninguno subordinado al otro: la cobertura —el embudo de participación— y el rendimiento —la distribución de puntajes—, sobre la misma navegación territorial.</p>
+  </div>
+
+  {{ controlsEl }}
+
+  <div style="padding:14px 40px;background:var(--cream50);border-bottom:1px solid var(--line);">
+    <div style="font-family:var(--font-d);font-weight:700;font-size:11px;letter-spacing:.02em;color:var(--slate);margin-bottom:10px;">Territorio en pantalla</div>
+    {{ contextEl }}
+  </div>
+
+  <div style="padding:24px 40px 8px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+      <div style="font-family:var(--font-d);font-weight:700;font-size:11px;letter-spacing:.02em;color:var(--slate);margin-bottom:4px;">Resultados</div>
+      {{ exportBarEl }}
+    </div>
+    <h2 style="font-family:var(--font-d);font-weight:900;font-size:23px;letter-spacing:-.005em;line-height:1.15;margin:0;color:var(--ink);">{{ workTitle }}</h2>
+    <div style="font-size:13px;color:var(--slate);margin-top:3px;font-weight:400;">{{ workSub }}</div>
+    <div style="margin-top:14px;">{{ workNoteEl }}</div>
+    <div id="paesWork" style="margin-top:16px;">{{ workEl }}</div>
+  </div>
+
+  <div style="padding:0 40px 40px;margin-top:26px;">{{ notesEl }}</div>
+
+  <div id="paesTip" style="position:fixed;z-index:9999;pointer-events:none;display:none;background:#fff;border:1px solid var(--line2);border-radius:6px;box-shadow:0 6px 20px rgba(21,62,94,.18);padding:10px 12px;max-width:250px;font-family:var(--font-b);"></div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1320,&quot;height&quot;:1500},&quot;initialFoco&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;cob&quot;,&quot;ren&quot;],&quot;default&quot;:&quot;cob&quot;,&quot;tsType&quot;:&quot;'cob'|'ren'&quot;,&quot;section&quot;:&quot;Maqueta&quot;,&quot;label&quot;:&quot;Foco inicial&quot;},&quot;initialModo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;actual&quot;,&quot;hist&quot;],&quot;default&quot;:&quot;actual&quot;,&quot;tsType&quot;:&quot;'actual'|'hist'&quot;,&quot;section&quot;:&quot;Maqueta&quot;,&quot;label&quot;:&quot;Período inicial&quot;},&quot;showContext&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Maqueta&quot;,&quot;label&quot;:&quot;Mostrar contexto NEM/Ranking&quot;}}">
+class Component extends DCLogic {
+  h = React.createElement;
+  state = {
+    foco: (this.props && this.props.initialFoco) || 'cob',
+    vista: 'terr',
+    modo: (this.props && this.props.initialModo) || 'actual',
+    cohorts: { rec:true, ant:true },
+    notesOpen: false
+  };
+
+  C = {
+    vina:{name:'Viña del Mar',color:'#0062A0'},
+    concon:{name:'Concón',color:'#75924E'},
+    quintero:{name:'Quintero',color:'#4A2746'},
+    puchuncavi:{name:'Puchuncaví',color:'#BCA493'}
+  };
+  order = ['vina','concon','quintero','puchuncavi'];
+
+  stageMeta = [
+    {k:'egr',label:'Egresados de enseñanza media',sub:'denominador'},
+    {k:'ins',label:'Inscritos en la PAES'},
+    {k:'rin',label:'Rindió al menos una prueba'},
+    {k:'val',label:'Resultados válidos'},
+    {k:'pos',label:'Postuló a educación superior'},
+    {k:'sel',label:'Seleccionado en alguna carrera'},
+    {k:'mat',label:'Matriculado en educación superior'}
+  ];
+  data = {
+    vina:{rec:{egr:1180,ins:952,rin:850,val:808,pos:585,sel:402,mat:352},ant:{ins:92,rin:80,val:72,pos:52,sel:34,mat:28}},
+    concon:{rec:{egr:240,ins:196,rin:176,val:168,pos:118,sel:82,mat:72},ant:{ins:12,rin:10,val:9,pos:6,sel:4,mat:3}},
+    quintero:{rec:{egr:250,ins:196,rin:172,val:160,pos:108,sel:70,mat:60},ant:{ins:16,rin:14,val:12,pos:9,sel:6,mat:5}},
+    puchuncavi:{rec:{egr:170,ins:132,rin:110,val:104,pos:74,sel:50,mat:44},ant:{ins:8,rin:7,val:6,pos:4,sel:3,mat:2}}
+  };
+
+  pruebas = [
+    {k:'cl',sigla:'CL',name:'Competencia Lectora',n:1210,ant:110,mean:542,median:535,sd:98},
+    {k:'m1',sigla:'M1',name:'Matemática 1',n:1198,ant:108,mean:528,median:521,sd:104},
+    {k:'m2',sigla:'M2',name:'Matemática 2',n:430,ant:30,mean:561,median:558,sd:112},
+    {k:'cie',sigla:'',name:'Ciencias',n:690,ant:55,mean:534,median:528,sd:96},
+    {k:'his',sigla:'',name:'Historia y Ciencias Sociales',n:560,ant:48,mean:519,median:512,sd:94}
+  ];
+  contexto = [
+    {k:'nem',sigla:'',name:'Notas de Enseñanza Media',n:1310,ant:100,mean:588,median:585,sd:70},
+    {k:'rank',sigla:'',name:'Ranking de notas',n:1310,ant:100,mean:612,median:608,sd:82}
+  ];
+  renM = {
+    vina:{cl:548,m1:532,m2:565,cie:531,his:521,nem:590,rank:614},
+    concon:{cl:531,m1:519,m2:null,cie:522,his:508,nem:585,rank:609},
+    quintero:{cl:527,m1:515,m2:548,cie:519,his:505,nem:582,rank:606},
+    puchuncavi:{cl:519,m1:508,m2:null,cie:null,his:499,nem:579,rank:601},
+    slep:{cl:535,m1:521,m2:558,cie:528,his:512,nem:585,rank:608}
+  };
+  renCols = [['cl','CL'],['m1','M1'],['m2','M2'],['cie','Ciencias'],['his','Historia'],['nem','NEM'],['rank','Ranking']];
+  histYears = ['2020','2021','2022','2023','2024'];
+  cobHist = { rin:[68,66,69,70,71], mat:[24,22,25,27,29], rez:[142,150,138,132,128] };
+  renHist = { cl:[528,522,530,533,535], m1:[512,508,514,518,521], m2:[548,545,552,555,558], cie:[521,518,524,526,528], his:[505,502,508,510,512] };
+
+  fmt(n){ if(n==null) return '—'; return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+  acc(){ return this.state.foco==='cob' ? '#0BA0DA' : '#153E5E'; }
+  accSoft(){ return this.state.foco==='cob' ? '#DCF0FA' : '#DEE5EC'; }
+  showCtx(){ return (this.props && this.props.showContext !== undefined) ? this.props.showContext : true; }
+
+  sumStage(k,co){ let t=0; this.order.forEach(x=>{ if(co.rec) t+=(this.data[x].rec[k]||0); if(co.ant) t+=(this.data[x].ant[k]||0); }); return t; }
+  totals(co){ const o={}; this.stageMeta.forEach(s=>{ o[s.k]=this.sumStage(s.k,co); }); return o; }
+  funnelStages(co){ const tot=this.totals(co); const base=tot.egr>0?tot.egr:tot.ins; return this.stageMeta.map(s=>({k:s.k,label:s.label,sub:s.sub,n:tot[s.k],pct:base?tot[s.k]/base*100:0})); }
+  comunaStages(t,co){ const o={}; this.stageMeta.forEach(s=>{ let v=0; if(co.rec) v+=(this.data[t].rec[s.k]||0); if(co.ant) v+=(this.data[t].ant[s.k]||0); o[s.k]=v; }); return o; }
+  rezTotal(){ let t=0; this.order.forEach(x=>t+=this.data[x].ant.ins); return t; }
+
+  toggleCohort(key){ const c=Object.assign({},this.state.cohorts); c[key]=!c[key]; if(!c.rec && !c.ant){ return; } this.setState({cohorts:c}); }
+
+  card(extra,children){ const h=this.h; return h('div',{style:Object.assign({background:'#fff',border:'1px solid var(--line)',borderRadius:'8px',padding:'18px',boxShadow:'0 2px 8px rgba(74,39,70,.08)'},extra||{})},children); }
+  cardTitle(t,sub){ const h=this.h; return h('div',{style:{marginBottom:'12px'}}, h('div',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'15px',color:'var(--ink)'}},t), sub?h('div',{style:{fontSize:'11px',color:'var(--slate)',marginTop:'2px'}},sub):null); }
+  noteStrip(text,acc,soft){ const h=this.h; return h('div',{style:{background:soft,borderLeft:'3px solid '+acc,padding:'10px 14px',borderRadius:'0 4px 4px 0',fontSize:'12.5px',color:'var(--ink2)',lineHeight:1.5,maxWidth:'900px'}},text); }
+  lbl(t){ return this.h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'11px',letterSpacing:'.01em',color:'var(--slate)'}},t); }
+
+  seg(items,val,on,activeColor){ const h=this.h; return h('div',{style:{display:'inline-flex',background:'var(--cream200)',border:'1px solid var(--line)',borderRadius:'4px',padding:'2px'}},
+    items.map(it=>h('button',{key:it.v,onClick:()=>on(it.v),style:{border:0,padding:'6px 14px',borderRadius:'3px',cursor:'pointer',fontFamily:'var(--font-b)',fontSize:'13px',fontWeight:val===it.v?700:500,background:val===it.v?'#fff':'transparent',color:val===it.v?(activeColor||'var(--plum)'):'var(--ink2)',boxShadow:val===it.v?'0 1px 2px rgba(74,39,70,.14)':'none'}},it.label))); }
+
+  territoryBtn(){ const h=this.h; return h('button',{onClick:()=>{},style:{display:'inline-flex',alignItems:'center',gap:'8px',padding:'7px 12px',background:'#fff',border:'1px solid var(--line2)',borderRadius:'4px',cursor:'pointer',fontFamily:'var(--font-b)',fontWeight:600,fontSize:'13px',color:'var(--ink)'}},
+    h('span',{style:{width:'11px',height:'11px',background:'var(--plum)',borderRadius:'2px'}}),
+    'SLEP Costa Central',
+    h('span',{style:{color:'var(--slate)',fontSize:'11px'}},'▾')); }
+
+  focoTabs(){ const h=this.h; const foco=this.state.foco; const tabs=[{v:'cob',t:'Cobertura',d:'Embudo de participación · 7 etapas',col:'#0BA0DA'},{v:'ren',t:'Rendimiento',d:'Distribución de puntajes · por prueba',col:'#153E5E'}];
+    return h('div',{style:{display:'flex',background:'var(--cream50)',borderBottom:'1px solid var(--line)'}},
+      tabs.map((tb,i)=>{ const on=foco===tb.v; return h('button',{key:tb.v,onClick:()=>this.setState({foco:tb.v}),style:{flex:1,textAlign:'left',padding:'14px 22px',cursor:'pointer',background:on?'#fff':'transparent',border:0,borderRight:i===0?'1px solid var(--line)':'0',borderBottom:on?('3px solid '+tb.col):'3px solid transparent'}},
+        h('div',{style:{display:'flex',alignItems:'center',gap:'9px',marginBottom:'2px'}},
+          h('span',{style:{width:'12px',height:'12px',background:tb.col,borderRadius:'2px',opacity:on?1:.35}}),
+          h('span',{style:{fontFamily:'var(--font-d)',fontWeight:on?900:700,fontSize:'18px',color:on?tb.col:'var(--ink2)',letterSpacing:'-.01em'}},tb.t)),
+        h('div',{style:{fontSize:'11.5px',color:'var(--slate)',paddingLeft:'21px'}},tb.d)); })); }
+
+  cohortChk(){ const h=this.h; const c=this.state.cohorts; const acc=this.acc();
+    const box=(key,label,sub)=>{ const on=c[key]; return h('button',{key:key,onClick:()=>this.toggleCohort(key),style:{display:'inline-flex',alignItems:'center',gap:'8px',padding:'6px 11px',background:on?'#fff':'transparent',border:'1px solid '+(on?'var(--line2)':'var(--line)'),borderRadius:'4px',cursor:'pointer'}},
+      h('span',{style:{width:'15px',height:'15px',flex:'none',borderRadius:'3px',border:'1.5px solid '+(on?acc:'var(--slate)'),background:on?acc:'transparent',display:'inline-flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:'10px',fontWeight:700}}, on?'✓':''),
+      h('span',{style:{display:'flex',flexDirection:'column',lineHeight:1.15,textAlign:'left'}},
+        h('span',{style:{fontSize:'12.5px',fontWeight:600,color:'var(--ink)'}},label),
+        h('span',{style:{fontSize:'10px',color:'var(--slate)'}},sub))); };
+    return h('div',{style:{display:'flex',gap:'8px',flexWrap:'wrap'}}, box('rec','Generación más reciente','egresados 2024'), box('ant','Generaciones anteriores','cohortes previas')); }
+
+  controls(){ const h=this.h; const acc=this.acc();
+    const vistaSeg=this.seg([{v:'terr',label:'Por territorio'},{v:'comp',label:'Comparar territorios'}],this.state.vista,v=>this.setState({vista:v}));
+    const periodSeg=this.seg([{v:'actual',label:'Actual'},{v:'hist',label:'Histórica'}],this.state.modo,v=>this.setState({modo:v}),acc);
+    const secondary=h('div',{style:{display:'flex',alignItems:'center',gap:'26px',padding:'12px 40px',background:'var(--paper)',borderBottom:'1px solid var(--line)',flexWrap:'wrap'}},
+      h('div',{style:{display:'flex',alignItems:'center',gap:'10px'}}, this.lbl('Vista'), vistaSeg),
+      this.state.vista==='terr' ? h('div',{style:{display:'flex',alignItems:'center',gap:'10px'}}, this.lbl('Período'), periodSeg) : null,
+      h('div',{style:{flex:1}}),
+      h('div',{style:{display:'flex',alignItems:'center',gap:'10px'}}, this.lbl('Territorio'), this.territoryBtn()));
+    const sub = this.state.vista==='terr' ? h('div',{style:{display:'flex',alignItems:'center',gap:'24px',padding:'11px 40px',background:'var(--cream50)',borderBottom:'1px solid var(--line)',flexWrap:'wrap'}},
+      this.state.modo==='actual'
+        ? h('div',{style:{display:'flex',alignItems:'center',gap:'10px'}}, this.lbl('Cohorte'), this.cohortChk())
+        : h('span',{style:{fontSize:'11.5px',color:'var(--slate)'}},'Serie 2020–2024 · promoción de cada año')) : null;
+    return h('div',{}, this.focoTabs(), secondary, sub);
+  }
+
+  context(){ const h=this.h;
+    const chip=(k,big)=>{ const c=this.C[k]; return h('span',{key:k,style:{display:'inline-flex',alignItems:'center',gap:'8px',padding:big?'7px 12px':'5px 10px',background:'#fff',border:'1px solid var(--line2)',borderRadius:'4px'}},
+      h('span',{style:{width:big?'13px':'11px',height:big?'13px':'11px',background:c.color,borderRadius:'2px'}}),
+      h('span',{style:{display:'flex',flexDirection:'column',lineHeight:1.15}},
+        h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:big?'13px':'12px',color:'var(--ink)'}},c.name),
+        h('span',{style:{fontSize:'10px',color:'var(--slate)'}},this.fmt(this.data[k].rec.egr)+' egresados'))); };
+    const slep=h('span',{style:{display:'inline-flex',alignItems:'center',gap:'9px',padding:'8px 14px',background:'var(--plum)',borderRadius:'4px'}},
+      h('span',{style:{width:'13px',height:'13px',background:'var(--cream)',borderRadius:'2px'}}),
+      h('span',{style:{display:'flex',flexDirection:'column',lineHeight:1.15}},
+        h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'13px',color:'var(--cream)'}},'SLEP Costa Central'),
+        h('span',{style:{fontSize:'10px',color:'rgba(255,246,224,.7)'}},'4 comunas · agregado admisión 2024')));
+    if(this.state.vista==='comp'){ const E=this.estabRows();
+      return h('div',{style:{display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap'}},
+        h('span',{style:{fontSize:'12px',color:'var(--slate)',fontWeight:500}},'Comparando '+E.length+' territorios · nivel establecimiento · admite hasta 10:'),
+        E.map(e=>h('span',{key:e.id,style:{display:'inline-flex',alignItems:'center',gap:'6px',padding:'4px 9px',background:'#fff',border:'1px solid var(--line2)',borderRadius:'4px'}},
+          h('span',{style:{width:'9px',height:'9px',background:this.C[e.com].color,borderRadius:'2px'}}),
+          h('span',{style:{fontFamily:'var(--font-b)',fontWeight:600,fontSize:'11.5px',color:'var(--ink)'}},e.n))));
+    }
+    return h('div',{style:{display:'flex',alignItems:'center',gap:'10px',flexWrap:'wrap'}},
+      slep,
+      h('span',{style:{fontSize:'12px',color:'var(--slate)'}},'con desglose por comuna:'),
+      this.order.map(k=>chip(k,false)));
+  }
+
+  funnelTrapezoid(stages,acc){ const h=this.h; const W=740,labelW=200,areaL=labelW+20,areaW=350,cx=areaL+areaW/2,slabH=28,gap=16,top=12; const n=stages.length; const H=top+n*(slabH+gap)+6; const els=[];
+    for(let i=0;i<n-1;i++){ const s=stages[i],s2=stages[i+1]; const w=s.pct/100*areaW,w2=s2.pct/100*areaW; const yb=top+i*(slabH+gap)+slabH; const yt=top+(i+1)*(slabH+gap); els.push(h('polygon',{key:'c'+i,points:(cx-w/2)+','+yb+' '+(cx+w/2)+','+yb+' '+(cx+w2/2)+','+yt+' '+(cx-w2/2)+','+yt,fill:acc,opacity:0.12})); }
+    stages.forEach((s,i)=>{ const w=Math.max(s.pct/100*areaW,2); const y=top+i*(slabH+gap); const x=cx-w/2;
+      els.push(h('rect',{key:'r'+i,x:x,y:y,width:w,height:slabH,rx:3,fill:acc,opacity:(0.4+i*0.1).toFixed(2)}));
+      els.push(h('text',{key:'l'+i,x:labelW,y:y+slabH/2+4,textAnchor:'end',fill:'var(--ink)',fontFamily:'var(--font-b)',fontWeight:500,fontSize:11.5},s.label));
+      els.push(h('text',{key:'p'+i,x:areaL+areaW+14,y:y+slabH/2+4,textAnchor:'start',fill:'var(--ink2)',fontFamily:'var(--font-b)',fontWeight:500,fontSize:12.5},(s.pct<100?s.pct.toFixed(1).replace('.',','):'100')+'% ('+this.fmt(s.n)+')')); });
+    return h('svg',{viewBox:'0 0 '+W+' '+H,style:{width:'100%',height:'auto',display:'block'}},els); }
+
+  rezList(){ const h=this.h; return h('div',{style:{display:'flex',flexDirection:'row',gap:'16px',flexWrap:'wrap'}},
+    this.order.map(k=>h('div',{key:k,style:{display:'flex',alignItems:'center',gap:'6px'}},
+      h('span',{style:{width:'9px',height:'9px',background:this.C[k].color,borderRadius:'2px'}}),
+      h('span',{style:{fontSize:'11.5px',color:'var(--ink2)'}},this.C[k].name),
+      h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'12px',color:'var(--ink)'}},this.fmt(this.data[k].ant.ins))))); }
+
+  rezSlab(acc){ const h=this.h; const excluded=!this.state.cohorts.ant; return h('div',{style:{border:'1px dashed '+acc,background:this.accSoft(),borderRadius:'8px',padding:'16px 18px',display:'flex',gap:'24px',alignItems:'center',flexWrap:'wrap'}},
+    h('div',{style:{flex:'none'}},
+      h('div',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'10px',letterSpacing:'.02em',color:acc}},'Siempre visible · generaciones anteriores'),
+      h('div',{style:{fontFamily:'var(--font-d)',fontWeight:900,fontSize:'34px',color:acc,lineHeight:1.05}},this.fmt(this.rezTotal()))),
+    h('p',{style:{flex:'1 1 240px',fontSize:'12px',color:'var(--slate)',lineHeight:1.5,margin:0}}, excluded ? 'Personas que rinden la PAES sin establecimiento de egreso vigente en 2024. Ahora están excluidas del embudo (solo se muestran las generaciones más recientes), pero la categoría nunca se oculta.' : 'Personas que rinden la PAES sin establecimiento de egreso vigente en 2024. Se reportan como categoría propia; nunca se ocultan ni se tratan como error.'),
+    h('div',{style:{flex:'none'}}, this.rezList())); }
+
+  comunaSparks(co){ const h=this.h; const keys=['egr','ins','rin','val','pos','sel','mat'];
+    return h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:'12px'}},
+      this.order.map(k=>{ const m=this.comunaStages(k,co); const col=this.C[k].color; const base=m.egr>0?m.egr:m.ins; const pcts=keys.map(kk=>base?m[kk]/base*100:0);
+        const pts=pcts.map((p,i)=>[10+i/(keys.length-1)*180,50-p/100*42]); const poly=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+        return h('div',{key:k,style:{border:'1px solid var(--line)',borderRadius:'6px',padding:'10px'}},
+          h('div',{style:{display:'flex',alignItems:'center',gap:'6px',marginBottom:'4px'}},
+            h('span',{style:{width:'10px',height:'10px',background:col,borderRadius:'2px'}}),
+            h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'12px',color:'var(--ink)'}},this.C[k].name)),
+          h('svg',{viewBox:'0 0 200 60',style:{width:'100%',height:'auto',display:'block'}},
+            h('polygon',{points:'10,50 '+poly+' 190,50',fill:col,opacity:0.1}),
+            h('polyline',{points:poly,fill:'none',stroke:col,strokeWidth:2}),
+            pts.map((p,i)=>h('circle',{key:i,cx:p[0],cy:p[1],r:2.2,fill:col}))),
+          h('div',{style:{fontSize:'11px',color:'var(--slate)',marginTop:'4px'}},'matriculados '+(base?(m.mat/base*100).toFixed(0):'0')+'% · '+this.fmt(m.mat)+' de '+this.fmt(base))); })); }
+
+  buildHistSvg(p,barColor){ const h=this.h; const W=250,H=118,padL=8,padR=8,padT=8,padB=24,lo=150,hi=850,step=50; const centers=[]; for(let c=lo+step/2;c<hi;c+=step) centers.push(c); const counts=centers.map(c=>Math.exp(-0.5*Math.pow((c-p.mean)/p.sd,2))); const max=Math.max.apply(null,counts); const plotW=W-padL-padR,plotH=H-padT-padB,bw=plotW/centers.length; const sx=v=>padL+(v-lo)/(hi-lo)*plotW; const els=[];
+    centers.forEach((c,i)=>{ const hh=counts[i]/max*plotH; els.push(h('rect',{key:i,x:padL+i*bw+1,y:padT+plotH-hh,width:bw-2,height:hh,fill:barColor,opacity:0.85,rx:1})); });
+    els.push(h('line',{key:'bl',x1:padL,y1:padT+plotH,x2:W-padR,y2:padT+plotH,stroke:'var(--line2)',strokeWidth:1}));
+    const mx=sx(p.median); els.push(h('line',{key:'md',x1:mx,y1:padT-2,x2:mx,y2:padT+plotH,stroke:'var(--ink)',strokeWidth:1.4,strokeDasharray:'3 3'}));
+    els.push(h('text',{key:'ml',x:mx,y:padT+plotH+13,textAnchor:'middle',fontSize:9,fontWeight:600,fill:'var(--ink)',fontFamily:'var(--font-b)'},'mediana'));
+    [300,500,700].forEach(t=>els.push(h('text',{key:'t'+t,x:sx(t),y:H-5,textAnchor:'middle',fontSize:9,fill:'var(--slate)',fontFamily:'var(--font-b)'},t)));
+    return h('svg',{viewBox:'0 0 '+W+' '+H,style:{width:'100%',height:'auto',display:'block'}},els); }
+
+  pruebaN(p){ const c=this.state.cohorts; let n=0; if(c.rec) n+=(p.n-p.ant); if(c.ant) n+=p.ant; return n; }
+  histCard(p,barColor,muted){ const h=this.h; const n=this.pruebaN(p); const supp=n<10; return h('div',{key:p.k,style:{background:muted?'#FBF9F1':'#fff',border:'1px '+(muted?'dashed':'solid')+' var(--line)',borderRadius:'8px',padding:'12px 12px 8px',boxShadow:muted?'none':'0 1px 4px rgba(74,39,70,.06)'}},
+    h('div',{style:{display:'flex',alignItems:'center',gap:'7px',marginBottom:'2px'}},
+      p.sigla?h('span',{style:{background:barColor,color:'#fff',fontFamily:'var(--font-d)',fontWeight:700,fontSize:'10px',padding:'2px 6px',borderRadius:'3px'}},p.sigla):h('span',{style:{width:'10px',height:'10px',background:barColor,borderRadius:'2px'}}),
+      h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'12px',color:'var(--ink)',lineHeight:1.05,flex:1}},p.name)),
+    supp ? h('div',{style:{height:'126px',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#E7E1D2',borderRadius:'4px',marginTop:'6px'}},
+        h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'12px',color:'var(--slate)'}},'Dato suprimido'),
+        h('span',{style:{fontSize:'10px',color:'var(--slate)',marginTop:'2px'}},'n < 10 en esta selección'))
+      : h('div',{}, h('div',{style:{fontSize:'11px',color:'var(--slate)',marginBottom:'2px'}},'n = '+this.fmt(n)+' · mediana '+p.median+' · promedio '+p.mean), this.buildHistSvg(p,barColor)));
+  }
+
+  histGrid(acc){ const h=this.h; const grid=(items)=>h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(232px,1fr))',gap:'12px'}},items);
+    const out=[grid(this.pruebas.map(p=>this.histCard(p,acc,false)))];
+    if(this.showCtx()){ out.push(h('div',{key:'ch',style:{margin:'16px 0 8px',fontFamily:'var(--font-d)',fontWeight:700,fontSize:'11px',letterSpacing:'.01em',color:'var(--slate)'}},'Contexto — NEM y Ranking (no son pruebas PAES)'));
+      out.push(grid(this.contexto.map(p=>this.histCard(p,'#8A7C86',true)))); }
+    return h('div',{},out); }
+
+  scatterSvg(acc){ const h=this.h; const W=560,H=430,padL=54,padR=14,padT=14,padB=44,lo=100,hi=1000; const sx=v=>padL+(v-lo)/(hi-lo)*(W-padL-padR); const sy=v=>padT+(hi-v)/(hi-lo)*(H-padT-padB);
+    let a=1337; const rnd=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};
+    const randn=()=>{let u=0,v=0;while(u===0)u=rnd();while(v===0)v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);};
+    const cum=[['vina',0.641],['concon',0.771],['quintero',0.907],['puchuncavi',1.001]]; const cmean={vina:548,concon:531,quintero:527,puchuncavi:519}; const els=[]; const co=this.state.cohorts;
+    [300,500,700].forEach(g=>{ els.push(h('line',{key:'gx'+g,x1:sx(g),y1:padT,x2:sx(g),y2:H-padB,stroke:'var(--line)',strokeWidth:1})); els.push(h('line',{key:'gy'+g,x1:padL,y1:sy(g),x2:W-padR,y2:sy(g),stroke:'var(--line)',strokeWidth:1})); els.push(h('text',{key:'lx'+g,x:sx(g),y:H-padB+15,textAnchor:'middle',fontSize:10,fill:'var(--slate)',fontFamily:'var(--font-b)'},g)); els.push(h('text',{key:'ly'+g,x:padL-8,y:sy(g)+3,textAnchor:'end',fontSize:10,fill:'var(--slate)',fontFamily:'var(--font-b)'},g)); });
+    els.push(h('line',{key:'ax',x1:padL,y1:H-padB,x2:W-padR,y2:H-padB,stroke:'var(--line2)',strokeWidth:1.2}));
+    els.push(h('line',{key:'ay',x1:padL,y1:padT,x2:padL,y2:H-padB,stroke:'var(--line2)',strokeWidth:1.2}));
+    if(co.rec) for(let i=0;i<210;i++){ const r=rnd(); let key='puchuncavi'; for(const c of cum){ if(r<=c[1]){key=c[0];break;} } let nem=585+randn()*70; nem=Math.max(210,Math.min(880,nem)); let punt=cmean[key]+0.55*(nem-585)+randn()*72; punt=Math.max(160,Math.min(880,punt)); els.push(h('circle',{key:'pt'+i,cx:sx(nem),cy:sy(punt),r:3.3,fill:this.C[key].color,opacity:0.68})); }
+    if(co.ant) for(let i=0;i<20;i++){ let nem=470+randn()*90; nem=Math.max(220,Math.min(760,nem)); let punt=460+0.5*(nem-500)+randn()*80; punt=Math.max(190,Math.min(760,punt)); els.push(h('rect',{key:'rz'+i,x:-4,y:-4,width:8,height:8,fill:'none',stroke:acc,strokeWidth:1.7,transform:'translate('+sx(nem).toFixed(1)+' '+sy(punt).toFixed(1)+') rotate(45)'})); }
+    els.push(h('text',{key:'xt',x:(padL+W-padR)/2,y:H-4,textAnchor:'middle',fontSize:11,fontWeight:600,fill:'var(--ink2)',fontFamily:'var(--font-b)'},'NEM (100–1000) →'));
+    const ymid=(padT+H-padB)/2; els.push(h('text',{key:'yt',x:15,y:ymid,textAnchor:'middle',fontSize:11,fontWeight:600,fill:'var(--ink2)',fontFamily:'var(--font-b)',transform:'rotate(-90 15 '+ymid+')'},'Puntaje Competencia Lectora →'));
+    return h('svg',{viewBox:'0 0 '+W+' '+H,style:{width:'100%',height:'auto',display:'block'}},els); }
+
+  scatterLegend(){ const h=this.h; const co=this.state.cohorts; return h('div',{style:{display:'flex',flexWrap:'wrap',gap:'14px',marginTop:'10px',fontSize:'11.5px',color:'var(--ink2)'}},
+    this.order.map(k=>h('span',{key:k,style:{display:'inline-flex',alignItems:'center',gap:'5px',opacity:co.rec?1:.4}},h('span',{style:{width:'10px',height:'10px',background:this.C[k].color,borderRadius:'50%'}}),this.C[k].name)),
+    h('span',{style:{display:'inline-flex',alignItems:'center',gap:'6px',opacity:co.ant?1:.4}},h('span',{style:{width:'10px',height:'10px',background:this.acc(),borderRadius:'50%',display:'inline-block'}}),'generaciones anteriores')); }
+
+  rangeRail(acc){ const h=this.h; const lo=150,hi=850; const pc=v=>((v-lo)/(hi-lo)*100); const strip=(p,color,muted)=>{ const p10=Math.max(lo,p.mean-1.28*p.sd),p90=Math.min(hi,p.mean+1.28*p.sd);
+    return h('div',{key:p.k,style:{marginBottom:'12px'}},
+      h('div',{style:{display:'flex',justifyContent:'space-between',marginBottom:'4px'}},
+        h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'11px',color:'var(--ink)'}},(p.sigla?p.sigla+' · ':'')+p.name),
+        h('span',{style:{fontSize:'10px',color:'var(--slate)'}},'mediana '+p.median)),
+      h('div',{style:{position:'relative',height:'12px',background:'var(--cream200)',borderRadius:'6px'}},
+        h('div',{style:{position:'absolute',left:pc(p10)+'%',width:(pc(p90)-pc(p10))+'%',top:0,bottom:0,background:color,opacity:muted?0.3:0.42,borderRadius:'6px'}}),
+        h('div',{style:{position:'absolute',left:pc(p.median)+'%',top:'-2px',width:'2px',height:'16px',background:muted?'var(--slate)':color,transform:'translateX(-1px)'}}))); };
+    const out=this.pruebas.map(p=>strip(p,acc,false));
+    if(this.showCtx()){ out.push(h('div',{key:'ch',style:{margin:'12px 0 8px',fontFamily:'var(--font-d)',fontWeight:700,fontSize:'11px',color:'var(--slate)'}},'Contexto')); this.contexto.forEach(p=>out.push(strip(p,'#8A7C86',true))); }
+    out.push(h('div',{key:'ft',style:{fontSize:'10px',color:'var(--slate)',marginTop:'6px'}},'Barra: rango p10–p90 · marca: mediana · escala 100–1000'));
+    return h('div',{},out); }
+
+  lineChart(series,yMin,yMax,unit,W,H,ticks){ const h=this.h; const padL=(W>400?64:40),padR=16,padT=12,padB=28; const yrs=this.histYears; const sx=i=>padL+i/(yrs.length-1)*(W-padL-padR); const sy=v=>padT+(yMax-v)/(yMax-yMin)*(H-padT-padB); const els=[];
+    ticks.forEach(t=>{ els.push(h('line',{key:'g'+t,x1:padL,y1:sy(t),x2:W-padR,y2:sy(t),stroke:'var(--line)',strokeWidth:1})); els.push(h('text',{key:'yl'+t,x:padL-14,y:sy(t)+3,textAnchor:'end',fontSize:9,fill:'var(--slate)',fontFamily:'var(--font-b)'},t+(unit||''))); });
+    yrs.forEach((y,i)=>els.push(h('text',{key:'xl'+i,x:sx(i),y:H-8,textAnchor:'middle',fontSize:9.5,fill:'var(--slate)',fontFamily:'var(--font-b)'},y)));
+    series.forEach((s,si)=>{ const poly=s.vals.map((v,i)=>sx(i).toFixed(1)+','+sy(v).toFixed(1)).join(' '); els.push(h('polyline',{key:'p'+si,points:poly,fill:'none',stroke:s.color,strokeWidth:2.2,strokeDasharray:s.dashed?'5 4':'0'})); const below=s.labelPos==='below'; s.vals.forEach((v,i)=>{ els.push(h('circle',{key:'d'+si+'_'+i,cx:sx(i),cy:sy(v),r:4.5,fill:s.color})); els.push(h('text',{key:'t'+si+'_'+i,x:sx(i),y:sy(v)+(below?15:-9),textAnchor:'middle',fontSize:10.5,fontWeight:700,fill:s.color,fontFamily:'var(--font-d)'},v+(unit||''))); }); });
+    return h('svg',{viewBox:'0 0 '+W+' '+H,style:{width:'100%',height:'auto',display:'block'}},els); }
+
+  cobHistView(acc){ const h=this.h; const mat2='#B0855F';
+    const legend=h('div',{style:{display:'flex',gap:'18px',flexWrap:'wrap',marginBottom:'10px',fontSize:'11.5px',color:'var(--ink2)'}},
+      h('span',{style:{display:'inline-flex',alignItems:'center',gap:'6px'}},h('span',{style:{width:'16px',height:'3px',background:acc,display:'inline-block'}}),'Rindió al menos una prueba (% de egresados)'),
+      h('span',{style:{display:'inline-flex',alignItems:'center',gap:'6px'}},h('span',{style:{width:'16px',height:'3px',background:mat2,display:'inline-block',borderTop:'2px dashed '+mat2}}),'Matriculado en educación superior (% de egresados)'));
+    const rezStrip=h('div',{style:{marginTop:'16px',borderTop:'1px solid var(--line)',paddingTop:'12px'}},
+      h('div',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'11px',color:acc,marginBottom:'8px'}},'Generaciones anteriores por año · siempre visible'),
+      h('div',{style:{display:'flex',gap:'10px',flexWrap:'wrap'}}, this.histYears.map((y,i)=>h('div',{key:y,style:{flex:'1 1 80px',border:'1px dashed '+acc,background:this.accSoft(),borderRadius:'6px',padding:'8px 10px',textAlign:'center'}},
+        h('div',{style:{fontSize:'11px',color:'var(--slate)'}},y),
+        h('div',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'17px',color:acc}},this.fmt(this.cobHist.rez[i]))))));
+    return this.card({},[ this.cardTitle('Participación en el tiempo','SLEP Costa Central · 2020–2024 · promoción de cada año'),
+      legend,
+      this.lineChart([{color:acc,vals:this.cobHist.rin,labelPos:'above'},{color:mat2,vals:this.cobHist.mat,dashed:true,labelPos:'below'}],0,80,'%',720,240,[0,20,40,60,80]),
+      rezStrip ]); }
+
+  renHistView(acc){ const h=this.h; const items=this.pruebas.map(p=>h('div',{key:p.k,style:{border:'1px solid var(--line)',borderRadius:'8px',padding:'12px',background:'#fff',boxShadow:'0 1px 4px rgba(74,39,70,.06)'}},
+    h('div',{style:{display:'flex',alignItems:'center',gap:'7px',marginBottom:'6px'}}, p.sigla?h('span',{style:{background:acc,color:'#fff',fontFamily:'var(--font-d)',fontWeight:700,fontSize:'10px',padding:'2px 6px',borderRadius:'3px'}},p.sigla):h('span',{style:{width:'10px',height:'10px',background:acc,borderRadius:'2px'}}), h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'12px',color:'var(--ink)'}},p.name)),
+    this.lineChart([{color:acc,vals:this.renHist[p.k]}],480,600,'',250,140,[500,550,600])));
+    return h('div',{},[ h('div',{key:'n',style:{fontSize:'11px',color:'var(--slate)',marginBottom:'12px'}},'Mediana de puntaje por prueba, 2020–2024 · escala acotada a 480–600 para ver la tendencia · NEM y Ranking se omiten en la serie histórica.'),
+      h('div',{key:'g',style:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'12px'}},items) ]); }
+
+  estabRows(){ return this.estabsCache || (this.estabsCache=[
+    {id:'e1',n:'Liceo Bicentenario de Viña del Mar',com:'vina',egr:210,ins:190,rin:176,val:168,pos:130,sel:98,mat:88,ren:{cl:562,m1:548,m2:578,cie:551,his:540,nem:602,rank:628}},
+    {id:'e2',n:'Liceo Politécnico Miraflores',com:'vina',egr:180,ins:132,rin:118,val:110,pos:70,sel:44,mat:38,ren:{cl:512,m1:498,m2:null,cie:505,his:496,nem:572,rank:596}},
+    {id:'e3',n:'Liceo Comercial de Viña del Mar',com:'vina',egr:165,ins:120,rin:104,val:98,pos:60,sel:36,mat:30,ren:{cl:520,m1:505,m2:null,cie:null,his:500,nem:576,rank:600}},
+    {id:'e4',n:'Colegio Jorge Alessandri',com:'concon',egr:120,ins:104,rin:96,val:92,pos:66,sel:48,mat:42,ren:{cl:540,m1:526,m2:560,cie:530,his:518,nem:590,rank:612}},
+    {id:'e5',n:'Liceo Técnico de Concón',com:'concon',egr:98,ins:70,rin:60,val:56,pos:34,sel:20,mat:16,ren:{cl:505,m1:492,m2:null,cie:498,his:488,nem:566,rank:590}},
+    {id:'e6',n:'Liceo Politécnico de Quintero',com:'quintero',egr:140,ins:104,rin:92,val:86,pos:56,sel:34,mat:28,ren:{cl:516,m1:502,m2:544,cie:510,his:500,nem:574,rank:598}},
+    {id:'e7',n:'Escuela Industrial de Quintero',com:'quintero',egr:86,ins:58,rin:48,val:44,pos:26,sel:14,mat:11,ren:{cl:500,m1:486,m2:null,cie:null,his:482,nem:560,rank:586}},
+    {id:'e8',n:'Liceo Sargento Aldea',com:'puchuncavi',egr:74,ins:52,rin:44,val:40,pos:24,sel:14,mat:10,ren:{cl:498,m1:484,m2:null,cie:null,his:480,nem:558,rank:584}},
+    {id:'e9',n:'Liceo La Greda',com:'puchuncavi',egr:60,ins:40,rin:32,val:28,pos:16,sel:8,mat:6,ren:{cl:492,m1:478,m2:null,cie:null,his:476,nem:552,rank:580}},
+    {id:'e10',n:'Liceo Bicentenario de Quintero',com:'quintero',egr:150,ins:128,rin:118,val:112,pos:82,sel:60,mat:54,ren:{cl:548,m1:534,m2:566,cie:540,his:528,nem:596,rank:620}}
+  ]); }
+  heatColor(t){ if(t==null||isNaN(t)) return 'transparent'; const s=[[214,69,69],[236,228,208],[13,130,190]]; let a,b,f; if(t<=0.5){a=s[0];b=s[1];f=t*2;} else {a=s[1];b=s[2];f=(t-0.5)*2;} const c=a.map((x,i)=>Math.round(x+(b[i]-x)*f)); return 'rgba('+c[0]+','+c[1]+','+c[2]+',0.45)'; }
+  heatLegend(dirLabel){ const h=this.h; const grad='linear-gradient(90deg,rgba(214,69,69,.5),rgba(236,228,208,.45),rgba(13,130,190,.45))'; return h('span',{style:{display:'inline-flex',alignItems:'center',gap:'8px',fontSize:'11px',color:'var(--slate)'}}, h('span',{},dirLabel||'menor (más alerta)'), h('span',{style:{width:'90px',height:'12px',borderRadius:'3px',background:grad,border:'1px solid var(--line)'}}), h('span',{},'mayor')); }
+
+  cobComp(acc){ const h=this.h; const E=this.estabRows(); const keys=['ins','rin','val','pos','sel','mat'];
+    const heads=['Establecimiento','Egresados','Inscritos','Rindió','Válidos','Postuló','Seleccionado','Matriculado'];
+    const ranges={}; keys.forEach(k=>{ const vs=E.filter(e=>e[k]>=10).map(e=>e[k]/e.egr*100); ranges[k]=[Math.min.apply(null,vs),Math.max.apply(null,vs)]; });
+    const norm=(k,pct)=>{ const r=ranges[k]; return r[1]>r[0]?(pct-r[0])/(r[1]-r[0]):0.5; };
+    const th=heads.map((t,i)=>h('th',{key:i,style:{textAlign:i===0?'right':'center',padding:'8px 9px',fontFamily:'var(--font-b)',fontWeight:700,fontSize:'10.5px',color:'var(--slate)',borderBottom:'2px solid '+acc,whiteSpace:'nowrap'}},t));
+    const supp=h('span',{style:{fontSize:'10px',fontWeight:700,color:'var(--slate)'}},'n<10');
+    const nameCell=(e)=>h('td',{style:{padding:'9px 9px',textAlign:'right',borderBottom:'1px solid var(--line)'}},h('span',{style:{display:'inline-flex',alignItems:'center',gap:'7px',justifyContent:'flex-end'}},h('span',{style:{width:'10px',height:'10px',flex:'none',background:this.C[e.com].color,borderRadius:'2px'}}),h('span',{style:{display:'flex',flexDirection:'column',lineHeight:1.2,alignItems:'flex-end'}},h('span',{style:{fontFamily:'var(--font-b)',fontWeight:600,fontSize:'12.5px',color:'var(--ink)'}},e.n),h('span',{style:{fontSize:'10px',color:'var(--slate)'}},this.C[e.com].name))));
+    const mkRow=(e)=>h('tr',{key:e.id},
+      nameCell(e),
+      h('td',{style:{padding:'9px 9px',textAlign:'center',borderBottom:'1px solid var(--line)',fontVariantNumeric:'tabular-nums',fontFamily:'var(--font-b)',fontWeight:600,fontSize:'13px',color:'var(--ink2)'}},this.fmt(e.egr)),
+      keys.map(k=>{ const cnt=e[k]; if(cnt<10) return h('td',{key:k,style:{padding:'9px 9px',textAlign:'center',background:'#E7E1D2',borderBottom:'1px solid var(--line)'}},supp); const pct=cnt/e.egr*100; return h('td',{key:k,style:{padding:'9px 9px',textAlign:'center',borderBottom:'1px solid var(--line)',fontVariantNumeric:'tabular-nums',background:this.heatColor(norm(k,pct))}}, h('span',{style:{fontFamily:'var(--font-b)',fontWeight:600,fontSize:'13px',color:'var(--ink)'}},Math.round(pct)+'%'), h('span',{style:{fontSize:'10.5px',color:'var(--ink2)'}},' ('+this.fmt(cnt)+')')); }));
+    const tot={egr:0}; keys.forEach(k=>tot[k]=0); E.forEach(e=>{ tot.egr+=e.egr; keys.forEach(k=>tot[k]+=e[k]); });
+    const totRow=h('tr',{key:'tot',style:{background:'var(--cream50)'}},
+      h('td',{style:{padding:'9px 9px',textAlign:'right',borderTop:'2px solid var(--line2)',fontFamily:'var(--font-d)',fontWeight:700,fontSize:'12.5px',color:'var(--ink)'}},'Total · 10 establecimientos'),
+      h('td',{style:{padding:'9px 9px',textAlign:'center',borderTop:'2px solid var(--line2)',fontFamily:'var(--font-b)',fontWeight:700,fontSize:'13px',color:'var(--ink)'}},this.fmt(tot.egr)),
+      keys.map(k=>h('td',{key:k,style:{padding:'9px 9px',textAlign:'center',borderTop:'2px solid var(--line2)',fontVariantNumeric:'tabular-nums'}},h('span',{style:{fontFamily:'var(--font-b)',fontWeight:700,fontSize:'13px',color:'var(--ink)'}},Math.round(tot[k]/tot.egr*100)+'%'),h('span',{style:{fontSize:'10.5px',color:'var(--slate)'}},' ('+this.fmt(tot[k])+')'))));
+    return this.card({},[
+      h('div',{key:'lg',style:{display:'flex',alignItems:'center',gap:'16px',marginBottom:'12px',flexWrap:'wrap',fontSize:'11px',color:'var(--slate)'}},
+        h('span',{},'Cada celda: % de egresados (n). Heatmap por columna: menor proporción = más alerta.'),
+        this.heatLegend('menor % (más alerta)'),
+        h('span',{style:{display:'inline-flex',alignItems:'center',gap:'6px'}},h('span',{style:{width:'22px',height:'14px',borderRadius:'3px',background:'#E7E1D2',display:'inline-block'}}),'dato suprimido (n < 10)')),
+      h('div',{key:'w',style:{overflowX:'auto'}},h('table',{style:{width:'100%',borderCollapse:'collapse',minWidth:'860px'}},h('thead',{},h('tr',{},th)),h('tbody',{},E.map(mkRow).concat([totRow]))))]); }
+
+  renComp(acc){ const h=this.h; const E=this.estabRows(); const cols=this.renCols; const share={}; this.pruebas.concat(this.contexto).forEach(p=>share[p.k]=p.n/1339);
+    const nOf=(e,k)=>Math.round(e.val*share[k]);
+    const heatKeys=['cl','m1','m2','cie','his'];
+    const ranges={}; heatKeys.forEach(k=>{ const vs=E.filter(e=>e.ren[k]!=null && nOf(e,k)>=10).map(e=>e.ren[k]); ranges[k]=[Math.min.apply(null,vs),Math.max.apply(null,vs)]; });
+    const norm=(k,v)=>{ const r=ranges[k]; return r[1]>r[0]?(v-r[0])/(r[1]-r[0]):0.5; };
+    const heads=['Establecimiento'].concat(cols.map(c=>c[1]));
+    const th=heads.map((t,i)=>h('th',{key:i,style:{textAlign:i===0?'right':'center',padding:'8px 9px',fontFamily:'var(--font-b)',fontWeight:700,fontSize:'10.5px',color:i>=6?'var(--slate)':'var(--ink2)',borderBottom:'2px solid '+acc,borderLeft:i===6?'1px solid var(--line2)':'none',whiteSpace:'nowrap'}},t));
+    const supp=h('span',{style:{fontSize:'10px',fontWeight:700,color:'var(--slate)'}},'n<10');
+    const nameCell=(e)=>h('td',{style:{padding:'9px 9px',textAlign:'right',borderBottom:'1px solid var(--line)'}},h('span',{style:{display:'inline-flex',alignItems:'center',gap:'7px',justifyContent:'flex-end'}},h('span',{style:{width:'10px',height:'10px',flex:'none',background:this.C[e.com].color,borderRadius:'2px'}}),h('span',{style:{display:'flex',flexDirection:'column',lineHeight:1.2,alignItems:'flex-end'}},h('span',{style:{fontFamily:'var(--font-b)',fontWeight:600,fontSize:'12.5px',color:'var(--ink)'}},e.n),h('span',{style:{fontSize:'10px',color:'var(--slate)'}},this.C[e.com].name))));
+    const mkRow=(e)=>h('tr',{key:e.id}, nameCell(e), cols.map((c,j)=>{ const k=c[0]; const v=e.ren[k]; const n=nOf(e,k); const isCtx=j>=5; if(v==null||n<10) return h('td',{key:k,style:{padding:'9px 9px',textAlign:'center',background:'#E7E1D2',borderBottom:'1px solid var(--line)',borderLeft:j===5?'1px solid var(--line2)':'none'}},supp); const bg=isCtx?'transparent':this.heatColor(norm(k,v)); return h('td',{key:k,style:{padding:'9px 9px',textAlign:'center',borderBottom:'1px solid var(--line)',borderLeft:j===5?'1px solid var(--line2)':'none',fontVariantNumeric:'tabular-nums',background:bg}}, h('span',{style:{fontFamily:'var(--font-b)',fontWeight:600,fontSize:'13px',color:isCtx?'var(--slate)':'var(--ink)'}},v), h('span',{style:{fontSize:'10.5px',color:'var(--ink2)'}},' ('+this.fmt(n)+')')); }));
+    return this.card({},[
+      h('div',{key:'lg',style:{display:'flex',alignItems:'center',gap:'16px',marginBottom:'12px',flexWrap:'wrap',fontSize:'11px',color:'var(--slate)'}},
+        h('span',{},'Cada celda: mediana de puntaje (n). Heatmap por columna en las pruebas: menor mediana = más alerta. NEM y Ranking van como contexto.'),
+        this.heatLegend('menor puntaje (más alerta)'),
+        h('span',{style:{display:'inline-flex',alignItems:'center',gap:'6px'}},h('span',{style:{width:'22px',height:'14px',borderRadius:'3px',background:'#E7E1D2',display:'inline-block'}}),'dato suprimido (n < 10)')),
+      h('div',{key:'w',style:{overflowX:'auto'}},h('table',{style:{width:'100%',borderCollapse:'collapse',minWidth:'860px'}},h('thead',{},h('tr',{},th)),h('tbody',{},E.map(mkRow))))]); }
+
+  notes(){ const h=this.h; const open=this.state.notesOpen; const acc=this.acc();
+    const head=h('button',{onClick:()=>this.setState({notesOpen:!open}),style:{width:'100%',display:'flex',alignItems:'center',gap:'10px',background:'var(--cream50)',border:'1px solid var(--line)',borderTop:'2px solid var(--plum)',borderRadius:open?'6px 6px 0 0':'6px',padding:'14px 18px',cursor:'pointer',textAlign:'left'}},
+      h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'13px',color:'var(--plum)',flex:1}},'Notas metodológicas'),
+      h('span',{style:{fontSize:'12px',color:'var(--slate)'}}, open?'Ocultar':'Fuente, cobertura temporal, supresión de celdas'),
+      h('span',{style:{fontSize:'13px',color:'var(--plum)',transform:open?'rotate(180deg)':'none',transition:'transform .15s'}},'▾'));
+    const item=(t,d,em)=>h('div',{key:t},h('div',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'12px',color:em?acc:'var(--ink)',marginBottom:'3px'}},t),h('div',{style:{fontSize:'12px',color:'var(--slate)',lineHeight:1.55}},d));
+    const body=open?h('div',{style:{border:'1px solid var(--line)',borderTop:0,borderRadius:'0 0 6px 6px',padding:'18px','background':'#fff'}},
+      h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(270px,1fr))',gap:'16px 34px'}},
+        item('Fuente','DEMRE — bases de datos públicas del proceso de admisión: inscripción, rendición, puntajes, postulación, selección y matrícula.'),
+        item('Cobertura temporal','Proceso de admisión 2024 en la vista actual; serie 2020–2024 en la vista histórica. El denominador del embudo son las y los egresados de enseñanza media del año.'),
+        item('Generaciones anteriores','Personas que rinden la PAES sin establecimiento de egreso vigente ese año. Se reportan como categoría propia y siempre visible; nunca se ocultan ni se tratan como error.',true),
+        item('Supresión de celdas','Las celdas con n < 10 no muestran su valor exacto: se muestran como «dato suprimido» en gris plano. Nunca se dejan vacías ni como error visual.',true),
+        item('Cohortes','El filtro de cohorte separa la generación más reciente (egresados 2024) de las generaciones anteriores (cohortes previas). Se pueden ver por separado o en conjunto.'),
+        item('Rendimiento','Puntajes en escala 100–1000 por prueba (Competencia Lectora, Matemática 1 y 2, Ciencias, Historia y Ciencias Sociales). NEM y Ranking se muestran como contexto.'),
+        item('Maqueta','Cifras ilustrativas para evaluar la interfaz; no son datos oficiales. La estructura de la interfaz sí es la propuesta real a evaluar.'))):null;
+    return h('div',{},head,body); }
+
+  cobTerr(acc){ const h=this.h; const co=this.state.cohorts;
+    if(this.state.modo==='hist') return this.cobHistView(acc);
+    const stages=this.funnelStages(co);
+    return h('div',{},
+      this.card({},[this.cardTitle('Embudo de participación','SLEP Costa Central · admisión 2024 · '+ (co.rec&&co.ant?'todas las cohortes':(co.rec?'solo generación más reciente':'solo generaciones anteriores'))),this.funnelTrapezoid(stages,acc)]),
+      h('div',{style:{marginTop:'14px'}},this.rezSlab(acc)),
+      h('div',{style:{marginTop:'18px'}}, this.priorityKpis(acc,stages[stages.length-1].n)),
+      h('div',{style:{marginTop:'14px'}},this.card({},[this.cardTitle('Retención por comuna','Cada línea: egresados (100%) → matriculados'),this.comunaSparks(co)]))); }
+
+  priorityKpis(acc,matTotal){ const h=this.h;
+    const defs=[{t:'1.ª preferencia',s:0.47},{t:'2.ª preferencia',s:0.25},{t:'3.ª preferencia',s:0.15},{t:'4.ª o inferior',s:0.13}];
+    let run=0; const ns=defs.map((d,i)=>{ const n = i===defs.length-1 ? (matTotal-run) : Math.round(matTotal*d.s); run+=n; return n; });
+    const grid=h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:'12px'}},
+      defs.map((d,i)=>{ const n=ns[i]; const pct=matTotal? n/matTotal*100 : 0; const supp=n<10;
+        return h('div',{key:i,style:{border:'1px solid var(--line)',borderTop:'3px solid '+acc,borderRadius:'8px',padding:'14px 16px',background:'#fff',boxShadow:'0 1px 4px rgba(74,39,70,.06)'}},
+          h('div',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'11px',color:'var(--slate)',marginBottom:'8px'}},d.t),
+          supp
+            ? h('div',{style:{height:'62px',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'4px',background:'#E7E1D2',fontFamily:'var(--font-d)',fontWeight:700,fontSize:'12px',color:'var(--slate)'}},'Dato suprimido')
+            : h('div',{},
+                h('div',{style:{display:'flex',alignItems:'baseline',gap:'6px'}},
+                  h('span',{style:{fontFamily:'var(--font-b)',fontWeight:700,fontSize:'28px',color:acc,lineHeight:1}},(pct<100?pct.toFixed(1).replace('.',','):'100')+'%'),
+                  h('span',{style:{fontSize:'12px',color:'var(--slate)'}},'('+this.fmt(n)+')')),
+                h('div',{style:{fontSize:'11.5px',color:'var(--slate)',marginTop:'4px'}},'de los matriculados'),
+                h('div',{style:{height:'5px',background:'var(--cream200)',borderRadius:'3px',marginTop:'10px',overflow:'hidden'}}, h('div',{style:{height:'100%',width:pct+'%',background:acc,opacity:(1-i*0.14).toFixed(2)}})))); }));
+    return h('div',{},
+      h('div',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'15px',color:'var(--ink)'}},'Matriculado en educación superior'),
+      h('div',{style:{fontSize:'11px',color:'var(--slate)',margin:'2px 0 12px'}},'Según la prioridad de la carrera en que quedó · '+this.fmt(matTotal)+' matriculados en total'),
+      grid); }
+
+  depOf(e){ const m={e1:'Municipal (traspaso a SLEP)',e2:'Particular subvencionado',e3:'Particular subvencionado',e4:'Servicio Local (SLEP)',e5:'Servicio Local (SLEP)',e6:'Municipal (traspaso a SLEP)',e7:'Servicio Local (SLEP)',e8:'Municipal (traspaso a SLEP)',e9:'Servicio Local (SLEP)',e10:'Particular subvencionado'}; return m[e.id]||'Servicio Local (SLEP)'; }
+  showTip(ev,d){ const t=document.getElementById('paesTip'); if(!t) return; t.innerHTML='<div style="font-family:var(--font-d);font-weight:700;font-size:12.5px;color:var(--ink);line-height:1.2;margin-bottom:3px">'+d.est+'</div><div style="font-size:11px;color:var(--slate)">'+d.com+(d.com!=='\u2014'?' \u00b7 ':'')+d.dep+'</div><div style="height:1px;background:var(--line);margin:7px 0"></div><div style="font-size:11px;color:var(--slate);margin-bottom:2px">'+d.prueba+'</div><div style="font-size:11px;color:var(--ink)"><b style="font-family:var(--font-d);font-size:15px">'+d.punt+'</b> puntos \u00b7 '+d.rel+'</div><div style="font-size:10.5px;color:var(--slate);margin-top:5px">'+d.cohorte+'</div>'; t.style.display='block'; const pad=14; let x=ev.clientX+pad,y=ev.clientY+pad; const r=t.getBoundingClientRect(); if(x+r.width>window.innerWidth-8) x=ev.clientX-r.width-pad; if(y+r.height>window.innerHeight-8) y=ev.clientY-r.height-pad; t.style.left=x+'px'; t.style.top=y+'px'; }
+  hideTip(){ const t=document.getElementById('paesTip'); if(t) t.style.display='none'; }
+  buildStripSvg(p,color,muted){ const h=this.h; const W=920,H=84,padL=18,padR=18,padT=18,padB=22,lo=100,hi=1000; const sx=v=>padL+(v-lo)/(hi-lo)*(W-padL-padR); const yTop=padT,yBot=H-padB; const co=this.state.cohorts;
+    let a=(p.k.charCodeAt(0)*131+p.k.length*997)>>>0; const rnd=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};
+    const randn=()=>{let u=0,v=0;while(u===0)u=rnd();while(v===0)v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);};
+    const jit=()=>yTop+4+rnd()*(yBot-yTop-8); const cum=[['vina',0.641],['concon',0.771],['quintero',0.907],['puchuncavi',1.001]]; const els=[];
+    [300,500,700].forEach(g=>{ els.push(h('line',{key:'g'+g,x1:sx(g),y1:yTop,x2:sx(g),y2:yBot,stroke:'var(--line)',strokeWidth:1})); els.push(h('text',{key:'gl'+g,x:sx(g),y:H-6,textAnchor:'middle',fontSize:9,fill:'var(--slate)',fontFamily:'var(--font-b)'},g)); });
+    els.push(h('line',{key:'ax',x1:padL,y1:yBot,x2:W-padR,y2:yBot,stroke:'var(--line2)',strokeWidth:1}));
+    els.push(h('text',{key:'a1',x:padL,y:H-6,textAnchor:'start',fontSize:9,fill:'var(--slate)',fontFamily:'var(--font-b)'},'100')); els.push(h('text',{key:'a9',x:W-padR,y:H-6,textAnchor:'end',fontSize:9,fill:'var(--slate)',fontFamily:'var(--font-b)'},'1000'));
+    const byCom={}; this.estabRows().forEach(e=>{(byCom[e.com]=byCom[e.com]||[]).push(e);});
+    if(co.rec) for(let i=0;i<150;i++){ const r=rnd(); let key='puchuncavi'; for(const c of cum){ if(r<=c[1]){key=c[0];break;} } const base=(this.renM[key]&&this.renM[key][p.k]!=null)?this.renM[key][p.k]:p.mean; let s=base+randn()*p.sd*0.62; s=Math.max(150,Math.min(870,s)); const pv=Math.round(s); const lst=byCom[key]||[]; const est=lst[Math.floor(rnd()*lst.length)]||{n:'\u2014',id:''}; const dd=pv-p.median; const rel=(dd>=0?'+'+dd+' sobre':('\u2212'+Math.abs(dd))+' bajo')+' la mediana '+p.median; els.push(h('circle',{key:'c'+i,cx:sx(s),cy:jit(),r:2.7,fill:muted?color:this.C[key].color,opacity:0.62,style:{cursor:'pointer'},onMouseEnter:(ev)=>{ev.target.setAttribute('r','5');this.showTip(ev,{est:est.n,com:this.C[key].name,dep:this.depOf(est),prueba:p.name,punt:pv,rel:rel,cohorte:'Generación más reciente'});},onMouseLeave:(ev)=>{ev.target.setAttribute('r','2.7');this.hideTip();}})); }
+    if(co.ant) for(let i=0;i<16;i++){ let s=(p.mean-45)+randn()*p.sd*0.7; s=Math.max(160,Math.min(820,s)); const pv=Math.round(s); const dd=pv-p.median; const rel=(dd>=0?'+'+dd+' sobre':('\u2212'+Math.abs(dd))+' bajo')+' la mediana '+p.median; els.push(h('circle',{key:'d'+i,cx:sx(s),cy:jit(),r:3,fill:this.acc(),opacity:0.8,style:{cursor:'pointer'},onMouseEnter:(ev)=>{ev.target.setAttribute('r','5');this.showTip(ev,{est:'Sin establecimiento de egreso vigente',com:'\u2014',dep:'Cohorte previa',prueba:p.name,punt:pv,rel:rel,cohorte:'Generaciones anteriores'});},onMouseLeave:(ev)=>{ev.target.setAttribute('r','3');this.hideTip();}})); }
+    const mx=sx(p.median); els.push(h('line',{key:'md',x1:mx,y1:17,x2:mx,y2:yBot+2,stroke:muted?'var(--slate)':color,strokeWidth:1.8})); els.push(h('text',{key:'mdl',x:mx,y:9,textAnchor:'middle',fontSize:9.5,fontWeight:700,fill:muted?'var(--slate)':color,fontFamily:'var(--font-d)'},'mediana '+p.median));
+    return h('svg',{viewBox:'0 0 '+W+' '+H,style:{width:'100%',height:'auto',display:'block'}},els); }
+
+  stripRow(p,color,muted){ const h=this.h; const n=this.pruebaN(p); const supp=n<10;
+    return h('div',{key:p.k,style:{padding:'12px 0',borderTop:'1px solid var(--line)'}},
+      h('div',{style:{display:'flex',alignItems:'baseline',gap:'9px',marginBottom:'2px'}},
+        p.sigla?h('span',{style:{background:color,color:'#fff',fontFamily:'var(--font-d)',fontWeight:700,fontSize:'10px',padding:'2px 6px',borderRadius:'3px'}},p.sigla):h('span',{style:{width:'10px',height:'10px',background:color,borderRadius:'2px'}}),
+        h('span',{style:{fontFamily:'var(--font-d)',fontWeight:700,fontSize:'13px',color:'var(--ink)',flex:1}},p.name),
+        supp?null:h('span',{style:{fontSize:'11px',color:'var(--slate)'}},'n = '+this.fmt(n)+' · mediana '+p.median+' · promedio '+p.mean)),
+      supp
+        ? h('div',{style:{height:'44px',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'4px',background:'#E7E1D2',fontFamily:'var(--font-d)',fontWeight:700,fontSize:'12px',color:'var(--slate)'}},'Dato suprimido · n < 10')
+        : this.buildStripSvg(p,color,muted)); }
+
+  renTerr(acc){ const h=this.h;
+    if(this.state.modo==='hist') return this.renHistView(acc);
+    const rows=this.pruebas.map(p=>this.stripRow(p,acc,false));
+    if(this.showCtx()){ rows.push(h('div',{key:'ctx',style:{marginTop:'6px',paddingTop:'10px',borderTop:'2px solid var(--line2)',fontFamily:'var(--font-d)',fontWeight:700,fontSize:'11px',color:'var(--slate)'}},'Contexto — NEM y Ranking (no son pruebas PAES)')); this.contexto.forEach(p=>rows.push(this.stripRow(p,'#8A7C86',true))); }
+    const legend=h('div',{style:{display:'flex',flexWrap:'wrap',gap:'14px',marginBottom:'12px',fontSize:'11.5px',color:'var(--ink2)'}},
+      this.order.map(k=>h('span',{key:k,style:{display:'inline-flex',alignItems:'center',gap:'5px',opacity:this.state.cohorts.rec?1:.4}},h('span',{style:{width:'10px',height:'10px',background:this.C[k].color,borderRadius:'50%'}}),this.C[k].name)),
+      h('span',{style:{display:'inline-flex',alignItems:'center',gap:'6px',opacity:this.state.cohorts.ant?1:.4}},h('span',{style:{width:'10px',height:'10px',background:acc,borderRadius:'50%',display:'inline-block'}}),'generaciones anteriores'));
+    return this.card({},[this.cardTitle('Distribución de puntajes por prueba','Cada punto es un estudiante · eje: puntaje 100–1000 · una prueba por fila'), legend, h('div',{key:'rows'},rows)]); }
+
+  iconSvg(paths){ const h=this.h; return h('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round',style:{flex:'none'}}, paths); }
+  exportBar(){ const h=this.h; const acc=this.acc(); const hv=this.state.hoverExp;
+    const btn=(key,label,paths,onClick)=>{ const on=hv===key; return h('button',{key:key,onClick:onClick,onMouseEnter:()=>this.setState({hoverExp:key}),onMouseLeave:()=>this.setState({hoverExp:null}),title:label,'aria-label':label,style:{display:'inline-flex',alignItems:'center',gap:on?'8px':'0',height:'32px',padding:'0 8px',background:on?'#fff':'var(--cream50)',border:'1px solid '+(on?acc:'var(--line2)'),borderRadius:'4px',color:on?acc:'var(--slate)',cursor:'pointer',overflow:'hidden',maxWidth:on?'240px':'34px',transition:'max-width .24s ease, gap .24s ease, color .12s, border-color .12s',fontFamily:'var(--font-b)',fontWeight:600,fontSize:'12px',whiteSpace:'nowrap'}}, this.iconSvg(paths), h('span',{style:{opacity:on?1:0,transition:'opacity .2s'}},label)); };
+    const imgPaths=[React.createElement('rect',{key:1,x:3,y:3,width:18,height:18,rx:2}),React.createElement('circle',{key:2,cx:9,cy:9,r:2}),React.createElement('path',{key:3,d:'m21 15-3.5-3.5L9 20'})];
+    const sheetPaths=[React.createElement('rect',{key:1,x:3,y:3,width:18,height:18,rx:2}),React.createElement('path',{key:2,d:'M3 9h18M3 15h18M9 3v18M15 3v18'})];
+    return h('div',{style:{display:'flex',gap:'10px',alignItems:'center',flex:'none'}}, btn('svg','Descargar gráfico (SVG)',imgPaths,()=>this.exportSVG()), btn('xlsx','Descargar datos (XLSX)',sheetPaths,()=>this.exportXLSX())); }
+  exportBase(){ const f=this.state.foco==='cob'?'cobertura':'rendimiento'; const v=this.state.vista==='comp'?'comparacion':(this.state.modo==='hist'?'historica':'actual'); return 'slep_paes_'+f+'_'+v; }
+  downloadBlob(blob,name){ const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},120); }
+  exportSVG(){ const root=document.getElementById('paesWork'); if(!root){ return; } const svgs=[].slice.call(root.querySelectorAll('svg')); if(!svgs.length){ this.exportXLSX(); return; } const NS='http://www.w3.org/2000/svg'; const pad=24; let y=pad,maxW=0; const groups=[];
+    svgs.forEach(s=>{ const vb=(s.getAttribute('viewBox')||('0 0 '+(s.clientWidth||500)+' '+(s.clientHeight||300))).split(/\s+/).map(Number); const w=vb[2],hh=vb[3]; const g=document.createElementNS(NS,'g'); g.setAttribute('transform','translate('+pad+','+y+')'); const nsvg=document.createElementNS(NS,'svg'); nsvg.setAttribute('width',w); nsvg.setAttribute('height',hh); nsvg.setAttribute('viewBox',vb.join(' ')); const clone=s.cloneNode(true); while(clone.firstChild){ nsvg.appendChild(clone.firstChild); } g.appendChild(nsvg); groups.push(g); y+=hh+pad; if(w>maxW) maxW=w; });
+    const rootSvg=document.createElementNS(NS,'svg'); const totalW=maxW+pad*2; rootSvg.setAttribute('xmlns',NS); rootSvg.setAttribute('width',totalW); rootSvg.setAttribute('height',y); rootSvg.setAttribute('viewBox','0 0 '+totalW+' '+y);
+    const style=document.createElementNS(NS,'style'); style.textContent='svg{--ink:#1C1212;--ink2:#2E2230;--slate:#747474;--line:#E7DFC9;--line2:#C8BDA0;--cream:#FFF6E0;--cream200:#F4E9CC;--paper:#fff;--plum:#153E5E;--font-b:"Museo Sans",system-ui,sans-serif;--font-d:"Museo Sans",system-ui,sans-serif;font-family:"Museo Sans",system-ui,sans-serif;}'; rootSvg.appendChild(style);
+    const bg=document.createElementNS(NS,'rect'); bg.setAttribute('x',0);bg.setAttribute('y',0);bg.setAttribute('width',totalW);bg.setAttribute('height',y);bg.setAttribute('fill','#FFF6E0'); rootSvg.appendChild(bg);
+    groups.forEach(g=>rootSvg.appendChild(g));
+    const xml='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(rootSvg);
+    this.downloadBlob(new Blob([xml],{type:'image/svg+xml'}), this.exportBase()+'.svg'); }
+  crc32(bytes){ let t=this._crcT; if(!t){ t=this._crcT=[]; for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=c&1?(0xEDB88320^(c>>>1)):(c>>>1); t[n]=c>>>0; } } let crc=0^(-1); for(let i=0;i<bytes.length;i++) crc=(crc>>>8)^t[(crc^bytes[i])&0xFF]; return (crc^(-1))>>>0; }
+  makeZip(files){ const enc=new TextEncoder(); const u16=n=>[n&255,(n>>>8)&255]; const u32=n=>[n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]; const chunks=[]; const central=[]; let offset=0;
+    files.forEach(f=>{ const name=enc.encode(f.name); const data=typeof f.data==='string'?enc.encode(f.data):f.data; const crc=this.crc32(data); const lh=[].concat([80,75,3,4],u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0)); chunks.push(new Uint8Array(lh)); chunks.push(name); chunks.push(data); const ch=[].concat([80,75,1,2],u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset)); central.push(new Uint8Array(ch)); central.push(name); offset+=lh.length+name.length+data.length; });
+    let cSize=0; central.forEach(c=>cSize+=c.length); const eocd=[].concat([80,75,5,6],u16(0),u16(0),u16(files.length),u16(files.length),u32(cSize),u32(offset),u16(0)); const all=chunks.concat(central).concat([new Uint8Array(eocd)]); let total=0; all.forEach(a=>total+=a.length); const out=new Uint8Array(total); let p=0; all.forEach(a=>{ out.set(a,p); p+=a.length; }); return new Blob([out],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}); }
+  xmlEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  colRef(c){ let s=''; c++; while(c>0){ const m=(c-1)%26; s=String.fromCharCode(65+m)+s; c=Math.floor((c-1)/26); } return s; }
+  sheetXml(aoa){ let rows=''; aoa.forEach((row,r)=>{ let cells=''; row.forEach((val,c)=>{ const ref=this.colRef(c)+(r+1); if(typeof val==='number' && isFinite(val)){ cells+='<c r="'+ref+'"><v>'+val+'</v></c>'; } else { cells+='<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+this.xmlEsc(val==null?'':val)+'</t></is></c>'; } }); rows+='<row r="'+(r+1)+'">'+cells+'</row>'; }); return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'+rows+'</sheetData></worksheet>'; }
+  currentSheet(){ const co=this.state.cohorts; const foco=this.state.foco,vista=this.state.vista,modo=this.state.modo; let name='Datos',aoa=[];
+    if(foco==='cob'){
+      if(vista==='comp'){ name='Cobertura comparacion'; const E=this.estabRows(); aoa=[['Establecimiento','Comuna','Egresados','Inscritos %','Inscritos n','Rindio %','Rindio n','Validos %','Validos n','Postulo %','Postulo n','Seleccionado %','Seleccionado n','Matriculado %','Matriculado n']]; E.forEach(e=>{ const row=[e.n,this.C[e.com].name,e.egr]; ['ins','rin','val','pos','sel','mat'].forEach(k=>{ if(e[k]<10){ row.push('n<10'); row.push('n<10'); } else { row.push(Math.round(e[k]/e.egr*100)); row.push(e[k]); } }); aoa.push(row); }); }
+      else if(modo==='hist'){ name='Cobertura historica'; aoa=[['Ano','Rindio % de egresados','Matriculado % de egresados','Generaciones anteriores']]; this.histYears.forEach((y,i)=>aoa.push([y,this.cobHist.rin[i],this.cobHist.mat[i],this.cobHist.rez[i]])); }
+      else { name='Cobertura actual'; const st=this.funnelStages(co); aoa=[['Cohorte',(co.rec&&co.ant?'todas':(co.rec?'generacion mas reciente':'generaciones anteriores'))],[],['Etapa','n','% de egresados']]; st.forEach(s=>aoa.push([s.label,s.n,Math.round(s.pct*10)/10])); aoa.push([]); aoa.push(['Generaciones anteriores (siempre visible)',this.rezTotal()]); aoa.push([]); aoa.push(['Matriculado por prioridad','n','% de matriculados']); const mat=st[st.length-1].n; const defs=[['1.a preferencia',0.47],['2.a preferencia',0.25],['3.a preferencia',0.15],['4.a o inferior',0.13]]; let run=0; defs.forEach((d,i)=>{ const nn=i===defs.length-1?(mat-run):Math.round(mat*d[1]); run+=nn; aoa.push([d[0],nn,Math.round(nn/mat*100)]); }); }
+    } else {
+      if(vista==='comp'){ name='Rendimiento comparacion'; const E=this.estabRows(); const share={}; this.pruebas.concat(this.contexto).forEach(p=>share[p.k]=p.n/1339); aoa=[['Establecimiento','Comuna','CL mediana','CL n','M1 mediana','M1 n','M2 mediana','M2 n','Ciencias mediana','Ciencias n','Historia mediana','Historia n','NEM mediana','Ranking mediana']]; E.forEach(e=>{ const row=[e.n,this.C[e.com].name]; ['cl','m1','m2','cie','his'].forEach(k=>{ const n=Math.round(e.val*share[k]); if(e.ren[k]==null||n<10){ row.push('n<10'); row.push('n<10'); } else { row.push(e.ren[k]); row.push(n); } }); row.push(e.ren.nem==null?'n<10':e.ren.nem); row.push(e.ren.rank==null?'n<10':e.ren.rank); aoa.push(row); }); }
+      else if(modo==='hist'){ name='Rendimiento historico'; aoa=[['Ano','CL','M1','M2','Ciencias','Historia']]; this.histYears.forEach((y,i)=>aoa.push([y,this.renHist.cl[i],this.renHist.m1[i],this.renHist.m2[i],this.renHist.cie[i],this.renHist.his[i]])); }
+      else { name='Rendimiento actual'; aoa=[['Prueba','n','Mediana','Promedio']]; this.pruebas.forEach(p=>aoa.push([p.name,this.pruebaN(p),p.median,p.mean])); this.contexto.forEach(p=>aoa.push([p.name+' (contexto)',this.pruebaN(p),p.median,p.mean])); }
+    }
+    return {name:name,aoa:aoa}; }
+  exportXLSX(){ const sh=this.currentSheet(); const nm=this.xmlEsc(sh.name.slice(0,31)); const files=[
+    {name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'},
+    {name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+    {name:'xl/workbook.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="'+nm+'" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+    {name:'xl/_rels/workbook.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'},
+    {name:'xl/worksheets/sheet1.xml',data:this.sheetXml(sh.aoa)}
+  ]; this.downloadBlob(this.makeZip(files), this.exportBase()+'.xlsx'); }
+
+  renderVals(){ const acc=this.acc(),soft=this.accSoft(); const foco=this.state.foco,vista=this.state.vista,modo=this.state.modo; let workTitle,workSub,workEl,note;
+    if(foco==='cob'){
+      if(vista==='terr'){
+        if(modo==='hist'){ workTitle='Cobertura en el tiempo'; workSub='SLEP Costa Central · participación PAES · 2020–2024'; note='Serie histórica por año de admisión. La categoría de generaciones anteriores se muestra siempre, nunca oculta ni tratada como error.'; }
+        else { workTitle='Embudo de participación PAES'; workSub='SLEP Costa Central · egresados 2024 → matrícula en educación superior · con desglose por comuna'; note='La categoría de generaciones anteriores —quienes rinden sin establecimiento de egreso vigente— se muestra siempre, nunca oculta ni tratada como error. El filtro de cohorte permite verlas por separado.'; }
+        workEl=this.cobTerr(acc);
+      } else { workTitle='Cobertura — comparación entre establecimientos'; workSub='Embudo de participación por establecimiento · admisión 2024 · porcentaje (n)'; note='Comparación en porcentaje sobre egresados, con el número de casos entre paréntesis: % (n). Es más justo comparar por porcentaje cuando los territorios tienen tamaños muy distintos.'; workEl=this.cobComp(acc); }
+    } else {
+      if(vista==='terr'){
+        if(modo==='hist'){ workTitle='Rendimiento en el tiempo'; workSub='SLEP Costa Central · mediana por prueba · 2020–2024'; note='Serie histórica de la mediana de puntaje por prueba. Escala acotada para leer la tendencia.'; }
+        else { workTitle='Distribución de puntajes PAES'; workSub='SLEP Costa Central · por prueba · escala 100–1000 · NEM y Ranking como contexto'; note='Escala 100–1000. Las celdas con n bajo el umbral (n < 10) se muestran como «dato suprimido» en gris plano; nunca se dejan vacías.'; }
+        workEl=this.renTerr(acc);
+      } else { workTitle='Rendimiento — comparación entre establecimientos'; workSub='Mediana de puntaje por prueba · admisión 2024 · mediana (n)'; note='Cada celda muestra la mediana de puntaje y, entre paréntesis, el número de casos. Las celdas con n < 10 se suprimen con trama diagonal.'; workEl=this.renComp(acc); }
+    }
+    return { controlsEl:this.controls(), contextEl:this.context(), exportBarEl:this.exportBar(), workTitle:workTitle, workSub:workSub, workEl:workEl, workNoteEl:this.noteStrip(note,acc,soft), notesEl:this.notes() };
+  }
+}
+</script>
+</body>
+</html>
