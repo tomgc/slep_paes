@@ -310,9 +310,9 @@ function viewMeta(ctx){
     return {t:"Cobertura — comparación entre territorios", sub:"Embudo por territorio · admisión "+M.anio_actual+" · porcentaje (n)", note:"Comparación en porcentaje sobre "+(activeCohorte(s)==="actual"?"egresados":"inscritos")+", con el número de casos entre paréntesis: % (n). Celdas con n < "+M.umbral+" se muestran como «"+SUP_TXT+"»."};
   } else {
     if(v==="terr") return m==="hist"
-      ? {t:"Rendimiento en el tiempo", sub:terrName(s.terrSel)+" · media por prueba · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica de la media de puntaje por prueba (escala "+M.escala.min+"–"+M.escala.max+"). La mediana no está disponible en el agregado; se reporta la media."}
-      : {t:"Distribución de puntajes PAES", sub:terrName(s.terrSel)+" · media por prueba · escala "+M.escala.min+"–"+M.escala.max+" · NEM y Ranking como contexto", note:"Se reporta la media por prueba (agregado territorial, no microdato). NEM y Ranking se muestran como contexto (no son pruebas PAES). Celdas con n < "+M.umbral+" se resguardan."};
-    return {t:"Rendimiento — comparación entre territorios", sub:"Media de puntaje por prueba · admisión "+M.anio_actual+" · media (n)", note:"Cada celda muestra la media de puntaje y, entre paréntesis, el número de casos. Heatmap por columna: menor media = más alerta. NEM y Ranking van como contexto."};
+      ? {t:"Rendimiento en el tiempo", sub:terrName(s.terrSel)+" · media por prueba · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica de la media del mejor puntaje vigente por prueba (mejor de las últimas 4 rendiciones consecutivas, normativa DEMRE; escala "+M.escala.min+"–"+M.escala.max+"). La mediana no está disponible en el agregado; se reporta la media."}
+      : {t:"Distribución de puntajes PAES", sub:terrName(s.terrSel)+" · media por prueba · escala "+M.escala.min+"–"+M.escala.max+" · NEM y Ranking como contexto", note:"Se reporta la media del mejor puntaje vigente por prueba: el mejor puntaje de cada prueba entre las últimas 4 rendiciones consecutivas (invierno/regular × proceso actual y anterior), según la normativa DEMRE («puntaje bloque»). Agregado territorial, no microdato. NEM y Ranking se muestran como contexto (no son pruebas PAES). Celdas con n < "+M.umbral+" se resguardan."};
+    return {t:"Rendimiento — comparación entre territorios", sub:"Media de puntaje por prueba · admisión "+M.anio_actual+" · media (n)", note:"Cada celda muestra la media del mejor puntaje vigente por prueba (mejor de las últimas 4 rendiciones consecutivas —invierno/regular × actual/anterior—, normativa DEMRE) y, entre paréntesis, el número de casos. Heatmap por columna: menor media = más alerta. NEM y Ranking van como contexto."};
   }
 }
 function ResultsSection(ctx){
@@ -616,7 +616,7 @@ function RenComp(ctx){
     return h("tr",{key:id}, nameCell(id,idx), cells); });
   return card({},[
     h("div",{key:"lg",style:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px",flexWrap:"wrap",fontSize:"var(--fs-caption)",color:"var(--slate)"}},
-      h("span",{},"Cada celda: media de puntaje (n). Heatmap por columna en las pruebas: menor media = más alerta. NEM y Ranking van como contexto."),
+      h("span",{},"Cada celda: media del mejor puntaje vigente por prueba (n) —mejor de las últimas 4 rendiciones consecutivas, normativa DEMRE—. Heatmap por columna en las pruebas: menor media = más alerta. NEM y Ranking van como contexto."),
       heatLegend("menor media (más alerta)"),
       h("span",{style:{display:"inline-flex",alignItems:"center",gap:"6px"}},h("span",{style:{width:"22px",height:"14px",borderRadius:"3px",background:"#E7E1D2",display:"inline-block"}}),SUP_TXT)),
     h("div",{key:"w",style:{overflowX:"auto"}}, h("table",{style:{width:"100%",minWidth:"760px"}}, h("thead",{},h("tr",{},th)), h("tbody",{},rows)))]);
@@ -797,7 +797,7 @@ function Notes(ctx){
       item("Cobertura temporal","Procesos de admisión "+M.anios[0]+"–"+M.anios[M.anios.length-1]+". La vista actual usa "+M.anio_actual+"; la histórica, toda la serie. El denominador del embudo son las y los egresados de enseñanza media del año."),
       item("Cohortes anteriores","Personas que rinden la PAES habiendo egresado de enseñanza media en años anteriores (no la generación fresca del año previo). Se territorializan por su establecimiento educacional de egreso, igual que la cohorte actual, y el control de cohorte permite verlas por separado, ver solo la cohorte actual, o sumar ambas.",true),
       item("Resguardo de celdas","Las celdas con menos de "+M.umbral+" casos (n < "+M.umbral+") no muestran su valor: aparecen como «"+SUP_TXT+"» en gris plano. Nunca se dejan vacías ni como error visual.",true),
-      item("Rendimiento","Se reporta la media de puntaje por prueba en escala "+M.escala.min+"–"+M.escala.max+" (Competencia Lectora, Matemática 1 y 2, Ciencias, Historia y Ciencias Sociales). La mediana y la desviación no están disponibles en el agregado. NEM y Ranking se muestran como contexto."),
+      item("Rendimiento","Se reporta la media del mejor puntaje vigente por prueba en escala "+M.escala.min+"–"+M.escala.max+" (Competencia Lectora, Matemática 1 y 2, Ciencias, Historia y Ciencias Sociales). «Vigente» = el mejor puntaje de cada prueba entre las últimas 4 rendiciones consecutivas (invierno/regular × proceso actual y anterior), regla oficial DEMRE («puntaje bloque»). La mediana y la desviación no están disponibles en el agregado. NEM y Ranking se muestran como contexto."),
       item("Modelo de puntajes","Los puntajes PAES se construyen con el modelo de Rasch (teoría de respuesta al ítem), comparables entre aplicaciones. No se asume azar ni discriminación por ítem en esta presentación."),
       item("Nivel territorial","El motor opera a nivel nacional, región, SLEP y comuna. No se identifica ni se reporta ningún establecimiento educacional individual."))):null;
   return h("div",{},head,body);

@@ -148,14 +148,17 @@ cc_colores <- c("5109" = "#0062A0",  # Vina del Mar
 cc_orden   <- c("5109", "5103", "5107", "5105")
 
 # ============================================================================
-# Bloque 2 — Rendimiento: quedarse con reg+actual (5 pruebas PAES) + NEM/Ranking
+# Bloque 2 — Rendimiento: mejor puntaje VIGENTE por prueba + NEM/Ranking
 # ============================================================================
-# reg = aplicacion Regular; actual = puntaje de ESTE proceso. NEM/Ranking vienen
-# con tipo_rendicion/vigencia == NA (atributos por persona en 32) -> se incluyen
-# por nombre de prueba. "mate" (INV sin split M1/M2) no aparece bajo reg. Decision
-# documentada: el motor v1 reporta la media reg+actual (foco rendimiento pedido).
+# tipo_rendicion == "vigente" (creado en 32): mejor puntaje de cada prueba entre
+# las ultimas 4 rendiciones consecutivas (REG/INV x ACTUAL/ANTERIOR), regla
+# oficial DEMRE "puntaje bloque" (contexto_paes.md seccion 5; Decision 6 sesion 6,
+# ventana=4 aprobada por el titular). Reemplaza la publicacion anterior de solo
+# reg+actual. NEM/Ranking vienen con tipo_rendicion/vigencia == NA (atributos por
+# persona en 32) -> se incluyen por nombre de prueba. Las filas reg/inv/anterior
+# siguen en el parquet (no publicadas). El embudo/cobertura NO cambia.
 ren_f <- df_ren |>
-  dplyr::filter((tipo_rendicion == "reg" & vigencia == "actual") |
+  dplyr::filter((tipo_rendicion == "vigente" & vigencia == "actual") |
                 prueba %in% c("nem", "ranking")) |>
   dplyr::select(cod_entidad, anio_proceso, prueba, tipo_entidad, cohorte, n, media, suprimida)
 
