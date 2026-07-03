@@ -124,7 +124,21 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 ## Ultimos cambios
 
-1. **Sesion — auditoria de datos pre-push + fix F1/F2 (denominador egresados y
+1. **Sesion — rendimiento publica «mejor puntaje vigente» por prueba (Decision 6,
+   ventana=4).** El foco RENDIMIENTO pasa de publicar solo `reg`+`actual` al mejor
+   puntaje vigente = `max(puntaje)` sobre las 4 casillas `REG/INV × ACTUAL/ANTERIOR`
+   (regla oficial DEMRE «puntaje bloque»; `contexto_paes.md` sec.5; ventana=4
+   aprobada). Fase 0: `PROCEDENCIA_*` no existe en ArchivoC -> se calcula el max.
+   `32` gana bloque `rendimiento_vigente` (`tipo_rendicion="vigente"`, colapsa a 1
+   mejor por persona-prueba antes de promediar; `bind_rows` preserva reg/inv/
+   anterior); `33` filtra `vigente`+actual; motor: 5 notas aclaran la métrica.
+   **Embudo intacto** (Decision 6: personas únicas; 0 cambios en `etapa_*`).
+   Verificado: panel adversarial MATCH TOTAL (22.800 celdas), NEM/Ranking 0,
+   DOM==recálculo, 0 errores. Delta nacional (vigente−reg, todas): +2..+15 pts,
+   ~18-27k personas agregadas/prueba-año (solo-inv + solo-anterior); pocos
+   negativos (CLEC 2023 −0,2; M1 2023 −5,9) por mezcla de cohortes de ventana=4.
+   Commit `2163f69`. Log: `andamios/logs/20260703_rendimiento_vigente_ventana4_log.md`.
+2. **Sesion — auditoria de datos pre-push + fix F1/F2 (denominador egresados y
    1.a prioridad).** Auditoria adversarial en R (4 fases, codigo propio en
    `andamios/auditoria_datos_pre_push/`) hallo: (F1, bloqueante) `etapa_egresados`
    en `32` se indexaba por `agno` (año de egreso) mientras las demas etapas por
@@ -182,27 +196,3 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    «participaciones» (seria falsa). Pendiente: decision del titular (corregir la
    nota vs. cambiar el criterio a participaciones). Log:
    `andamios/logs/20260702_rotulo_p1_convocatoria_log.md`.
-2. **Sesion 4 — motor `33` recreado con datos reales (Camino A).** Tras la
-   detencion de la sesion anterior (el prototipo del handoff asumia un contrato
-   que 32 no produce: 7 etapas con matricula, KPIs de prioridad, nivel
-   establecimiento, strip plots por alumno + tooltip con dependencia = microdato
-   reidentificable, mediana/sd, split rec/ant cruzado), el titular resolvio 4
-   decisiones y confirmo Camino A. `33_generar_html.R` + `33_motor_template.html`
-   recrean el diseno hi-fi del handoff (tokens/chrome/comportamiento) adaptado al
-   agregado real: SOLO agregados (nacional/region/SLEP/comuna + generaciones
-   anteriores), sin microdato, sin nivel establecimiento (POLITICA 6.4), media
-   (no mediana), embudo de 6 etapas (sin matricula), toggle de generaciones
-   anteriores (bucket `rezagados`), comparar hasta 10 territorios (default 4
-   comunas de Costa Central, ampliable a SLEP/region/nacional). React/ReactDOM/
-   D3/pako locales + fuentes gobCL/Museo Sans embebidas base64 + JSON columnar
-   gzip+base64 (136 KB), 0 CDN. Modal de seleccion territorial con busqueda;
-   exportadores SVG y XLSX sin librerias (XLSX valido, abre en `readxl`). Copy de
-   resguardo del patron hermano (`sin dato (resguardo estadistico)`), modelo
-   Rasch en notas. `anio_actual`=2025 (ultimo con denominador de egresados; 2026
-   no trae egresados). Fixes durante verificacion: paren faltante en el modal;
-   hook `useState` movido fuera de `Modal` (violaba rules-of-hooks al render
-   condicional -> React #310); marcado UTF-8 recursivo de literales `.R` (locale
-   C corrompia acentos/ñ via `enc2utf8`). Verificado: `run_all()` completo sin
-   abortar; 6 combinaciones Foco×Vista×Periodo sin error de consola; panel
-   adversarial recalculo 15 cifras (todas MATCH) contra los parquets por codigo
-   independiente. Log: `andamios/logs/20260702_motor_33_datos_reales_log.md`.
