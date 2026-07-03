@@ -390,6 +390,21 @@ if (faltan_31 || faltan_cat) {
       by_base = c("anio_proceso", "prueba", "tipo_rendicion", "vigencia")
     )
 
+  # MEJOR PUNTAJE VIGENTE por prueba (ventana 4 = max sobre las 4 casillas
+  # REG/INV x ACTUAL/ANTERIOR, "ultimas cuatro aplicaciones consecutivas", regla
+  # oficial DEMRE "puntaje bloque"; contexto_paes.md seccion 5 + Guia de datos
+  # abiertos). Se colapsa a UN mejor puntaje por persona-prueba ANTES de promediar
+  # territorialmente (max entre convocatorias y entre proceso actual/anterior).
+  # Excluye "mate" (INV sin split, no homologable a mate1/mate2 sin fuente, B.1).
+  # NO toca el embudo (Decision 6: personas unicas, intacta).
+  rendimiento_vigente <- rend_coh |>
+    dplyr::filter(.data$prueba %in% c("clec", "mate1", "mate2", "cien", "hcsoc")) |>
+    dplyr::summarise(puntaje = max(.data$puntaje),
+                     .by = c("id_aux", "anio_proceso", "rbd", "prueba", "cohorte")) |>
+    agregar_promedio_cohorte(mapa, valor_col = "puntaje",
+                             by_base = c("anio_proceso", "prueba")) |>
+    dplyr::mutate(tipo_rendicion = "vigente", vigencia = "actual")
+
   # NEM y Ranking: atributos por PERSONA -> deduplicar por id_aux+anio antes de
   # promediar; sentinela 0 excluido. Cohorte por anyo_egreso.
   personas_contexto <- rendicion |>
@@ -407,7 +422,8 @@ if (faltan_31 || faltan_cat) {
     agregar_promedio_cohorte(mapa, valor_col = "ptje_ranking", by_base = "anio_proceso") |>
     dplyr::mutate(prueba = "ranking", tipo_rendicion = NA_character_, vigencia = NA_character_)
 
-  rendimiento <- dplyr::bind_rows(rendimiento_puntajes, rendimiento_nem, rendimiento_ranking)
+  rendimiento <- dplyr::bind_rows(rendimiento_puntajes, rendimiento_vigente,
+                                  rendimiento_nem, rendimiento_ranking)
 
   arrow::write_parquet(rendimiento, ruta_int("paes_rendimiento_territorial.parquet"))
   log_msg(sprintf("OK: paes_rendimiento_territorial.parquet (%d filas, %d cols).",
