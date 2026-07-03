@@ -1,13 +1,9 @@
-# Estructura actual — slep_paes
+ESCANEO DE ESTRUCTURA — slep_paes
+Raiz   : /Users/tomgc/Projects/slep_paes
+Fecha  : 2026-07-03 12:45:20
+Totales: 20 carpetas, 109 archivos
+Nota   : Rama B: codigo versionado en el repo; datos reales en la raiz de OneDrive (SLEP_PAES_DATA_ROOT), fuera del repo. 20_insumos/ y 40_salidas/ del repo contienen solo README.md de referencia.
 
-- **Raiz:** `/Users/tomgc/Projects/slep_paes`
-- **Fecha:** 2026-07-03 12:53:06
-- **Totales:** 20 carpetas, 110 archivos
-- **Nota:** Rama B: codigo versionado en el repo; datos reales en la raiz de OneDrive (SLEP_PAES_DATA_ROOT), fuera del repo. 20_insumos/ y 40_salidas/ del repo contienen solo README.md de referencia.
-
-## Arbol
-
-```
 slep_paes/
 ├── .claude/
 │   └── launch.json  (364)
@@ -92,12 +88,12 @@ slep_paes/
 │   │   ├── encargo_mejoras_interfaz_slep_paes.md  (10.8K)
 │   │   └── encargo_suitedoc_slep_paes.md  (8.09K)
 │   ├── estructura/
+│   │   ├── 20260702_100143_estructura.md  (4.11K)
+│   │   ├── 20260702_100143_estructura.txt  (4.13K)
 │   │   ├── 20260703_073155_estructura.md  (5.87K)
 │   │   ├── 20260703_073155_estructura.txt  (5.92K)
-│   │   ├── 20260703_124520_estructura.md  (7.05K)
-│   │   ├── 20260703_124520_estructura.txt  (7.09K)
-│   │   ├── estructura_actual.md  (7.05K)
-│   │   └── estructura_actual.txt  (7.09K)
+│   │   ├── estructura_actual.md  (5.87K)
+│   │   └── estructura_actual.txt  (5.92K)
 │   ├── suite/
 │   │   ├── assets/
 │   │   │   ├── logo-color-stacked.png  (126K)
@@ -122,8 +118,7 @@ slep_paes/
 │   │   ├── traspaso_cierre_v02.md  (41.4K)
 │   │   ├── traspaso_cierre_v03.md  (29.8K)
 │   │   ├── traspaso_cierre_v04.md  (31K)
-│   │   ├── traspaso_cierre_v05.md  (42.5K)
-│   │   └── traspaso_cierre_v06.md  (39.3K)
+│   │   └── traspaso_cierre_v05.md  (42.5K)
 │   └── .DS_Store  (10K)
 ├── docs/
 │   ├── .gitkeep  (0)
@@ -139,21 +134,17 @@ slep_paes/
 ├── LICENSE  (1.9K)
 ├── README.md  (5.47K)
 └── slep_paes.Rproj  (220)
-```
 
-## Conteo por extension
-
-| Extension | Archivos |
-|---|---|
-| md | 48 |
-| r | 18 |
-| (sin extension) | 11 |
-| otf | 11 |
-| html | 8 |
-| js | 4 |
-| png | 3 |
-| txt | 3 |
-| css | 1 |
-| example | 1 |
-| json | 1 |
-| rproj | 1 |
+Conteo por extension:
+  md                 47
+  r                  18
+  (sin extension)    11
+  otf                11
+  html               8
+  js                 4
+  png                3
+  txt                3
+  css                1
+  example            1
+  json               1
+  rproj              1
