@@ -141,37 +141,25 @@ agregar_promedio_cohorte_audit <- function(personas, mapa, valor_col, by_base = 
   bind_rows(por, todas)
 }
 
-# --- Recalculo COMPLETO del foco cobertura (embudo + kpi p1) ------------------
-# Devuelve un df largo: tipo_entidad, cod_entidad, anio_proceso, cohorte, etapa,
-# n (suprimido), suprimida, y para seleccion: n_seleccionados, n_prioridad_1,
-# pct_prioridad_1. Implementacion independiente de 32.
-recalcular_cobertura <- function(ins, mapa) {
+# --- Person-sets del embudo (una fila = una persona en esa etapa) ------------
+# Cada elemento trae rbd (character), anio_proceso, cohorte (actual/anterior).
+# Implementacion propia; base comun de recalcular_cobertura y embudo_crudo.
+personas_embudo <- function(ins) {
   egr <- ins$egresados; insc <- ins$inscripcion; ren <- ins$rendicion; pos <- ins$postulacion
-
   egreso_lookup <- insc |>
     distinct(id_aux, anio_proceso, anyo_egreso = as.integer(anyo_egreso))
   inscripcion_rbd <- insc |>
     distinct(id_aux, anio_proceso, rbd = as.character(rbd), anyo_egreso = as.integer(anyo_egreso))
 
-  # egresados (denominador): marca_egreso==1, cohorte fija "actual"
   p_egr <- egr |> filter(.data$marca_egreso == 1) |>
     transmute(rbd = as.character(rbd), anio_proceso = as.integer(agno), cohorte = "actual")
-  e_egr <- agregar_conteo_cohorte_audit(p_egr, mapa, by_base = "anio_proceso") |> mutate(etapa = "egresados")
-
-  # inscripcion
   p_insc <- insc |>
     distinct(id_aux, rbd = as.character(rbd), anio_proceso, anyo_egreso = as.integer(anyo_egreso)) |>
     mutate(cohorte = cohorte_audit(anyo_egreso, anio_proceso))
-  e_insc <- agregar_conteo_cohorte_audit(p_insc, mapa, by_base = "anio_proceso") |> mutate(etapa = "inscripcion")
-
-  # rendicion (vigencia actual)
   p_ren <- ren |> filter(.data$vigencia == "actual") |>
     distinct(id_aux, rbd = as.character(rbd), anio_proceso) |>
     left_join(egreso_lookup, by = c("id_aux", "anio_proceso")) |>
     mutate(cohorte = cohorte_audit(anyo_egreso, anio_proceso))
-  e_ren <- agregar_conteo_cohorte_audit(p_ren, mapa, by_base = "anio_proceso") |> mutate(etapa = "rendicion")
-
-  # resultados validos (clec + mate1, vigencia actual)
   ids_ok <- ren |> filter(.data$vigencia == "actual", .data$prueba %in% c("clec", "mate1")) |>
     distinct(id_aux, anio_proceso, prueba) |>
     count(id_aux, anio_proceso, name = "np") |> filter(.data$np == 2)
@@ -179,29 +167,48 @@ recalcular_cobertura <- function(ins, mapa) {
     inner_join(ids_ok, by = c("id_aux", "anio_proceso")) |>
     left_join(egreso_lookup, by = c("id_aux", "anio_proceso")) |>
     mutate(cohorte = cohorte_audit(anyo_egreso, anio_proceso))
-  e_res <- agregar_conteo_cohorte_audit(p_res, mapa, by_base = "anio_proceso") |> mutate(etapa = "resultados")
-
-  # postulacion
   p_pos <- pos |> distinct(id_aux, anio_proceso) |>
     left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
     mutate(cohorte = cohorte_audit(anyo_egreso, anio_proceso))
-  e_pos <- agregar_conteo_cohorte_audit(p_pos, mapa, by_base = "anio_proceso") |> mutate(etapa = "postulacion")
-
-  # seleccion (estado_pref 24/26)
   p_sel <- pos |> filter(.data$estado_pref %in% c(24, 26)) |>
     distinct(id_aux, anio_proceso) |>
     left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
     mutate(cohorte = cohorte_audit(anyo_egreso, anio_proceso))
-  e_sel <- agregar_conteo_cohorte_audit(p_sel, mapa, by_base = "anio_proceso") |> mutate(etapa = "seleccion")
-
-  # kpi prioridad 1 (estado_pref==24 & orden_pref==1). n_p1_raw = conteo crudo
-  # (para cuantificar el hallazgo de "0% enganoso"); 32 suprime este conteo
-  # (k-anon) ANTES del coalesce, por eso se replica la supresion mas abajo.
   p_p1 <- pos |> filter(.data$estado_pref == 24, .data$orden_pref == 1) |>
     distinct(id_aux, anio_proceso) |>
     left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
     mutate(cohorte = cohorte_audit(anyo_egreso, anio_proceso))
-  kpi_p1 <- agregar_conteo_cohorte_audit(p_p1, mapa, by_base = "anio_proceso") |>
+  list(egresados = p_egr, inscripcion = p_insc, rendicion = p_ren,
+       resultados = p_res, postulacion = p_pos, seleccion = p_sel, prioridad_1 = p_p1)
+}
+
+# --- Embudo CRUDO (pre-supresion): n real por territorio x cohorte x etapa ----
+# Para verificar aditividad territorial (Fase 2). NO aplica supresion.
+embudo_crudo <- function(ins, mapa) {
+  P <- personas_embudo(ins)
+  etapas <- c("egresados", "inscripcion", "rendicion", "resultados", "postulacion", "seleccion")
+  bind_rows(lapply(etapas, function(e) {
+    agregar_conteo_cohorte_audit(P[[e]], mapa, by_base = "anio_proceso") |> mutate(etapa = e)
+  }))
+}
+
+# --- Recalculo COMPLETO del foco cobertura (embudo + kpi p1) ------------------
+# Devuelve un df largo: tipo_entidad, cod_entidad, anio_proceso, cohorte, etapa,
+# n (suprimido), suprimida, y para seleccion: n_seleccionados, n_prioridad_1,
+# pct_prioridad_1. Implementacion independiente de 32.
+recalcular_cobertura <- function(ins, mapa) {
+  P <- personas_embudo(ins)
+  e_egr  <- agregar_conteo_cohorte_audit(P$egresados,   mapa, "anio_proceso") |> mutate(etapa = "egresados")
+  e_insc <- agregar_conteo_cohorte_audit(P$inscripcion, mapa, "anio_proceso") |> mutate(etapa = "inscripcion")
+  e_ren  <- agregar_conteo_cohorte_audit(P$rendicion,   mapa, "anio_proceso") |> mutate(etapa = "rendicion")
+  e_res  <- agregar_conteo_cohorte_audit(P$resultados,  mapa, "anio_proceso") |> mutate(etapa = "resultados")
+  e_pos  <- agregar_conteo_cohorte_audit(P$postulacion, mapa, "anio_proceso") |> mutate(etapa = "postulacion")
+  e_sel  <- agregar_conteo_cohorte_audit(P$seleccion,   mapa, "anio_proceso") |> mutate(etapa = "seleccion")
+
+  # kpi prioridad 1 (estado_pref==24 & orden_pref==1). n_p1_raw = conteo crudo
+  # (para cuantificar el hallazgo de "0% enganoso"); 32 suprime este conteo
+  # (k-anon) ANTES del coalesce, por eso se replica la supresion mas abajo.
+  kpi_p1 <- agregar_conteo_cohorte_audit(P$prioridad_1, mapa, by_base = "anio_proceso") |>
     transmute(tipo_entidad, cod_entidad, anio_proceso, cohorte, n_p1_raw = n)
 
   # Combinar embudo + suprimir + kpi p1 (replica logica de 32)
@@ -209,8 +216,8 @@ recalcular_cobertura <- function(ins, mapa) {
   sp <- suprimir_n(embudo$n)
   embudo$n <- sp$n; embudo$suprimida <- sp$suprimida
 
-  # kpi p1: n_seleccionados desde seleccion (crudo, pre-supresion) para calcular pct
-  sel_crudo <- bind_rows(e_sel) # ya con n crudo? no: e_sel trae n crudo (suprimir se aplico a `embudo`, no a e_sel)
+  # kpi p1: n_seleccionados desde seleccion (crudo; la supresion se aplico a
+  # `embudo`, no a e_sel, que conserva el n real para calcular sup_sel/pct)
   sel_kpi <- e_sel |> transmute(tipo_entidad, cod_entidad, anio_proceso, cohorte,
                                 n_seleccionados = n) |>
     mutate(sup_sel = !is.na(n_seleccionados) & n_seleccionados > 0 & n_seleccionados < UMBRAL_AUDIT)
