@@ -5423,6 +5423,15 @@ function covSel(ctx, anio, etapa, coh){
   return {n:(vistos?n:null), sup:false, parcial:ocultos>0,
           nsel:(nsel||null), np1:(np1||null), pct1:(etapa==="seleccion"&&nsel>0)?100*np1/nsel:null};
 }
+// Denominador de cobertura: egresados SOLO en cohorte "actual". En "anterior" y
+// "todas" el numerador de cada etapa mezcla cohortes (mas personas que los
+// egresados del año) -> se rebasa a inscritos, evitando porcentajes >100%.
+function baseCob(id, anio, coh){
+  if(coh==="actual"){ var eg=covGet(id,anio,"egresados",coh);
+    if(eg&&!eg.sup&&eg.n) return eg.n; }
+  var ins=covGet(id,anio,"inscripcion",coh);
+  return (ins&&!ins.sup&&ins.n) ? ins.n : null;
+}
 // Analogo para rendimiento: media ponderada por n de las comunas incluidas.
 function renSel(ctx, anio, prueba, coh){
   var s=ctx.state; if(!filtroComunaActivo(s)) return renGet(s.terrSel,anio,prueba,coh);
@@ -5602,9 +5611,9 @@ function viewMeta(ctx){
   var s=ctx.state, f=s.foco, v=s.vista, m=s.modo;
   if(f==="cob"){
     if(v==="terr") return m==="hist"
-      ? {t:"Cobertura en el tiempo", sub:terrName(s.terrSel)+" · participación PAES · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica por proceso de admisión. El control de cohorte también aplica aquí (cohorte actual, cohortes anteriores o todas); en «Anteriores», sin egresados propios del año, la serie se expresa sobre inscritos."}
+      ? {t:"Cobertura en el tiempo", sub:terrName(s.terrSel)+" · participación PAES · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica por proceso de admisión. El control de cohorte también aplica aquí (cohorte actual, cohortes anteriores o todas); en «Anteriores» y «Todas», sin una cifra única de egresados del año, la serie se expresa sobre inscritos."}
       : {t:"Embudo de participación PAES", sub:terrName(s.terrSel)+" · admisión "+M.anio_actual+" · egresados → selección", note:"El embudo tiene 6 etapas (sin matrícula, no disponible en el agregado). El control de cohorte separa la cohorte actual (egreso el año previo) de las cohortes anteriores, o suma todas; ambas se territorializan por el establecimiento de egreso."};
-    return {t:"Cobertura — comparación entre territorios", sub:"Embudo por territorio · admisión "+M.anio_actual+" · porcentaje (n)", note:"Comparación en porcentaje sobre egresados, con el número de casos entre paréntesis: % (n). Celdas con n < "+M.umbral+" se muestran como «"+SUP_TXT+"»."};
+    return {t:"Cobertura — comparación entre territorios", sub:"Embudo por territorio · admisión "+M.anio_actual+" · porcentaje (n)", note:"Comparación en porcentaje sobre "+(activeCohorte(s)==="actual"?"egresados":"inscritos")+", con el número de casos entre paréntesis: % (n). Celdas con n < "+M.umbral+" se muestran como «"+SUP_TXT+"»."};
   } else {
     if(v==="terr") return m==="hist"
       ? {t:"Rendimiento en el tiempo", sub:terrName(s.terrSel)+" · media por prueba · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica de la media de puntaje por prueba (escala "+M.escala.min+"–"+M.escala.max+"). La mediana no está disponible en el agregado; se reporta la media."}
@@ -5634,6 +5643,10 @@ function WorkArea(ctx){
 // ===========================================================================
 function funnelStages(ctx, anio, coh){
   return ETAPAS.map(function(e){
+    // egresados solo es denominador valido en cohorte "actual"; en "anterior" y
+    // "todas" el numerador mezcla cohortes -> se rebasa a inscritos (funnelSvg toma
+    // como base el primer stage no nulo). Egresados se muestra como "—".
+    if(e.k==="egresados" && coh!=="actual") return {k:e.k,label:e.label,n:null,sup:false,present:false};
     var g=covSel(ctx,anio,e.k,coh);  // respeta la exclusion de comunas (region)
     return {k:e.k,label:e.label,n:(g?g.n:null),sup:(g?g.sup:false),present:!!g};
   });
@@ -5735,14 +5748,12 @@ function lineChart(series,yMin,yMax,unit,W,H,ticks,years){
 }
 function CobHist(ctx){
   var acc=ctx.acc, id=ctx.state.terrSel, years=M.anios, coh=activeCohorte(ctx.state);
-  // Base por año: egresados si existe; en la cohorte "anterior" (sin egresados
-  // propios del año) se rebasa a inscritos = 100%, igual que el embudo actual.
-  var baseLbl = coh==="anterior" ? "% de inscritos" : "% de egresados";
-  // Base por año: egresados. Solo la cohorte "anterior" (sin egresados propios)
-  // se rebasa a inscritos; en actual/todas, un año sin egresados (2026) queda en
-  // hueco, sin mezclar bases entre años.
-  function baseY(y){ var eg=covSel(ctx,y,"egresados",coh); if(eg&&!eg.sup&&eg.n) return eg.n;
-    if(coh!=="anterior") return null;
+  // Base por año: egresados SOLO en "actual". En "anterior" y "todas" el numerador
+  // mezcla cohortes -> se rebasa a inscritos = 100% (evita % >100%). En "actual" un
+  // año sin egresados (2026) queda en hueco, sin mezclar bases entre años.
+  var baseLbl = coh==="actual" ? "% de egresados" : "% de inscritos";
+  function baseY(y){
+    if(coh==="actual"){ var eg=covSel(ctx,y,"egresados",coh); return (eg&&!eg.sup&&eg.n)?eg.n:null; }
     var ins=covSel(ctx,y,"inscripcion",coh); return (ins&&!ins.sup&&ins.n)?ins.n:null; }
   function pctSerie(etapa){ return years.map(function(y){
     var b=baseY(y), st=covSel(ctx,y,etapa,coh);
@@ -5789,13 +5800,9 @@ function CobComp(ctx){
   var acc=ctx.acc, ids=ctx.state.compSel, anio=M.anio_actual, coh=activeCohorte(ctx.state);
   var keys=["inscripcion","rendicion","resultados","postulacion","seleccion"];
   var heads=["Territorio","Egresados","Inscritos","Rindió","Válidos","Postuló","Seleccionado","1.ª prioridad"];
-  // Denominador por territorio: egresados si existe (cohortes actual/todas). En
-  // "anterior" no hay egresados propios del año -> se rebasa a inscritos = 100%.
-  // eg ausente NO es supresion (es N/A).
-  function baseN(id){ var eg=covGet(id,anio,"egresados",coh);
-    if(eg&&!eg.sup&&eg.n) return eg.n;
-    var ins=covGet(id,anio,"inscripcion",coh);
-    return (ins&&!ins.sup&&ins.n) ? ins.n : null; }
+  // Denominador por territorio via baseCob: egresados solo en "actual"; en
+  // "anterior"/"todas" se rebasa a inscritos (evita porcentajes >100%).
+  function baseN(id){ return baseCob(id, anio, coh); }
   var ranges={}; keys.forEach(function(k){ var vs=[];
     ids.forEach(function(id){ var b=baseN(id), st=covGet(id,anio,k,coh);
       if(b&&st&&!st.sup) vs.push(st.n/b*100); });
@@ -5824,7 +5831,9 @@ function CobComp(ctx){
       h("span",{style:{fontSize:"var(--fs-overline)",color:"var(--slate)",marginLeft:"8px",fontWeight:400}},"la 1.ª prioridad es % de este grupo"))
   ];
   var rows=ids.map(function(id,idx){ var eg=covGet(id,anio,"egresados",coh), b=baseN(id);
-    var egCell=h("td",{style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink2)"}}, (eg&&!eg.sup)?fmt(eg.n):((eg&&eg.sup)?SUP_SHORT:"—"));
+    // En cohorte mixta (anterior/todas) no hay cifra unica de egresados -> "—".
+    var egTxt=(coh!=="actual")?"—":((eg&&!eg.sup)?fmt(eg.n):((eg&&eg.sup)?SUP_SHORT:"—"));
+    var egCell=h("td",{style:{padding:"9px 9px",textAlign:"center",borderBottom:"1px solid var(--line)",fontFamily:"var(--font-b)",fontWeight:600,fontSize:"var(--fs-body)",color:"var(--ink2)"}}, egTxt);
     var ultima=(idx===ids.length-1);
     var cells=keys.map(function(k){ var esSel=(k==="seleccion"); var st=covGet(id,anio,k,coh);
       if(!st||st.sup||!b) return supCell(k, esSel?BRK:false);
@@ -5842,7 +5851,7 @@ function CobComp(ctx){
     return h("tr",{key:id}, nameCell(id,idx), egCell, cells, p1Cell); });
   return card({},[
     h("div",{key:"lg",style:{display:"flex",alignItems:"center",gap:"16px",marginBottom:"12px",flexWrap:"wrap",fontSize:"var(--fs-caption)",color:"var(--slate)"}},
-      h("span",{},"Las columnas Inscritos → Seleccionado son % sobre egresados (mismo denominador, embudo decreciente). La 1.ª prioridad —columna enmarcada— cambia de base: es % sobre los seleccionados en su 1.ª preferencia, por eso puede subir aunque baje la selección. En la cohorte «Anteriores» (egresados en años previos al proceso actual, sin registro en la tabla de egresados de este año) el 100% es la inscripción. Heatmap por columna: menor proporción = más alerta.")),
+      h("span",{},"Las columnas Inscritos → Seleccionado son % sobre egresados (mismo denominador, embudo decreciente). La 1.ª prioridad —columna enmarcada— cambia de base: es % sobre los seleccionados en su 1.ª preferencia, por eso puede subir aunque baje la selección. En la cohorte «Anteriores» (egresados en años previos al proceso actual, sin registro en la tabla de egresados de este año) —y en «Todas», que la incluye— el 100% es la inscripción. Heatmap por columna: menor proporción = más alerta.")),
     h("div",{key:"tbl",style:{overflowX:"auto"}},
       h("table",{style:{width:"100%",minWidth:"760px",borderCollapse:"collapse"}},
         h("thead",{},h("tr",{key:"grp"},thGroup),h("tr",{key:"hd"},th)),
@@ -6040,18 +6049,22 @@ function currentSheet(ctx){
   if(s.foco==="cob"){
     if(s.vista==="comp"){ name="Cobertura comparacion";
       aoa=[["Cohorte: "+cohLbl],[],["Territorio","Egresados","Inscritos %","Inscritos n","Rindio %","Rindio n","Validos %","Validos n","Postulo %","Postulo n","Seleccionado %","Seleccionado n"]];
-      s.compSel.forEach(function(id){ var eg=covGet(id,anio,"egresados",coh); var row=[terrName(id), (eg&&!eg.sup)?eg.n:"resguardo"];
+      s.compSel.forEach(function(id){ var eg=covGet(id,anio,"egresados",coh), base=baseCob(id,anio,coh);
+        var row=[terrName(id), (coh!=="actual")?"—":((eg&&!eg.sup)?eg.n:"resguardo")];
         ["inscripcion","rendicion","resultados","postulacion","seleccion"].forEach(function(k){ var st=covGet(id,anio,k,coh);
-          if(!st||st.sup||!eg||eg.sup||!eg.n){ row.push("resguardo"); row.push("resguardo"); } else { row.push(Math.round(st.n/eg.n*100)); row.push(st.n); } }); aoa.push(row); }); }
+          if(!st||st.sup||!base){ row.push("resguardo"); row.push("resguardo"); } else { row.push(Math.round(st.n/base*100)); row.push(st.n); } }); aoa.push(row); }); }
     else if(s.modo==="hist"){ name="Cobertura historica"; var id=s.terrSel;
-      var baseLbl=coh==="anterior"?"% inscritos":"% egresados";
+      var baseLbl=coh==="actual"?"% egresados":"% inscritos";
       aoa=[["Territorio: "+terrName(id)+" · "+cohLbl],[],["Ano","Rindio "+baseLbl,"Seleccionado "+baseLbl]];
-      M.anios.forEach(function(y){ var eg=covGet(id,y,"egresados",coh),ins=covGet(id,y,"inscripcion",coh),ri=covGet(id,y,"rendicion",coh),se=covGet(id,y,"seleccion",coh);
-        var b=(eg&&!eg.sup&&eg.n)?eg.n:((ins&&!ins.sup&&ins.n)?ins.n:null);
+      M.anios.forEach(function(y){ var ri=covGet(id,y,"rendicion",coh),se=covGet(id,y,"seleccion",coh),b=baseCob(id,y,coh);
         aoa.push([y, (b&&ri&&!ri.sup)?Math.round(ri.n/b*100):"resguardo", (b&&se&&!se.sup)?Math.round(se.n/b*100):"resguardo"]); }); }
-    else { name="Cobertura actual"; var id2=s.terrSel; aoa=[["Territorio: "+terrName(id2)+" · admision "+anio+" · "+cohLbl],[],["Etapa","n","% de egresados"]];
-      var eg2=covGet(id2,anio,"egresados",coh); ETAPAS.forEach(function(e){ var g=covGet(id2,anio,e.k,coh);
-        var pct = (eg2&&g&&!eg2.sup&&!g.sup&&eg2.n)?Math.round(g.n/eg2.n*100):""; aoa.push([e.label, (g&&!g.sup)?g.n:"resguardo", pct]); }); }
+    else { name="Cobertura actual"; var id2=s.terrSel;
+      var baseLbl3=coh==="actual"?"% de egresados":"% de inscritos";
+      aoa=[["Territorio: "+terrName(id2)+" · admision "+anio+" · "+cohLbl],[],["Etapa","n",baseLbl3]];
+      var base2=baseCob(id2,anio,coh); ETAPAS.forEach(function(e){
+        if(e.k==="egresados" && coh!=="actual"){ aoa.push([e.label,"—",""]); return; }
+        var g=covGet(id2,anio,e.k,coh);
+        var pct = (base2&&g&&!g.sup)?Math.round(g.n/base2*100):""; aoa.push([e.label, (g&&!g.sup)?g.n:"resguardo", pct]); }); }
   } else {
     var cols=PRUEBAS.concat(CONTEXTO);
     if(s.vista==="comp"){ name="Rendimiento comparacion";
