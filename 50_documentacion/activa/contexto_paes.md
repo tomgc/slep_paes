@@ -450,6 +450,59 @@ A partir del año 2022, el sistema chileno introdujo la rendición dividida (Inv
 ### Consejo final de Codificación
 Cuando descargues estos archivos .rar históricos, notarás que las columnas tienen nombres extremadamente cortos (MRUN, A_EGRESO, COD_PROV_RES, P_NAT_REG). Ten siempre abierto en una segunda pantalla el PDF o Excel de la Glosas de Variables del año exacto que estás estudiando, puesto que el DEMRE ha cambiado los nombres de las columnas o agregando dígitos a los códigos de respuesta a medida que se han actualizado las normativas ministeriales.
 
+## Constantes metodológicas de auditoría de datos (slep_paes)
+
+> **Naturaleza — NO son constantes de código.** A diferencia de
+> `UMBRAL_SUPRESION_CELDA` (= 8, definida en `10_configuracion.R` y aplicada por el
+> pipeline), estos dos umbrales **no viven en ningún `.R`**: son **criterios de
+> decisión metodológicos** acordados con el titular para las **auditorías de datos**
+> del proyecto (panel adversarial = recálculo independiente desde los parquets crudos,
+> con código propio, contrastado celda a celda contra el agregado/JSON publicado). Se
+> formalizan aquí, tras usarse ad-hoc en la sesión 6, para reutilizarlos con el mismo
+> valor en auditorías futuras del mismo tipo sin re-litigarlos. Solo se ajustan por
+> decisión explícita del titular.
+
+### Umbral de delta nacional de auditoría
+
+- **Nombre:** umbral de delta nacional (criterio metodológico, no código).
+- **Valor:** **±2 puntos porcentuales (pp)**.
+- **Qué decide:** el máximo cambio aceptable, sin revisión previa del titular, en una
+  **cifra nacional publicada** al corregir un defecto de cálculo detectado en
+  auditoría. Si la corrección mueve una cifra nacional **más de ~2 pp** respecto de lo
+  documentado, se **detiene y se reporta antes de aplicar** (un delta mayor sugiere un
+  problema más grande que el diagnosticado).
+- **Origen:** sesión 6, hallazgo **F1** (desalineación del denominador `egresados`:
+  indexado por `agno`/año de egreso en vez de año de proceso). El fix movió la
+  cobertura nacional «actual» ~1,1 pp (dentro del umbral) → se aplicó sin detención.
+  Log: `andamios/logs/20260703_reauditoria_post_fix_f1_f2_log.md`.
+- **Aplica a:** futuras auditorías donde una corrección de cálculo cambie cifras ya
+  publicadas; es el gate entre «aplicar y reportar» y «detener y pedir revisión».
+
+### Umbral de magnitud de discrepancia de auditoría
+
+- **Nombre:** umbral de magnitud de discrepancia (criterio metodológico, no código).
+- **Valor:** **0,1% del universo total** del indicador auditado.
+- **Qué decide:** la frontera entre una discrepancia **marginal** (se documenta y, con
+  aprobación del titular, se acepta como ruido conocido) y una **sistémica** (se
+  detiene y se pide revisión antes de cualquier corrección masiva). Si el fenómeno
+  afecta a **más de ~0,1%** del universo, deja de ser marginal.
+- **Origen:** sesión 6, hallazgo **F3** (desfase inter-archivo del rbd de egreso entre
+  ArchivoB —inscripción, `id_aux`— y el archivo MINEDUC de egresados —`mrun`—, sin
+  clave común). El desfase real fue de **1 persona = 0,00016% del universo**, muy por
+  debajo del umbral → se resolvió aceptándolo. Decisión formal:
+  `decisiones/20260703_decision_f3_margen_interarchivo.md`.
+- **Aplica a:** futuras auditorías donde se cuantifique una discrepancia de datos
+  (diferencias inter-archivo, celdas fuera de rango, orfandad de llaves, etc.); separa
+  «ruido administrativo aceptable» de «problema que exige corrección de raíz».
+
+> **Uso conjunto en el patrón de auditoría (recálculo independiente vs. publicado).**
+> Se recalcula un indicador desde los parquets crudos con código propio (independiente
+> de `32_agregar_territorial.R` / `33_generar_html.R`) y se contrasta contra el
+> agregado/JSON publicado. El **umbral de magnitud** acota qué discrepancia es
+> tolerable antes de exigir corrección; el **umbral de delta nacional** acota cuánto
+> puede cambiar una cifra nacional al aplicar esa corrección. Ambos son gates de
+> detención («PARA y reporta»), no ajustes automáticos.
+
 #### Works cited
 - Conoce aquí todos los detalles de la nueva Prueba de Acceso a la Educación Superior (PAES) - DEMRE, https://demre.cl/noticias/2022-05-19-informacion-nueva-PAES
 - Qué significa PAES: explicación simple de la prueba - SimplePAES, https://simplepaes.cl/blog/que-significa-paes
