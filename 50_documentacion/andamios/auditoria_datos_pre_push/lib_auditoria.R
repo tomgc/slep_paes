@@ -194,13 +194,15 @@ recalcular_cobertura <- function(ins, mapa) {
     mutate(cohorte = cohorte_audit(anyo_egreso, anio_proceso))
   e_sel <- agregar_conteo_cohorte_audit(p_sel, mapa, by_base = "anio_proceso") |> mutate(etapa = "seleccion")
 
-  # kpi prioridad 1 (estado_pref==24 & orden_pref==1)
+  # kpi prioridad 1 (estado_pref==24 & orden_pref==1). n_p1_raw = conteo crudo
+  # (para cuantificar el hallazgo de "0% enganoso"); 32 suprime este conteo
+  # (k-anon) ANTES del coalesce, por eso se replica la supresion mas abajo.
   p_p1 <- pos |> filter(.data$estado_pref == 24, .data$orden_pref == 1) |>
     distinct(id_aux, anio_proceso) |>
     left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
     mutate(cohorte = cohorte_audit(anyo_egreso, anio_proceso))
   kpi_p1 <- agregar_conteo_cohorte_audit(p_p1, mapa, by_base = "anio_proceso") |>
-    transmute(tipo_entidad, cod_entidad, anio_proceso, cohorte, n_prioridad_1 = n)
+    transmute(tipo_entidad, cod_entidad, anio_proceso, cohorte, n_p1_raw = n)
 
   # Combinar embudo + suprimir + kpi p1 (replica logica de 32)
   embudo <- bind_rows(e_egr, e_insc, e_ren, e_res, e_pos, e_sel)
@@ -215,14 +217,18 @@ recalcular_cobertura <- function(ins, mapa) {
   sel_kpi <- sel_kpi |>
     left_join(kpi_p1, by = c("tipo_entidad", "cod_entidad", "anio_proceso", "cohorte")) |>
     mutate(
-      n_prioridad_1 = coalesce(n_prioridad_1, 0L),
+      n_p1_raw = coalesce(n_p1_raw, 0L),                       # conteo real (sin suprimir)
+      # 32 suprime n_prioridad_1 (k-anon) antes del coalesce: <8 -> NA -> 0
+      n_p1_sup = ifelse(!is.na(n_p1_raw) & n_p1_raw > 0 & n_p1_raw < UMBRAL_AUDIT,
+                        NA_integer_, n_p1_raw),
+      n_prioridad_1 = coalesce(n_p1_sup, 0L),
       pct_prioridad_1 = ifelse(sup_sel, NA_real_, 100 * n_prioridad_1 / n_seleccionados),
       n_prioridad_1 = ifelse(sup_sel, NA_integer_, n_prioridad_1),
       n_seleccionados = ifelse(sup_sel, NA_integer_, n_seleccionados),
       etapa = "seleccion"
     ) |>
     select(tipo_entidad, cod_entidad, anio_proceso, cohorte, etapa,
-           n_seleccionados, n_prioridad_1, pct_prioridad_1)
+           n_seleccionados, n_prioridad_1, pct_prioridad_1, n_p1_raw)
 
   embudo |>
     left_join(sel_kpi, by = c("tipo_entidad", "cod_entidad", "anio_proceso", "cohorte", "etapa"))
