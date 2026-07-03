@@ -339,17 +339,25 @@ if (faltan_31 || faltan_cat) {
     dplyr::left_join(inscripcion_rbd, by = c("id_aux", "anio_proceso")) |>
     dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso)) |>
     agregar_conteo_cohorte(mapa, by_base = "anio_proceso") |>
-    dplyr::transmute(tipo_entidad, cod_entidad, anio_proceso, cohorte, n_prioridad_1 = n)
+    # Conserva `suprimida` (fix F2): permite distinguir, tras el join, un cero
+    # GENUINO (sin fila -> nadie en 1.a prioridad) de un conteo SUPRIMIDO (fila
+    # con n<8 -> NA por k-anon). Sin esto, coalesce(.,0L) confunde ambos.
+    dplyr::transmute(tipo_entidad, cod_entidad, anio_proceso, cohorte,
+                     n_prioridad_1 = n, suprimida_p1 = suprimida)
 
   kpi_prioridad <- etapa_seleccion |>
     dplyr::transmute(tipo_entidad, cod_entidad, anio_proceso, cohorte,
                      n_seleccionados = n, suprimida_sel = suprimida) |>
     dplyr::left_join(kpi_prioridad_1, by = c("tipo_entidad", "cod_entidad", "anio_proceso", "cohorte")) |>
     dplyr::mutate(
-      n_prioridad_1 = dplyr::coalesce(.data$n_prioridad_1, 0L),
-      pct_prioridad_1 = dplyr::if_else(.data$suprimida_sel, NA_real_,
-                                       100 * .data$n_prioridad_1 / .data$n_seleccionados),
-      n_prioridad_1 = dplyr::if_else(.data$suprimida_sel, NA_integer_, .data$n_prioridad_1),
+      # fix F2: sin fila en kpi_prioridad_1 = cero GENUINO (nadie); fila con
+      # suprimida_p1==TRUE = conteo real 1..7 resguardado -> NO se muestra como 0.
+      sup_p1 = dplyr::coalesce(.data$suprimida_p1, FALSE),
+      resguardo_p1 = .data$suprimida_sel | sup_p1,   # celda p1 = resguardo si sel o p1 suprimidos
+      n_p1_0 = dplyr::coalesce(.data$n_prioridad_1, 0L),
+      pct_prioridad_1 = dplyr::if_else(.data$resguardo_p1, NA_real_,
+                                       100 * .data$n_p1_0 / .data$n_seleccionados),
+      n_prioridad_1 = dplyr::if_else(.data$resguardo_p1, NA_integer_, .data$n_p1_0),
       etapa = "seleccion"
     ) |>
     dplyr::select(tipo_entidad, cod_entidad, anio_proceso, cohorte, etapa,
