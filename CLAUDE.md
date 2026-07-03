@@ -124,7 +124,22 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 ## Ultimos cambios
 
-1. **Sesion — fix denominador cohorte «Todas» (>100% en cobertura).** Bug en
+1. **Sesion — auditoria de datos pre-push + fix F1/F2 (denominador egresados y
+   1.a prioridad).** Auditoria adversarial en R (4 fases, codigo propio en
+   `andamios/auditoria_datos_pre_push/`) hallo: (F1, bloqueante) `etapa_egresados`
+   en `32` se indexaba por `agno` (año de egreso) mientras las demas etapas por
+   año de PROCESO -> desalineacion de 1 año -> 29 celdas %>100% en cohorte actual
+   (max 207%, visible en DOM); (F2, menor) `coalesce(n_prioridad_1 suprimido, 0L)`
+   mostraba «0% (0)» en 354 celdas donde el conteo real era 1..7. Autorizado por el
+   titular: **F1** `anio_proceso = agno + 1L` (`35f7bd9`) -> `anio_actual` 2025->2026,
+   2026 gana denominador y 2023 queda hueco; nacional actual 80,6%/79,1% (a 1,1pp
+   de lo documentado). **F2** conserva `suprimida_p1` y emite resguardo (NA) en vez
+   de 0 (`0a25277`). Re-auditoria (`927cc1a`): Fase 1 MATCH TOTAL, Fase 2 aditividad
+   exacta, F2 resuelto, **residual F3** (comuna Santo Domingo 101%, 189 vs 188, por
+   diferencia inter-archivo de rbd de egreso; NO corregido, decision del titular).
+   Logs: `20260703_auditoria_datos_pre_push_log.md`,
+   `20260703_reauditoria_post_fix_f1_f2_log.md`. Sin push.
+2. **Sesion — fix denominador cohorte «Todas» (>100% en cobertura).** Bug en
    `CobComp` (`8a614c3`): en cohorte «Todas» el % se calculaba sobre `egresados`
    (solo actual) con numerador actual+anterior -> >100% (Viña 118%, 5.203/4.418).
    Misma causa raíz en las tres vistas y el export. Helper nuevo `baseCob()`
@@ -191,35 +206,3 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    abortar; 6 combinaciones Foco×Vista×Periodo sin error de consola; panel
    adversarial recalculo 15 cifras (todas MATCH) contra los parquets por codigo
    independiente. Log: `andamios/logs/20260702_motor_33_datos_reales_log.md`.
-2. **Sesion 3 — `32_agregar_territorial.R` implementado.** Decision delegada
-   documentada en `decisiones/20260701_decision_territorializacion_d_matr.md`:
-   ArchivoD (postulacion/seleccion) se territorializa via join por
-   `(id_aux, anio_proceso)` contra `paes_inscripcion` (verificado: 100% de las
-   751.175 combinaciones de ArchivoD existen en inscripcion, sin duplicados de
-   llave); ArchivoMatr queda FUERA del arbol territorial en esta v1 (no es
-   etapa de `ETAPAS_EMBUDO` ni fue pedida). FOCO COBERTURA: embudo egresados
-   (`marca_egreso==1`, ver hallazgo abajo) -> inscripcion -> rendicion
-   (`vigencia=="actual"`) -> resultados (rindio CLEC+M1 este anio, sin el
-   umbral fino de 458 ptos/10% superior: `PORC_SUP_NOTAS` real es un decil sin
-   glosa que confirme el mapeo -> alcance documentado, no inventado) ->
-   postulacion -> seleccion (`estado_pref` 24/26; 25="lista de espera" no
-   cuenta). Rezagados visibles como `tipo_entidad` propio, nunca hueco.
-   Hallazgo real en egresados: el archivo trae ~4x mas filas que personas
-   (999.446 vs. ~254.750 en 2023) porque incluye un registro por grado
-   (1°-4° medio) por estudiante; `MARCA_EGRESO==1` identifica la fila de
-   egreso efectivo (verificado: tras filtrar, MRUN es unico por año y las
-   cardinalidades resultantes -254.750/257.261/281.356- calzan con cohortes
-   reales de egreso de EM en Chile; sin glosa oficial para esa columna, el
-   archivo MINEDUC no trae libro de codigos). FOCO RENDIMIENTO: puntaje por
-   prueba/tipo_rendicion/vigencia + NEM/Ranking (sentinela 0 excluido, mismo
-   patron que puntaje), deduplicando NEM/Ranking por persona antes de
-   promediar (son atributos por persona, no por fila pivoteada). Verificado
-   end-to-end: supresion de celdas aplicada (83 celdas de cobertura, 5.873 de
-   rendimiento, media enmascarada junto con n); embudo inscripcion->seleccion
-   100% monotonico a nivel nacional/region/SLEP y 99,7% a nivel comuna (4
-   excepciones puntuales: postulacion levemente > resultados donde el
-   postulante usa un puntaje `vigencia=="anterior"` sin re-rendir CLEC/M1 este
-   año, consistente con el mecanismo de "puntaje vigente" documentado).
-   `egresados` vs. `inscripcion` NO es monotonico por diseño (poblaciones
-   distintas: egresados = cohorte de ESE año; inscripcion incluye rezagados de
-   años previos) — esperado, no defecto.
