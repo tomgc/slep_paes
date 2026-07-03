@@ -1,6 +1,6 @@
 # SETTINGS_Y_PROMPTS_OPERACIONALES.md
 
-> **Versión 7 (consolidada).** Vive permanentemente en la knowledge base
+> **Versión 8 (consolidada).** Vive permanentemente en la knowledge base
 > del Project (y se copia a `50_documentacion/activa/` de cada proyecto).
 > Absorbe y reemplaza a: `prompt-apertura-sesion.md` (v3),
 > `prompt-cierre-sesion.md` (v4), `prompt_orquestador.md`,
@@ -8,6 +8,61 @@
 > `prompt_portabilidad_cross_os.md`. La arquitectura que esos prompts
 > implementaban vive ahora en `POLITICA_PROYECTO.md` v5; aquí viven los
 > PROTOCOLOS de sesión y de operación.
+>
+> **Cambios respecto a v7 (integra dos lotes de propuestas ya
+> diagnosticadas, sesión BIBLIOTECA de integración editorial):**
+>
+> *Lote RP (rediseño de protocolos de apertura/cierre, evidencia:
+> `01_diagnostico_protocolos.md`):* RP1 apertura consume `ESTADO.md` (paso
+> 0 de 1.2.2) + nota de consumidores en 2.1bis. RP2 Fase A (1.2.2) con
+> lectura dirigida por capas (traspaso siempre completo; POLITICA por
+> versión/pertinencia; backlog por capas). RP3 Fase B (1.2.3) acuse delta
+> (conteos + delta + vigentes; reproducción literal de ⚠️/✅/🔒 intacta).
+> RP4 reapertura (2.2.14) sin bullet "Nombre del chat" (ajuste ya decidido
+> por el titular), una sola copia dentro del traspaso, mensaje pre-armado
+> con estado+foco. RP5 constantes por delta (2.2 punto 9). RP6 fragmentos
+> solo nuevos o cambiados (2.2 punto 13). RP7 secciones-que-valen-por-su-
+> vacío explicitadas + chequeo de extracción del backlog en el cierre
+> (2.1).
+>
+> *Lote P (guardrails de la auditoría cruzada de errores del asistente,
+> evidencia: `02_analisis_patrones.md`, 23 errores / 6 proyectos):* P1
+> campo "Fuentes primarias consultadas" en el Plan compacto (1.2.5). P2
+> seis reglas permanentes nuevas de sesión (1.2.6): fuente primaria
+> (GR-01), sandwich generar-verificar-consumar (GR-02), ningún comando
+> asume el entorno (GR-03), turno termina proponiendo + registro de
+> autorizaciones (GR-04, dos reglas), entrega materializada con destino
+> (GR-06). P6 traspaso siempre materializado como archivo (2.1). P7 campo
+> `patron` contra catálogo `PAT-NN` + regla de formato de la tabla
+> (2.2.15). P8 documento nuevo `catalogo_patrones_errores_v1.md` (fuera de
+> este documento; referenciado desde 2.2.15).
+>
+> *Ajustes de criterio aplicados en la integración (A1-A4):* **A1**
+> — las seis viñetas de P2 se verificaron ancladas a un momento
+> observable del flujo (plan, secuencia de comandos, plantilla de
+> encargo, fin de turno, entrega); ninguna viñeta se descartó, todas
+> pasaron el test de anclaje. **A2** — el registro E-catdes-v26-2 se
+> excluye de la evidencia fundacional de PAT-04 (formato no canónico,
+> perdió 4 de 7 campos; PAT-04 cumple el umbral de recurrencia sin él,
+> con los 3 errores de estado-v07); ese registro degradado se trata como
+> lo que demuestra: un fallo de cumplimiento del propio 2.2.15, atacado
+> por la regla de formato de P7. **A3** — P1 y P6 se priorizan como
+> primeros guardrails de esta edición (P1 ancla PAT-01, el patrón más
+> frecuente con 6 errores y doble reaparición tras registro; P6 es el
+> único guardrail de conocimiento-ausente, riesgo mínimo de aprobar).
+> **A4** — P7+P8 se tratan como parte integral del cierre del ciclo
+> registrar-detectar-rediseñar (no como mejora opcional): sin un catálogo
+> computable, el meta-hallazgo de reaparición transversal de patrones
+> (2.2.15, consumo cruzado) no es detectable de forma sistemática.
+>
+> *Solapamiento resuelto:* 2.1 (generación del traspaso) recibía edición
+> de RP7 (chequeo de extracción del backlog) y de P6 (traspaso siempre
+> como archivo) sobre el mismo bloque; se integraron en una sola
+> redacción coherente sin párrafos duplicados (ver 2.1 más abajo).
+>
+> *Descartado en esta edición:* nada de RP1-RP7 ni P1-P8 fue descartado;
+> las ocho propuestas P y las siete RP quedan todas integradas. No
+> surgieron necesidades no cubiertas por el material de los dos lotes.
 >
 > **Cambios respecto a v6:** nueva subsección 2.2.15 (Errores del
 > asistente, registro obligatorio): tabla estructurada de campos fijos
@@ -107,51 +162,70 @@ Si (b) o (c) faltan y no están en la knowledge base, pedirlos en un
 solo mensaje y detenerse. Insumo opcional: `CLAUDE.md` del proyecto si
 la sesión correrá en Claude Code.
 
-#### 1.2.2 Fase A — Lectura y verificación
+#### 1.2.2 Fase A — Lectura dirigida y verificación
 
-1. Leer la política completa (estructura, naming, gobernanza,
-   principios de la sección 5) y el traspaso completo de principio a
-   fin, **incluido todo el backlog acumulativo**. No escanear, no
-   resumir prematuramente, no saltar secciones.
-2. Comparar el árbol del escáner con la estructura canónica de la
+0. **Orientación (si el proyecto adoptó Fase 2):** leer
+   `50_documentacion/activa/ESTADO.md` antes que nada (15 líneas: semáforo,
+   en qué vamos, próximo paso, bloqueantes). Verificar sincronía: si
+   `ultima_actividad` antecede al último traspaso, declararlo y confiar en
+   el traspaso. ESTADO.md orienta; no sustituye ninguna lectura.
+1. **Traspaso completo, de principio a fin.** No escanear, no resumir
+   prematuramente, no saltar secciones. Sin cambio: es la lectura
+   innegociable de la apertura.
+2. **Backlog acumulativo por capas.** Leer siempre: Objetivo del proyecto,
+   Nota metodológica, Clasificación temática, Resumen estadístico por
+   sesión, y el Detalle cronológico de la última sesión. El detalle
+   completo se lee cuando la tarea lo exige (refactor, análisis de
+   patrones, deuda que toca entradas antiguas); toda afirmación sobre una
+   entrada antigua exige leerla en ese momento, nunca citarla de memoria.
+3. **Política por versión y pertinencia.** Verificar la versión vigente en
+   la knowledge base contra la citada en el traspaso; si cambió, leer el
+   registro de cambios del encabezado completo y las secciones nuevas.
+   Leer siempre las reglas de interacción (0.1-0.5) y el checklist 5.6;
+   leer además las secciones que el foco de la sesión y las restricciones
+   del traspaso invocan. La política completa se relee cuando la versión
+   cambió, cuando la sesión es NEW PROJECT o migración estructural (4.2,
+   4.3), o cuando una duda de gobernanza lo pida (la sección 6 de la
+   política prevalece siempre).
+4. **Comparar el árbol del escáner** con la estructura canónica de la
    política. Toda desviación (carpetas con nombres antiguos, archivos
-   fuera de lugar, huecos de numeración) se marca como **deuda
-   heredada**, no se "ajusta" en silencio.
-3. Ejecutar la auditoría de apertura (política, sección 5.6, preguntas
-   marcadas "Apertura") y anotar hallazgos.
+   fuera de lugar, huecos de numeración) se marca como **deuda heredada**,
+   no se "ajusta" en silencio. Sin cambio.
+5. **Ejecutar la auditoría de apertura** (política, sección 5.6, preguntas
+   marcadas "Apertura") y anotar hallazgos. Sin cambio.
 
-#### 1.2.3 Fase B — Acuse de recibo estructurado
+#### 1.2.3 Fase B — Acuse de recibo delta
+
+El acuse prueba el procesamiento de los insumos y trae al frente SOLO lo
+que condiciona esta sesión. No re-resume lo que el traspaso ya dice y no
+cambió: el traspaso está adjunto y la Fase A lo leyó completo.
 
 ```markdown
 ## Acuse de recibo — Traspaso vNN
 
-### Estado comprendido
-[Resumen en palabras propias: qué funciona, qué no, qué cambió en la última sesión]
+### Insumos verificados
+[Traspaso vNN completo (N bugs, N restricciones, N pendientes); backlog
+NNN cambios en N sesiones (capas leídas según 1.2.2 punto 2); escáner del
+AAAA-MM-DD; ESTADO.md sincronizado / desincronizado / no adoptado;
+versiones de política y de este documento usadas, declarando si difieren
+de las citadas en el traspaso.]
 
-### Bugs y resoluciones asimilados
-- **Bug N:** [síntoma] → **Causa raíz:** [comprensión] → **Regla aprendida:** [regla a respetar]
+### Delta comprendido (vNN-1 → vNN)
+[3-6 líneas en palabras propias: qué cambió en la última sesión, qué
+funciona y qué no HOY, dónde quedó el proyecto. Nada de historia estable.]
 
-### Restricciones técnicas vigentes
-[Todas las restricciones, convenciones y trampas que deben respetarse]
-
-### Instrucciones específicas heredadas
-[Reproducción literal de la sección 12 del traspaso]
-
-### Estado del backlog
-[Total de cambios acumulados, sesiones completadas, 3-4 categorías dominantes con porcentaje]
-
-### Principios activados para esta sesión
-- **B.2 (Simplicidad primero):** aplica porque [razón concreta].
-- **C.6 vs B.2:** tensión a monitorear porque [razón].
+### Vigentes que condicionan esta sesión
+- **Bugs activos:** [lista con su regla aprendida, o "ninguno"].
+- **Instrucciones específicas heredadas:** [reproducción LITERAL de la
+  sección de instrucciones del traspaso, ⚠️/✅/🔒, completa].
+- **Restricciones pertinentes al foco probable:** [solo las que aplican,
+  citando su origen; el resto quedan procesadas sin re-listarse].
+- **Principios en tensión:** [B.N / C.N solo si hay tensión real que
+  monitorear; si no, "sin tensiones anticipadas"].
 
 ### Auditoría de apertura (política 5.6)
 - [pregunta] → [Sí / No — acción requerida]
 ```
-
-Cerrar con confirmación explícita de haber procesado política,
-traspaso (con N bugs, N restricciones, N pendientes, backlog de NNN
-cambios) y escáner. Declarar aquí si se usó una versión de documento
-más reciente que la citada en el traspaso.
 
 #### 1.2.4 Fase C — Ruta de desarrollo propuesta
 
@@ -205,6 +279,11 @@ una de esas tres excepciones):
 - **Objetivo:** [una oración]
 - **Criterio de éxito (B.4):** [definido ANTES de codificar]
 - **Archivos involucrados:** [rutas relativas y rol]
+- **Fuentes primarias consultadas:** [archivo leído o comando ejecutado en
+  esta sesión → hecho que respalda. Todo supuesto de hecho del plan
+  (existencia o contenido de un archivo, dominio de un campo, firma de una
+  función, estado del repo) debe estar respaldado aquí; si no lo está, se
+  declara como hipótesis y se verifica antes de ejecutar el plan.]
 - **Impacto:** [funciones afectadas directa/indirectamente, insumos requeridos, salidas que cambian]
 - **Riesgos:** [riesgo + mitigación]
 - **Verificación contra traspaso y principios:** [restricciones o bugs previos que aplican; tensiones declaradas]
@@ -236,6 +315,51 @@ indica [X]; lo que propones [riesgo]. ¿Procedemos o ajustamos?"
   corregir, verificando no romper otra cosa.
 - **La política es contrato, no sugerencia.** Desviaciones se
   documentan como deuda heredada y se proponen como pendiente.
+- **Toda afirmación de hecho lleva su fuente primaria.** Cualquier
+  afirmación sobre el estado del proyecto (existencia, ubicación o
+  contenido de un archivo; dominio de valores de un campo; firma de una
+  función; estado del CI o del repo) se acompaña, en la misma oración, de
+  la fuente primaria consultada en esta sesión ("(fuente: leído
+  `00_run_all.R`)", "(fuente: `git ls-files`)"). Un nombre de archivo o
+  campo, un documento normativo, la memoria o un adjunto sin validar NO
+  son fuente primaria: lo que solo se apoya en ellos se redacta como
+  hipótesis y se verifica antes de actuar. Esta regla generaliza y
+  reemplaza las formulaciones por caso acumuladas en proyectos
+  individuales.
+- **Generar, verificar, consumar: en ese orden.** Todo bloque de
+  comandos o encargo que genere o modifique un artefacto y luego lo
+  consuma (commit, push, entrega, cifra comunicada) intercala entre ambos
+  un paso de verificación observable (`wc -l`, `tail`, `diff`,
+  `git status`, recuento programático) y condiciona el paso consumidor a
+  su resultado ("si el conteo difiere de N, detente y reporta"). Las
+  cifras comunicadas se recuentan programáticamente; la aritmética manual
+  no es fuente válida de una cifra reportada.
+- **Ningún comando asume el entorno.** Todo bloque de comandos
+  destinado a ejecutarse fuera de esta conversación declara dónde se
+  ejecutará, usa rutas completas desde la raíz del proyecto y no asume
+  `cd` previo ni estado de terminal heredado. Si la ejecución necesita un
+  archivo, la ruta se verifica en el entorno destino o el contenido se
+  incrusta completo; "te lo paso aparte" no es una fuente accesible.
+  (Para encargos formales a Claude Code rige además el encabezado de
+  contrato de `encargo_autonomo_claude_code_v1.md`, sección 2.1.)
+- **El turno termina proponiendo.** En sesión de proyecto, un
+  turno solo puede terminar en uno de tres estados: (a) propuesta concreta
+  del siguiente paso con recomendación (política 0.1); (b) compuerta
+  legítima declarada (decisión estratégica, gobernanza, validación in situ
+  del titular); (c) propuesta de cierre de sesión con el síntoma de la
+  sección 3 nombrado. Terminar con una pregunta abierta de dirección o
+  con una descripción de estado sin propuesta es una desviación
+  registrable en 2.2.15.
+- **Registro de autorizaciones vigentes.** Las autorizaciones y
+  decisiones que el titular da durante la sesión se anotan al recibirse y
+  valen para toda la sesión. Antes de pedir cualquier confirmación,
+  verificar contra ese registro: re-preguntar lo ya autorizado es una
+  desviación registrable.
+- **Entrega materializada con destino.** Todo entregable
+  persistente (documento, script, encargo, parche) se entrega como archivo
+  y con su destino declarado en la misma entrega, con la forma
+  "→ destino: `<ruta completa desde la raíz>`". El contenido efímero
+  (explicaciones, cálculos puntuales) no obliga a materializar.
 
 #### 1.2.7 Registro continuo para el cierre
 
@@ -313,6 +437,11 @@ en `50_documentacion/traspasos/`. El traspaso es el **único puente**
 entre sesiones: todo lo que no quede ahí, se pierde. Antes de cerrar:
 ejecutar el escáner y referenciarlo.
 
+El traspaso se entrega SIEMPRE materializado como archivo `.md` en esa
+ruta (nunca solo como texto plano en el chat), acompañado en el mensaje
+de cierre del bloque de reapertura (2.2.14). Entregarlo sin archivo es
+una desviación registrable en 2.2.15.
+
 > **Convención de nombre — no negociable.** El separador es SIEMPRE
 > guión bajo: `traspaso_cierre_vNN.md`. NUNCA con guión medio
 > (`traspaso-cierre-vNN.md` es no-canónico y no se versiona). Esto
@@ -325,7 +454,17 @@ ejecutar el escáner y referenciarlo.
 > variante.
 
 Incluir TODAS las secciones de 2.2; si una no aplica, incluirla con
-"No aplica en esta sesión" y justificación breve.
+"No aplica en esta sesión" y justificación breve. Tres secciones valen
+por su vacío y son obligatorias incluso vacías, porque su vacío es una
+afirmación verificable: Bugs de la sesión (2.2 punto 6), la auditoría de
+cierre (dentro de 2.2 punto 11) y la tabla de errores del asistente
+(2.2.15).
+
+**Chequeo de cierre del backlog (2.2.5):** si este es el segundo cierre o
+posterior y el backlog aún vive embebido en el traspaso, o en un archivo
+de nombre no canónico, extraerlo o renombrarlo a
+`50_documentacion/activa/backlog_acumulativo.md` es parte de ESTE cierre,
+no un pendiente que se hereda.
 
 ### 2.1bis Generación de ESTADO.md (Fase 2 — PUSH)
 
@@ -396,6 +535,10 @@ el cierre no alcanza a generarlo, no bloquea el cierre de sesión: el
 orquestador de cartera cae a PULL (lectura del traspaso/backlog) para ese
 proyecto, sin error.
 
+**Consumidores:** el orquestador de cartera (corrida diaria) y la apertura
+CONTINUATION del propio proyecto (1.2.2, paso 0), que lo usa como
+orientación inicial antes de la lectura completa del traspaso.
+
 **Detección de desincronización (consumida por el orquestador, no por
 este protocolo):** si `ultima_actividad` de `ESTADO.md` antecede al mtime
 real del último `traspaso_cierre_vNN.md`, el `ESTADO.md` se considera
@@ -434,8 +577,14 @@ de la cual destilar): queda en PULL hasta su primer cierre formal.
    justificación, tensiones resueltas, implicancia. Las de peso
    arquitectónico se replican como archivo en
    `50_documentacion/activa/decisiones/YYYYMMDD_decision_<tema>.md`.
-9. **Constantes y parámetros vigentes:** tabla constante / valor /
-   archivo / nota (marcando cambios de valor).
+9. **Constantes y parámetros:** tabla SOLO de las que cambiaron en la
+   sesión (constante / valor anterior / valor nuevo / archivo / motivo),
+   más una línea que nombre la fuente canónica de las vigentes
+   (`10_utils/10_configuracion.R`, `documentacion_tecnica_vN.md` o el
+   script que las declara). Si ninguna cambió: "Sin cambios; vigentes en
+   `<fuente>`". Las constantes decididas en la sesión que aún no viven en
+   código se listan completas (el traspaso es su única fuente hasta que
+   aterricen).
 10. **Arquitectura de archivos:** referencia al escáner al cierre; si
     la estructura cambió, resumen del cambio y verificación contra la
     política.
@@ -456,8 +605,13 @@ de la cual destilar): queda en PULL hasta su primer cierre formal.
 12. **Instrucciones específicas para la próxima sesión:** formato
     ⚠️ NO [acción] sin [condición] / ✅ ANTES de [acción], verificar
     [precondición] / 🔒 [invariante intocable].
-13. **Fragmentos de código de referencia:** patrones que son "la forma
-    correcta" en este proyecto, ejecutables tal cual, comentados.
+13. **Fragmentos de código de referencia:** SOLO los patrones nuevos o
+    modificados en esta sesión, ejecutables tal cual, comentados. Los
+    patrones estables del proyecto viven en una fuente única
+    (`documentacion_tecnica_vN.md` o `CLAUDE.md` del proyecto) y el
+    traspaso los referencia por nombre, no los re-copia. Si la sesión no
+    aportó patrones nuevos: "Sin patrones nuevos; los estables viven en
+    `<fuente>`".
 14. **Reapertura** (ver 2.2.14).
 15. **Errores del asistente** (ver 2.2.15): tabla obligatoria, registro
     exhaustivo de desviaciones de regla canónica (POLITICA 0.5).
@@ -499,19 +653,21 @@ corrige con una entrada nueva.
 - **Delta del backlog:** cambios respecto a la versión anterior (N
   entradas nuevas, refinamientos de taxonomía, reclasificaciones).
 
-#### 2.2.14 Reapertura (al final del traspaso Y replicada en el chat)
+#### 2.2.14 Reapertura (una copia en el traspaso, replicada solo en el chat)
 
-Toda esta sección aparece dentro del traspaso y se replica
-**textualmente** al final del mensaje con el que el asistente cierra la
-sesión, para copiar todo sin abrir el archivo. Con **valores reales,
-jamás placeholders**.
+Esta sección aparece UNA sola vez dentro del traspaso (su sección final) y
+se replica **textualmente** al final del mensaje de chat con el que el
+asistente cierra la sesión, para copiar todo sin abrir el archivo. No se
+duplica dentro del propio traspaso. Con **valores reales, jamás
+placeholders**. El asistente no propone nombre para la nueva sesión.
 
-- **Nombre del chat:** `<Proyecto>, sesión <N+1> (<Modelo>)`.
 - **Mensaje de apertura pre-armado:** declara tipo CONTINUATION, indica
-  que el protocolo (política + este documento) vive en la knowledge
-  base y se lee desde ahí, y lista qué se adjunta. Variante para chat
-  suelto: "Adjunto los documentos de protocolo y los específicos de la
-  sesión."
+  que el protocolo (política + este documento) vive en la knowledge base
+  y se lee desde ahí, lista qué se adjunta, y cierra con una línea de
+  estado y el foco propuesto (la prioridad 1 de la ruta sugerida del
+  traspaso), para que la próxima apertura entre a la Fase C con la
+  propuesta ya sembrada. Variante para chat suelto: "Adjunto los
+  documentos de protocolo y los específicos de la sesión."
 - **Documentos para la próxima sesión, en tres bloques:**
   1. *Protocolo en knowledge base* (NO se adjuntan; se listan con
      nombre exacto solo para verificar que la knowledge base esté al
@@ -559,12 +715,18 @@ código diluiría esa comparabilidad.
 | `regla_violada` | Documento + sección exacta de la regla que existía y no se siguió (p.ej. "userPreferences, edición de archivos: entregar completo, no fragmentos") |
 | `causa_raiz` | Por qué ocurrió pese a que la regla estaba disponible (nunca "no lo sabía": la regla existía; el análisis es de por qué no se aplicó en el momento) |
 | `salvaguarda_presente` | Qué documento(s) ya contenían la regla violada (POLITICA / SETTINGS / CLAUDE.md / userPreferences / más de uno) |
-| `patron` | Si este error es una variante de otro ya registrado en este traspaso o en uno anterior, indicar cuál; si es nuevo, decir "nuevo" |
+| `patron` | Etiqueta `PAT-NN` del catálogo canónico (`herramientas_dev/gobernanza/catalogo_patrones_errores_vN.md`) más el matiz libre ("PAT-01, sobre firma de función"). "Nuevo" se reserva para mecanismos que ningún `PAT-NN` cubre, y obliga a proponer la entrada nueva del catálogo en el mismo traspaso |
 
 **Regla de registro:** el error se anota en el momento en que se
 identifica dentro de la sesión (no se reconstruye de memoria al cerrar).
 Si la sesión no llega a un cierre formal, el registro provisional debe
 quedar localizable en el historial de la conversación.
+
+**Regla de formato:** la tabla usa los siete campos fijos sin excepción,
+en cualquiera de los layouts equivalentes (tabla de 7 columnas, tabla
+transpuesta o bloque campo/contenido por error). Omitir campos o sustituir
+la tabla por un formato propio degrada la comparabilidad entre proyectos,
+que es el propósito de esta sección.
 
 **Consumo entre proyectos:** esta tabla es, junto al backlog, uno de los
 pocos artefactos pensados explícitamente para análisis CRUZADO entre los

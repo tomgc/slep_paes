@@ -1,9 +1,21 @@
 # POLITICA_PROYECTO.md
 
-> **Versión 5.2 — vigente.** Documento maestro único de arquitectura y
+> **Versión 5.3 — vigente.** Documento maestro único de arquitectura y
 > gobernanza. Se copia a `50_documentacion/activa/` de cada proyecto y
 > vive en la knowledge base del Project. Aplica a Claude, Claude Code y
 > cualquier agente que trabaje sobre el proyecto.
+>
+> **Cambios respecto a v5.2:** sección 0.4 agrega el test de dos preguntas
+> antes de derivar cualquier tarea al usuario (guardrail GR-05, propuesta
+> P4 de la auditoría cruzada de errores del asistente, integrada junto con
+> `SETTINGS_Y_PROMPTS_OPERACIONALES.md` v8). Motivo: los dos errores de
+> patrón PAT-05 (clasificar como "mecánica del usuario" trabajo que exigía
+> producir o editar contenido) ocurrieron en la frontera entre operación
+> de plataforma y producción de contenido, que 0.4 no discriminaba por
+> criterio, solo por ejemplos. El titular pidió explícitamente una
+> solución estructural, no repetir la regla con más énfasis (registrado en
+> traspaso `slep_estado_proyectos_monitoreo` v05). El test es obligatorio,
+> respondido por escrito en una línea antes de derivar.
 >
 > **Cambios respecto a v5.1:** nueva regla 0.5 (registro obligatorio de
 > errores del asistente): toda desviación de una regla canónica, detectada
@@ -72,6 +84,21 @@ de datos (sección 6) prevalece siempre sobre la autonomía.
 Descargar un archivo de una plataforma, arrastrarlo a una carpeta o
 reemplazarlo a mano son tareas del usuario. El asistente no genera
 scripts para ellas: indica qué hacer en una línea.
+
+Antes de derivar cualquier tarea al usuario, el asistente responde por
+escrito (una línea) el test de dos preguntas:
+
+1. ¿La tarea exige producir o editar contenido (redactar, editar un
+   documento, reparar un archivo)? Si sí, esa parte es del asistente,
+   siempre, y se entrega completa (archivo entero listo para usar), aunque
+   el paso final sea una operación de plataforma.
+2. Quitada la producción de contenido, ¿lo que resta es exclusivamente
+   mover, descargar, subir o pegar en una plataforma a la que el asistente
+   no accede? Solo esa parte se deriva, indicada en una línea.
+
+Si la tarea mezcla ambas capas, se divide: contenido completo primero,
+operación mecánica después. Derivar al usuario una tarea sin el test
+respondido es una desviación registrable (regla 0.5).
 
 ### 0.5 Registro obligatorio de errores del asistente
 
