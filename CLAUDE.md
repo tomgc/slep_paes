@@ -124,7 +124,19 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
 
 ## Ultimos cambios
 
-1. **Sesion — bloque «Universo de seleccionados» en la tabla comparativa de
+1. **Sesion — fix denominador cohorte «Todas» (>100% en cobertura).** Bug en
+   `CobComp` (`8a614c3`): en cohorte «Todas» el % se calculaba sobre `egresados`
+   (solo actual) con numerador actual+anterior -> >100% (Viña 118%, 5.203/4.418).
+   Misma causa raíz en las tres vistas y el export. Helper nuevo `baseCob()`
+   rebasa a inscritos cuando la cohorte no es «actual»; columna/slab «Egresados»
+   pasa a «—» en cohorte mixta. Corregido en `CobComp` (`baseN`), `CobActual`
+   (`funnelStages` neutraliza egresados como base), `CobHist` (`baseY`, «actual»
+   conserva egresados-o-hueco por año) y export XLSX (comp/hist/actual). Notas
+   cohorte-conscientes («sobre inscritos» en anterior/todas). Interfaz pura (sin
+   cambios en 32). Verificado B.4: 0 >100% en las tres vistas, Actual/Anteriores
+   sin regresión, 0 errores. Commit `175787b`. Log:
+   `andamios/logs/20260702_fix_base_todas_log.md`.
+2. **Sesion — bloque «Universo de seleccionados» en la tabla comparativa de
    Cobertura (handoff Claude Design).** Reemplaza el tratamiento visual de la Fase 2
    anterior (`1d22d44`: borde simple + flecha, rechazado «2/10») por el bloque del
    handoff en `CobComp`: banda superior `colSpan=2` sobre Seleccionado +
@@ -211,26 +223,3 @@ source("00_escanear_proyecto.R")  # snapshot de estructura (al abrir y cerrar se
    `egresados` vs. `inscripcion` NO es monotonico por diseño (poblaciones
    distintas: egresados = cohorte de ESE año; inscripcion incluye rezagados de
    años previos) — esperado, no defecto.
-3. **Sesion 2 — `31_leer_normalizar.R` implementado (Fase B).** Diagnostico
-   previo en `decisiones/20260701_decision_schema_31_leer_normalizar.md`
-   (mapeo wide->long de ArchivoD 2023 + esquema LONG para ArchivoC),
-   aprobado por el titular con dos resoluciones: `SITUACION_POSTULANTE[_BEA|
-   _PACE]`/flags `BEA`/`PACE` de 2023 se preservan como atributos
-   `*_solo2023` (NA en 2024+); postulantes repetidos entre `_reg`/`_inv` 2026
-   se apilan sin fusion (sin regla de precedencia confirmada). Lee y
-   normaliza ArchivoB/C/D/Matr 2023-2026 + egresados EM (delimitador `,`,
-   distinto de los planos DEMRE en `;`) desde el manifiesto de archivos
-   clasificado por NOMBRE (nunca por posicion ni por carpeta unica: ArchivoD
-   y ArchivoMatr conviven en `postulacion_seleccion/`). ArchivoC se pivotea
-   LONG (`prueba, tipo_rendicion, vigencia, puntaje`), descartando el
-   sentinela 0; `MODULO_*` (BIO/FIS/QUI/TEC) se pivotea aparte por no ser un
-   puntaje y se adjunta solo a `prueba == "cien"`. Bug encontrado y
-   corregido en la verificacion: ArchivoD 2023 mezcla separador decimal
-   coma/punto dentro del bloque PACE (~1967 celdas) — se lee siempre como
-   texto y se parsea con `parsear_numero_flex()` tolerante a ambas
-   notaciones (antes se perdian esos puntajes como NA en el read inicial).
-   Verificado end-to-end contra los datos reales: 4 anios, sin NA
-   inesperados en llaves/puntajes (los NA de `rbd` y `ptje_pref` trazan a
-   causas de negocio conocidas — rezagados sin RBD vigente, preferencias
-   rechazadas sin ponderado — no a fallas de parsing). `32_agregar_
-   territorial.R` sigue como stub.
