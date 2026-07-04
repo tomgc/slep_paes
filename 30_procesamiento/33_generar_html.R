@@ -157,10 +157,15 @@ cc_orden   <- c("5109", "5103", "5107", "5105")
 # reg+actual. NEM/Ranking vienen con tipo_rendicion/vigencia == NA (atributos por
 # persona en 32) -> se incluyen por nombre de prueba. Las filas reg/inv/anterior
 # siguen en el parquet (no publicadas). El embudo/cobertura NO cambia.
+# grupo_dependencia (PP/PS/Mun/sin_dato/"todas") viaja SOLO en rendimiento (corte
+# transversal por dependencia del establecimiento, focus Rendimiento). El filtro
+# ya captura todas las ramas de dependencia de las filas publicadas (vigente +
+# nem/ranking). El bloque de cobertura (cob_f) NO gana esta columna.
 ren_f <- df_ren |>
   dplyr::filter((tipo_rendicion == "vigente" & vigencia == "actual") |
                 prueba %in% c("nem", "ranking")) |>
-  dplyr::select(cod_entidad, anio_proceso, prueba, tipo_entidad, cohorte, n, media, suprimida)
+  dplyr::select(cod_entidad, anio_proceso, prueba, tipo_entidad, cohorte,
+                grupo_dependencia, n, media, suprimida)
 
 cob_f <- df_cob |>
   dplyr::select(cod_entidad, anio_proceso, etapa, orden_etapa, tipo_entidad, cohorte, n, suprimida,
