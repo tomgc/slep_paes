@@ -382,13 +382,26 @@ if (faltan_31 || faltan_cat) {
     dplyr::left_join(egreso_lookup, by = c("id_aux", "anio_proceso")) |>
     dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso))
 
-  # Puntajes por prueba: ambas vigencias (actual y anterior) son parte del
-  # desglose (no se filtran, a diferencia del embudo).
+  # DIMENSION TRANSVERSAL DE DEPENDENCIA (solo focus Rendimiento; el embudo de
+  # Cobertura NO se toca -> egresados/cod_depe no es homologable a
+  # grupo_dependencia, ver decision de sesion 6). Mapeo oficial DEMRE:
+  # 1=PP (Particular Pagado), 2=PS (Particular Subvencionado), 3 y 4=Mun.,
+  # NA="sin dato" (~1,3%). grupo_dependencia es CONSTANTE por (id_aux, anio) en
+  # ArchivoC (verificado), asi que entra directo al grouping sin split espurio.
+  # La categoria "todas" (todas las dependencias) reproduce el agregado
+  # pre-dependencia byte-identico (el territorio sigue como dimension primaria).
+  dep_lbl <- function(g) dplyr::case_when(
+    g == 1 ~ "PP", g == 2 ~ "PS", g %in% c(3L, 4L) ~ "Mun", TRUE ~ "sin_dato")
+
+  # Puntajes por prueba (raw reg/inv x actual/anterior; NO publicado por 33): sin
+  # corte de dependencia -> grupo_dependencia = "todas" (byte-identico al previo,
+  # solo gana la columna).
   rendimiento_puntajes <- rend_coh |>
     agregar_promedio_cohorte(
       mapa, valor_col = "puntaje",
       by_base = c("anio_proceso", "prueba", "tipo_rendicion", "vigencia")
-    )
+    ) |>
+    dplyr::mutate(grupo_dependencia = "todas")
 
   # MEJOR PUNTAJE VIGENTE por prueba (ventana 4 = max sobre las 4 casillas
   # REG/INV x ACTUAL/ANTERIOR, "ultimas cuatro aplicaciones consecutivas", regla
@@ -396,31 +409,46 @@ if (faltan_31 || faltan_cat) {
   # abiertos). Se colapsa a UN mejor puntaje por persona-prueba ANTES de promediar
   # territorialmente (max entre convocatorias y entre proceso actual/anterior).
   # Excluye "mate" (INV sin split, no homologable a mate1/mate2 sin fuente, B.1).
-  # NO toca el embudo (Decision 6: personas unicas, intacta).
-  rendimiento_vigente <- rend_coh |>
+  # NO toca el embudo (Decision 6: personas unicas, intacta). PUBLICADO -> gana el
+  # corte de dependencia (PP/PS/Mun/sin_dato) ademas de "todas".
+  vig_persona <- rend_coh |>
     dplyr::filter(.data$prueba %in% c("clec", "mate1", "mate2", "cien", "hcsoc")) |>
+    dplyr::mutate(grupo_dependencia = dep_lbl(.data$grupo_dependencia)) |>
     dplyr::summarise(puntaje = max(.data$puntaje),
-                     .by = c("id_aux", "anio_proceso", "rbd", "prueba", "cohorte")) |>
+                     .by = c("id_aux", "anio_proceso", "rbd", "prueba", "cohorte", "grupo_dependencia"))
+  vig_todas <- vig_persona |>
     agregar_promedio_cohorte(mapa, valor_col = "puntaje",
                              by_base = c("anio_proceso", "prueba")) |>
+    dplyr::mutate(grupo_dependencia = "todas")
+  vig_dep <- vig_persona |>
+    agregar_promedio_cohorte(mapa, valor_col = "puntaje",
+                             by_base = c("anio_proceso", "prueba", "grupo_dependencia"))
+  rendimiento_vigente <- dplyr::bind_rows(vig_todas, vig_dep) |>
     dplyr::mutate(tipo_rendicion = "vigente", vigencia = "actual")
 
   # NEM y Ranking: atributos por PERSONA -> deduplicar por id_aux+anio antes de
-  # promediar; sentinela 0 excluido. Cohorte por anyo_egreso.
+  # promediar; sentinela 0 excluido. Cohorte por anyo_egreso. PUBLICADO como
+  # contexto -> gana el corte de dependencia + "todas".
   personas_contexto <- rendicion |>
-    dplyr::distinct(id_aux, anio_proceso, rbd, ptje_nem, ptje_ranking) |>
+    dplyr::distinct(id_aux, anio_proceso, rbd, grupo_dependencia, ptje_nem, ptje_ranking) |>
+    dplyr::mutate(grupo_dependencia = dep_lbl(.data$grupo_dependencia)) |>
     dplyr::left_join(egreso_lookup, by = c("id_aux", "anio_proceso")) |>
     dplyr::mutate(cohorte = clasificar_cohorte(.data$anyo_egreso, .data$anio_proceso))
 
-  rendimiento_nem <- personas_contexto |>
-    dplyr::filter(.data$ptje_nem > 0) |>
-    agregar_promedio_cohorte(mapa, valor_col = "ptje_nem", by_base = "anio_proceso") |>
-    dplyr::mutate(prueba = "nem", tipo_rendicion = NA_character_, vigencia = NA_character_)
-
-  rendimiento_ranking <- personas_contexto |>
-    dplyr::filter(.data$ptje_ranking > 0) |>
-    agregar_promedio_cohorte(mapa, valor_col = "ptje_ranking", by_base = "anio_proceso") |>
-    dplyr::mutate(prueba = "ranking", tipo_rendicion = NA_character_, vigencia = NA_character_)
+  # Helper: agregado "todas" (byte-identico al previo) + corte por dependencia.
+  ctx_dep <- function(valor_col, prueba_lbl) {
+    base <- personas_contexto |> dplyr::filter(.data[[valor_col]] > 0)
+    todas <- base |>
+      agregar_promedio_cohorte(mapa, valor_col = valor_col, by_base = "anio_proceso") |>
+      dplyr::mutate(grupo_dependencia = "todas")
+    dep <- base |>
+      agregar_promedio_cohorte(mapa, valor_col = valor_col,
+                               by_base = c("anio_proceso", "grupo_dependencia"))
+    dplyr::bind_rows(todas, dep) |>
+      dplyr::mutate(prueba = prueba_lbl, tipo_rendicion = NA_character_, vigencia = NA_character_)
+  }
+  rendimiento_nem     <- ctx_dep("ptje_nem", "nem")
+  rendimiento_ranking <- ctx_dep("ptje_ranking", "ranking")
 
   rendimiento <- dplyr::bind_rows(rendimiento_puntajes, rendimiento_vigente,
                                   rendimiento_nem, rendimiento_ranking)
