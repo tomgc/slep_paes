@@ -54,9 +54,9 @@ var COV = {}; // tipo|cod|anio|etapa|cohorte -> {n, sup, nsel, np1, pct1}
     nsel:c.n_seleccionados[i], np1:c.n_prioridad_1[i], pct1:c.pct_prioridad_1[i]
   };
 }})();
-var REN = {}; // tipo|cod|anio|prueba|cohorte -> {n, media, sup}
+var REN = {}; // tipo|cod|anio|prueba|cohorte|dependencia -> {n, media, sup}
 (function(){ var r=DATA.rendimiento; for(var i=0;i<r.rows;i++){
-  REN[r.tipo_entidad[i]+"|"+r.cod_entidad[i]+"|"+r.anio_proceso[i]+"|"+r.prueba[i]+"|"+r.cohorte[i]]={n:r.n[i],media:r.media[i],sup:r.suprimida[i]};
+  REN[r.tipo_entidad[i]+"|"+r.cod_entidad[i]+"|"+r.anio_proceso[i]+"|"+r.prueba[i]+"|"+r.cohorte[i]+"|"+r.grupo_dependencia[i]]={n:r.n[i],media:r.media[i],sup:r.suprimida[i]};
 }})();
 
 // ==== Catalogo territorial (nombres + jerarquia) ============================
@@ -87,7 +87,7 @@ function terrColor(id, idx){
 // `coh` (actual/anterior/todas) es opcional: por defecto "todas" (agregado
 // completo, == comportamiento pre-cohorte). Las vistas pasan la cohorte activa.
 function covGet(id, anio, etapa, coh){ var p=terrParse(id); return COV[p.tipo+"|"+p.cod+"|"+anio+"|"+etapa+"|"+(coh||"todas")]||null; }
-function renGet(id, anio, prueba, coh){ var p=terrParse(id); return REN[p.tipo+"|"+p.cod+"|"+anio+"|"+prueba+"|"+(coh||"todas")]||null; }
+function renGet(id, anio, prueba, coh, dep){ var p=terrParse(id); return REN[p.tipo+"|"+p.cod+"|"+anio+"|"+prueba+"|"+(coh||"todas")+"|"+(dep||"todas")]||null; }
 // El control de cohorte aplica a TODAS las combinaciones Foco x Vista x Periodo
 // (incluida la serie historica; encargo 2, Fase 3).
 function activeCohorte(s){ return s.cohorte||"actual"; }
@@ -128,10 +128,10 @@ function baseCob(id, anio, coh){
 }
 // Analogo para rendimiento: media ponderada por n de las comunas incluidas.
 function renSel(ctx, anio, prueba, coh){
-  var s=ctx.state; if(!filtroComunaActivo(s)) return renGet(s.terrSel,anio,prueba,coh);
+  var s=ctx.state, dep=s.dep||"todas"; if(!filtroComunaActivo(s)) return renGet(s.terrSel,anio,prueba,coh,dep);
   var sw=0, n=0;
   childComunas(s.terrSel).forEach(function(cid){ var cp=terrParse(cid); if(comunaExcluida(s,cp.cod)) return;
-    var g=renGet(cid,anio,prueba,coh); if(!g||g.sup) return; sw+=g.media*g.n; n+=g.n; });
+    var g=renGet(cid,anio,prueba,coh,dep); if(!g||g.sup) return; sw+=g.media*g.n; n+=g.n; });
   if(n===0) return null; return {n:n, media:sw/n, sup:false};
 }
 // Sufijo de subtitulo cuando hay comunas excluidas (region).
@@ -152,7 +152,7 @@ var ETAPAS = M.etapas, PRUEBAS = M.pruebas, CONTEXTO = M.contexto;
 // ===========================================================================
 function App(){
   var st = React.useState({
-    foco:"cob", vista:"terr", modo:"actual", cohorte:"actual",
+    foco:"cob", vista:"terr", modo:"actual", cohorte:"actual", dep:"todas",
     notesOpen:false, hoverExp:null,
     terrSel:"slep:"+CC.slep,
     compSel: CC.comunas.map(function(c){return "comuna:"+c;}),
@@ -227,6 +227,14 @@ function cohorteSeg(ctx){
   return seg([{v:"actual",label:"Actual"},{v:"anterior",label:"Anteriores"},{v:"todas",label:"Todas"}],
              ctx.state.cohorte, function(v){ctx.upd({cohorte:v});}, ctx.acc);
 }
+// Corte por dependencia del establecimiento (SOLO focus Rendimiento). Mapeo DEMRE
+// de grupo_dependencia: 1=PP, 2=PS, 3 y 4=Mun.; NA -> "sin dato" (~1,3%).
+// "Todas" reproduce el agregado sin corte (default, byte-identico al historico).
+var DEP_OPCIONES = [{v:"todas",label:"Todas"},{v:"Mun",label:"Municipal"},
+  {v:"PS",label:"P. Subv."},{v:"PP",label:"P. Pagado"},{v:"sin_dato",label:"Sin dato"}];
+function DEP_NOMBRE(v){ for(var i=0;i<DEP_OPCIONES.length;i++){ if(DEP_OPCIONES[i].v===v) return DEP_OPCIONES[i].label; } return v; }
+function depSeg(ctx){ return seg(DEP_OPCIONES, ctx.state.dep||"todas", function(v){ctx.upd({dep:v});}, ctx.acc); }
+function depSub(dep){ return (dep && dep!=="todas") ? " · "+DEP_NOMBRE(dep) : ""; }
 function Controls(ctx){
   var s=ctx.state, acc=ctx.acc;
   var vistaSeg=seg([{v:"terr",label:"Por territorio"},{v:"comp",label:"Comparar territorios"}],s.vista,function(v){ctx.upd({vista:v});});
@@ -242,6 +250,7 @@ function Controls(ctx){
     grupo("Vista", vistaSeg),
     s.vista==="terr" ? grupo("Período", periodSeg) : null,
     h("div",{style:{flex:1}}),
+    s.foco==="ren" ? grupo("Dependencia", depSeg(ctx)) : null,
     cohorteOrHint);
   return h("div",{}, FocoTabs(ctx), row);
 }
@@ -310,9 +319,9 @@ function viewMeta(ctx){
     return {t:"Cobertura — comparación entre territorios", sub:"Embudo por territorio · admisión "+M.anio_actual+" · porcentaje (n)", note:"Comparación en porcentaje sobre "+(activeCohorte(s)==="actual"?"egresados":"inscritos")+", con el número de casos entre paréntesis: % (n). Celdas con n < "+M.umbral+" se muestran como «"+SUP_TXT+"»."};
   } else {
     if(v==="terr") return m==="hist"
-      ? {t:"Rendimiento en el tiempo", sub:terrName(s.terrSel)+" · media por prueba · "+M.anios[0]+"–"+M.anios[M.anios.length-1], note:"Serie histórica de la media del mejor puntaje vigente por prueba (mejor de las últimas 4 rendiciones consecutivas, normativa DEMRE; escala "+M.escala.min+"–"+M.escala.max+"). La mediana no está disponible en el agregado; se reporta la media."}
-      : {t:"Distribución de puntajes PAES", sub:terrName(s.terrSel)+" · media por prueba · escala "+M.escala.min+"–"+M.escala.max+" · NEM y Ranking como contexto", note:"Se reporta la media del mejor puntaje vigente por prueba: el mejor puntaje de cada prueba entre las últimas 4 rendiciones consecutivas (invierno/regular × proceso actual y anterior), según la normativa DEMRE («puntaje bloque»). Agregado territorial, no microdato. NEM y Ranking se muestran como contexto (no son pruebas PAES). Celdas con n < "+M.umbral+" se resguardan."};
-    return {t:"Rendimiento — comparación entre territorios", sub:"Media de puntaje por prueba · admisión "+M.anio_actual+" · media (n)", note:"Cada celda muestra la media del mejor puntaje vigente por prueba (mejor de las últimas 4 rendiciones consecutivas —invierno/regular × actual/anterior—, normativa DEMRE) y, entre paréntesis, el número de casos. Heatmap por columna: menor media = más alerta. NEM y Ranking van como contexto."};
+      ? {t:"Rendimiento en el tiempo", sub:terrName(s.terrSel)+" · media por prueba · "+M.anios[0]+"–"+M.anios[M.anios.length-1]+depSub(s.dep), note:"Serie histórica de la media del mejor puntaje vigente por prueba (mejor de las últimas 4 rendiciones consecutivas, normativa DEMRE; escala "+M.escala.min+"–"+M.escala.max+"). La mediana no está disponible en el agregado; se reporta la media. Corte por dependencia del establecimiento (mapeo DEMRE: 1=Part. Pagado, 2=Part. Subvencionado, 3-4=Municipal; «Sin dato» ≈ 1,3% sin dependencia informada)."}
+      : {t:"Distribución de puntajes PAES", sub:terrName(s.terrSel)+" · media por prueba · escala "+M.escala.min+"–"+M.escala.max+" · NEM y Ranking como contexto"+depSub(s.dep), note:"Se reporta la media del mejor puntaje vigente por prueba: el mejor puntaje de cada prueba entre las últimas 4 rendiciones consecutivas (invierno/regular × proceso actual y anterior), según la normativa DEMRE («puntaje bloque»). Agregado territorial, no microdato. NEM y Ranking se muestran como contexto (no son pruebas PAES). Celdas con n < "+M.umbral+" se resguardan. El control «Dependencia» corta por dependencia del establecimiento (mapeo DEMRE: 1=Part. Pagado, 2=Part. Subvencionado, 3-4=Municipal; «Sin dato» ≈ 1,3% sin dependencia informada)."};
+    return {t:"Rendimiento — comparación entre territorios", sub:"Media de puntaje por prueba · admisión "+M.anio_actual+" · media (n)"+depSub(s.dep), note:"Cada celda muestra la media del mejor puntaje vigente por prueba (mejor de las últimas 4 rendiciones consecutivas —invierno/regular × actual/anterior—, normativa DEMRE) y, entre paréntesis, el número de casos. Heatmap por columna: menor media = más alerta. NEM y Ranking van como contexto. El control «Dependencia» corta por dependencia del establecimiento (mapeo DEMRE: 1=Part. Pagado, 2=Part. Subvencionado, 3-4=Municipal; «Sin dato» ≈ 1,3% sin dependencia informada)."};
   }
 }
 function ResultsSection(ctx){
@@ -578,7 +587,7 @@ function RenActual(ctx){
   rows.push(h("div",{key:"ctxh",style:{marginTop:"6px",paddingTop:"10px",borderTop:"2px solid var(--line2)",fontFamily:"var(--font-d)",fontWeight:400,fontSize:"var(--fs-caption)",color:"var(--slate)"}},"Contexto — NEM y Ranking (no son pruebas PAES)"));
   meanBars(ctx, CONTEXTO, true).forEach(function(r){ rows.push(r); });
   var foot=h("div",{style:{fontSize:"var(--fs-overline)",color:"var(--slate)",marginTop:"8px"}},"Barra: media en la escala "+M.escala.min+"–"+M.escala.max+" · se reporta la media agregada, no puntajes individuales.");
-  return card({},[cardTitle("Media de puntaje por prueba", terrName(ctx.state.terrSel)+" · admisión "+M.anio_actual+cohorteSub(activeCohorte(ctx.state))+filtroSub(ctx.state)), h("div",{},rows), foot]);
+  return card({},[cardTitle("Media de puntaje por prueba", terrName(ctx.state.terrSel)+" · admisión "+M.anio_actual+cohorteSub(activeCohorte(ctx.state))+depSub(ctx.state.dep)+filtroSub(ctx.state)), h("div",{},rows), foot]);
 }
 function RenHist(ctx){
   var acc=ctx.acc, id=ctx.state.terrSel, years=M.anios, coh=activeCohorte(ctx.state);
@@ -592,21 +601,21 @@ function RenHist(ctx){
   }
   var items=PRUEBAS.map(function(p){return mini(p,acc);});
   return h("div",{},[
-    h("div",{key:"n",style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginBottom:"12px"}},"Media de puntaje por prueba, "+years[0]+"–"+years[years.length-1]+" · escala "+M.escala.min+"–"+M.escala.max+cohorteSub(coh)+filtroSub(ctx.state)+" · NEM y Ranking se omiten en la serie histórica."),
+    h("div",{key:"n",style:{fontSize:"var(--fs-caption)",color:"var(--slate)",marginBottom:"12px"}},"Media de puntaje por prueba, "+years[0]+"–"+years[years.length-1]+" · escala "+M.escala.min+"–"+M.escala.max+cohorteSub(coh)+depSub(ctx.state.dep)+filtroSub(ctx.state)+" · NEM y Ranking se omiten en la serie histórica."),
     h("div",{key:"g",style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:"12px"}},items)]);
 }
 function RenComp(ctx){
-  var acc=ctx.acc, ids=ctx.state.compSel, anio=M.anio_actual, coh=activeCohorte(ctx.state);
+  var acc=ctx.acc, ids=ctx.state.compSel, anio=M.anio_actual, coh=activeCohorte(ctx.state), dep=ctx.state.dep||"todas";
   var heatKeys=PRUEBAS.map(function(p){return p.k;});
   var allCols=PRUEBAS.concat(CONTEXTO);
   var ranges={}; heatKeys.forEach(function(k){ var vs=[];
-    ids.forEach(function(id){ var g=renGet(id,anio,k,coh); if(g&&!g.sup) vs.push(g.media); });
+    ids.forEach(function(id){ var g=renGet(id,anio,k,coh,dep); if(g&&!g.sup) vs.push(g.media); });
     ranges[k]=vs.length?[Math.min.apply(null,vs),Math.max.apply(null,vs)]:[0,1]; });
   function norm(k,v){ var r=ranges[k]; return r[1]>r[0]?(v-r[0])/(r[1]-r[0]):0.5; }
   var heads=["Territorio"].concat(allCols.map(function(p){return p.short||p.sigla||p.name;}));
   var th=heads.map(function(t,i){ return h("th",{key:i,style:{textAlign:i===0?"right":"center",padding:"8px 9px",fontFamily:"var(--font-b)",fontWeight:700,fontSize:"var(--fs-overline)",color:i>PRUEBAS.length?"var(--slate)":"var(--ink2)",borderBottom:"2px solid "+acc,borderLeft:i===PRUEBAS.length+1?"1px solid var(--line2)":"none",whiteSpace:"nowrap"}},t); });
   var rows=ids.map(function(id,idx){
-    var cells=allCols.map(function(p,j){ var isCtx=j>=PRUEBAS.length; var g=renGet(id,anio,p.k,coh);
+    var cells=allCols.map(function(p,j){ var isCtx=j>=PRUEBAS.length; var g=renGet(id,anio,p.k,coh,dep);
       var left=(j===PRUEBAS.length);
       if(!g||g.sup) return supCell(p.k, left?"1px solid var(--line2)":false);
       var bg=isCtx?"transparent":heatColor(norm(p.k,g.media));
@@ -762,16 +771,17 @@ function currentSheet(ctx){
         var pct = (base2&&g&&!g.sup)?Math.round(g.n/base2*100):""; aoa.push([e.label, (g&&!g.sup)?g.n:"resguardo", pct]); }); }
   } else {
     var cols=PRUEBAS.concat(CONTEXTO);
+    var dep=s.dep||"todas", depLbl="Dependencia: "+DEP_NOMBRE(dep);
     if(s.vista==="comp"){ name="Rendimiento comparacion";
-      var hd=["Territorio"]; cols.forEach(function(p){ hd.push((p.sigla||p.name)+" media"); hd.push((p.sigla||p.name)+" n"); }); aoa=[["Cohorte: "+cohLbl],[],hd];
-      s.compSel.forEach(function(id){ var row=[terrName(id)]; cols.forEach(function(p){ var g=renGet(id,anio,p.k,coh);
+      var hd=["Territorio"]; cols.forEach(function(p){ hd.push((p.sigla||p.name)+" media"); hd.push((p.sigla||p.name)+" n"); }); aoa=[["Cohorte: "+cohLbl+" · "+depLbl],[],hd];
+      s.compSel.forEach(function(id){ var row=[terrName(id)]; cols.forEach(function(p){ var g=renGet(id,anio,p.k,coh,dep);
         if(!g||g.sup){ row.push("resguardo"); row.push("resguardo"); } else { row.push(Math.round(g.media)); row.push(g.n); } }); aoa.push(row); }); }
     else if(s.modo==="hist"){ name="Rendimiento historico"; var id3=s.terrSel;
-      var hd2=["Ano"]; PRUEBAS.forEach(function(p){ hd2.push(p.name); }); aoa=[["Territorio: "+terrName(id3)+" · "+cohLbl],[],hd2];
-      M.anios.forEach(function(y){ var row=[y]; PRUEBAS.forEach(function(p){ var g=renGet(id3,y,p.k,coh); row.push((g&&!g.sup)?Math.round(g.media):"resguardo"); }); aoa.push(row); }); }
-    else { name="Rendimiento actual"; var id4=s.terrSel; aoa=[["Territorio: "+terrName(id4)+" · admision "+anio+" · "+cohLbl],[],["Prueba","Media","n","Tipo"]];
-      PRUEBAS.forEach(function(p){ var g=renGet(id4,anio,p.k,coh); aoa.push([p.name, (g&&!g.sup)?Math.round(g.media):"resguardo", (g&&!g.sup)?g.n:"resguardo","Prueba PAES"]); });
-      CONTEXTO.forEach(function(p){ var g=renGet(id4,anio,p.k,coh); aoa.push([p.name, (g&&!g.sup)?Math.round(g.media):"resguardo", (g&&!g.sup)?g.n:"resguardo","Contexto"]); }); }
+      var hd2=["Ano"]; PRUEBAS.forEach(function(p){ hd2.push(p.name); }); aoa=[["Territorio: "+terrName(id3)+" · "+cohLbl+" · "+depLbl],[],hd2];
+      M.anios.forEach(function(y){ var row=[y]; PRUEBAS.forEach(function(p){ var g=renGet(id3,y,p.k,coh,dep); row.push((g&&!g.sup)?Math.round(g.media):"resguardo"); }); aoa.push(row); }); }
+    else { name="Rendimiento actual"; var id4=s.terrSel; aoa=[["Territorio: "+terrName(id4)+" · admision "+anio+" · "+cohLbl+" · "+depLbl],[],["Prueba","Media","n","Tipo"]];
+      PRUEBAS.forEach(function(p){ var g=renGet(id4,anio,p.k,coh,dep); aoa.push([p.name, (g&&!g.sup)?Math.round(g.media):"resguardo", (g&&!g.sup)?g.n:"resguardo","Prueba PAES"]); });
+      CONTEXTO.forEach(function(p){ var g=renGet(id4,anio,p.k,coh,dep); aoa.push([p.name, (g&&!g.sup)?Math.round(g.media):"resguardo", (g&&!g.sup)?g.n:"resguardo","Contexto"]); }); }
   }
   return {name:name, aoa:aoa};
 }
