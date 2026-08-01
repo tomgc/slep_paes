@@ -11,3 +11,13 @@
 # -----------------------------------------------------------------------------
 
 SLEP_PAES_DATA_ROOT="/Users/tomgc/Library/CloudStorage/OneDrive-SLEP/Proyectos/slep_paes"
+
+# =============================================================================
+# Locale UTF-8 obligatoria (guarda asegurar_locale_utf8; evidencia sesion v108)
+# =============================================================================
+# Un proceso de R lanzado desde un shell sin locale (LC_CTYPE=C: cron, CI,
+# shells no interactivos) escribe TODO texto acentuado escapado como <c3><a1>,
+# sin error visible. R lee ~/.Renviron al arrancar y esta linea fija la locale
+# ANTES de parsear cualquier script, que es lo unico que protege tambien los
+# literales del propio codigo:
+LANG=es_ES.UTF-8
