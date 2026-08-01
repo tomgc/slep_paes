@@ -22,6 +22,16 @@
 # por etapa NO se congela aqui; se define en 31_/32_ contra las bases reales.
 # =============================================================================
 
+# --- Guarda de locale UTF-8 (encargo v108 de slep_aprendizajes_ep) -----------
+# Va ANTES que todo: un proceso en locale C (cron, CI, shells no interactivos)
+# escribe el texto acentuado escapado byte a byte, sin error visible. El helper
+# es copia identica de herramientas_dev/plantillas/10_locale.R (politica 6.2:
+# no se edita por proyecto) y usa solo base R via here::here() por prefijo,
+# coherente con el contrato de bootstrapping de este modulo.
+# Detalle: 50_documentacion/activa/50_locale_utf8.md.
+source(here::here("10_utils", "10_locale.R"))
+asegurar_locale_utf8("10_configuracion")
+
 # --- Identificador del proyecto ---------------------------------------------
 PROYECTO_ID <- "slep_paes"
 
