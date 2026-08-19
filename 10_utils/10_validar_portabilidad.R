@@ -38,12 +38,31 @@
 # el propio protocolo §6.2 obliga a documentar: "C:/Users/<usuario>/..." es
 # instruccion de setup, no una ruta ejecutable. Cubre tambien las clases de
 # caracteres de un regex, propias de los scripts detectores.
+# Etiquetas HTML frecuentes en .Rmd y .qmd. No son huecos a rellenar y no
+# deben conceder amnistia (hallazgo N1: <div> y <br> caben en {2,20}).
+.vp_etiquetas_html <- c(
+  "br", "hr", "b", "i", "u", "em", "p", "div", "span", "pre", "code", "sub",
+  "sup", "ul", "ol", "li", "td", "tr", "th", "table", "small", "strong", "img",
+  "a", "h1", "h2", "h3", "h4", "h5", "h6", "kbd", "var", "del", "ins", "s"
+)
+
 .vp_placeholder <- paste0(
-  "<[A-Za-z_ ]{2,20}>",        # <usuario>, <user>, <tenant>, <nombre>
+  # Hueco nominal: exige que NO sea una etiqueta HTML conocida.
+  "<(?!(?i:", paste(.vp_etiquetas_html, collapse = "|"), ")>)[A-Za-z_ ]{2,20}>",
   "|\\$\\{[A-Za-z_]+\\}",      # ${VAR}
-  "|%[A-Za-z_]+%",             # %USERPROFILE%
+  # Variable de entorno estilo Windows: MAYUSCULAS y al menos 3 caracteres,
+  # para no matchear los operadores infijos de R (%in%, %o%, %do%, %chin%).
+  "|%[A-Z_]{3,}%",             # %USERPROFILE%, %APPDATA%
   "|\\[\\^",                   # clase negada de un regex
   "|/ruta/a/"                  # marcador generico en castellano
+)
+
+# Patrones de la familia de RUTAS. La amnistia por plantilla §6.2 se limita a
+# estos: una linea que documenta "C:/Users/<usuario>/..." explica una ruta, no
+# justifica un setwd() ni un NBSP que aparezcan en la misma linea (S13).
+.vp_familia_rutas <- c(
+  "ruta_usuario_macos", "ruta_usuario_windows", "letra_unidad",
+  "volumes_macos", "onedrive_literal", "tilde_como_raiz"
 )
 
 # Patrones estáticos. Algunos regex se componen por partes para que este
@@ -124,6 +143,32 @@
   archivos[!excluir & !propio]
 }
 
+# El marcador de excepcion vale solo si la almohadilla que lo abre esta FUERA
+# de todo literal de cadena. Recorre la linea siguiendo comillas simples y
+# dobles, con escape por barra invertida. Sale temprano en la inmensa mayoria
+# de las lineas, que ni siquiera contienen el texto del marcador.
+.vp_marcador_en_comentario <- function(linea) {
+  if (!grepl(.vp_marcador_excepcion, linea, fixed = TRUE)) return(FALSE)
+  ch <- strsplit(linea, "", fixed = TRUE)[[1]]
+  n <- length(ch)
+  comilla <- ""
+  i <- 1L
+  while (i <= n) {
+    c1 <- ch[[i]]
+    if (nzchar(comilla)) {
+      if (identical(c1, "\\")) { i <- i + 2L; next }
+      if (identical(c1, comilla)) comilla <- ""
+    } else if (identical(c1, "\"") || identical(c1, "'")) {
+      comilla <- c1
+    } else if (identical(c1, "#")) {
+      return(grepl(.vp_marcador_excepcion,
+                   paste(ch[i:n], collapse = ""), fixed = TRUE))
+    }
+    i <- i + 1L
+  }
+  FALSE
+}
+
 .vp_escanear_archivo <- function(raiz, archivo, patrones) {
   ruta <- file.path(raiz, archivo)
   lineas <- tryCatch(readLines(ruta, warn = FALSE, encoding = "UTF-8"),
@@ -132,7 +177,10 @@
   excepciones <- list()
   for (i in seq_along(lineas)) {
     linea <- lineas[[i]]
-    es_excepcion <- grepl(.vp_marcador_excepcion, linea, fixed = TRUE)
+    # El marcador solo cuenta si esta en un COMENTARIO real, no dentro de un
+    # literal de cadena ni de una URL (L15, L16): de otro modo basta pegar el
+    # texto en un mensaje de ayuda para silenciar la linea entera.
+    es_excepcion <- .vp_marcador_en_comentario(linea)
     # Plantilla de configuracion (§6.2), no ruta de maquina: se audita aparte.
     es_plantilla <- grepl(.vp_placeholder, linea, perl = TRUE)
     for (p in patrones) {
@@ -142,7 +190,10 @@
           severidad = p$severidad, descripcion = p$descripcion,
           stringsAsFactors = FALSE
         )
-        if (es_excepcion || (es_plantilla && p$severidad == "critica")) {
+        # La amnistia por plantilla alcanza solo a la familia de rutas (S13).
+        amnistia_plantilla <- es_plantilla && p$severidad == "critica" &&
+          p$id %in% .vp_familia_rutas
+        if (es_excepcion || amnistia_plantilla) {
           excepciones[[length(excepciones) + 1L]] <- registro
         } else {
           hallazgos[[length(hallazgos) + 1L]] <- registro
