@@ -9,6 +9,16 @@
 #   source(here::here("10_utils", "10_validar_portabilidad.R"))
 #   resultado <- validar_portabilidad()
 #   validar_portabilidad_autotest()
+#
+# REGLA DE MANTENIMIENTO (verificacion V5, 2026-08-19). Todo cambio a los
+# patrones de .vp_patrones(), a .vp_placeholder o al enrutado de
+# .vp_escanear_archivo() exige ejecutar la suite
+#   Rscript plantillas/tests/test_10_validar_portabilidad.R
+# y dejarla en verde ANTES de commitear, y despues repropagar esta plantilla a
+# los 22 proyectos (nunca editar la copia). Las comprobaciones ad hoc en
+# consola no sustituyen a la suite: la corrida del 2026-08-19 parcho estos
+# patrones seis veces validando a mano, y 70 de las 126 criticas que reporto
+# resultaron ser defectos del propio detector.
 # ============================================================================
 
 # --- Configuración interna --------------------------------------------------
