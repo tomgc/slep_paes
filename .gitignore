@@ -60,3 +60,8 @@ _archivo/
 tests/reportes/
 *_freeze/
 .quarto/
+
+# Gobernanza: viven en la knowledge base del Project, no en el repositorio.
+POLITICA_PROYECTO.md
+SETTINGS_Y_PROMPTS_OPERACIONALES.md
+CLAUDE.md
