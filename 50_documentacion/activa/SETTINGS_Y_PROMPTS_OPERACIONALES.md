@@ -1,6 +1,228 @@
 # SETTINGS_Y_PROMPTS_OPERACIONALES.md
 
-> **Versión 16.**
+> **Versión 31.**
+>
+> **Cambios respecto a v30: el traspaso pasa a ser un candado, no solo un
+> documento.** Origen: la cartera se trabaja desde dos máquinas (Windows y
+> macOS) y por más de una persona, con el repositorio fuera de OneDrive y
+> viajando solo por GitHub. En ese arreglo, lo que no está pusheado no existe
+> para la otra estación, y hasta la v30 nada del protocolo lo verificaba: un
+> traspaso impecable convivía con código sin commitear sin que ninguna regla lo
+> notara.
+>
+> 1. **§2.1 suma la compuerta de repositorio**, bloqueante y previa al paquete
+>    de cierre, con nueve invariantes ejecutables por
+>    `plantillas/95_verificar_cierre.R` y una única salida declarada
+>    (`cierre_incompleto`). Una sesión no está cerrada porque el traspaso esté
+>    escrito: lo está cuando otra máquina puede retomarla sin pedirle nada a
+>    quien la cerró.
+> 2. **§2.1 suma la declaración de insumos.** El repo viaja por git; el data
+>    root vive en OneDrive y sincroniza aparte. Es el único punto donde un
+>    traspaso perfecto puede fallar en la otra estación sin aviso, así que los
+>    insumos se declaran con huella verificable (nombre, fecha, tamaño),
+>    generada por comando y nunca de memoria.
+> 3. **§2.1bis suma al front matter de `ESTADO.md`** los campos del candado:
+>    `sesion_abierta`, `maquina`, `commit_cierre`, `traspaso_vigente`,
+>    `cierre_incompleto`, `insumos_verificados`. `ESTADO.md` pasa a ser
+>    obligatorio en todo proyecto trabajado desde más de una máquina.
+> 4. **§1.2.2 suma el punto 0bis**, la verificación del candado al abrir, y
+>    §1.2.8 la apertura de emergencia para cuando la sesión anterior no se
+>    cerró. La emergencia es excepción declarada, no vía alternativa: el hábito
+>    que el protocolo persigue es cerrar seguido.
+>
+> El 30 no se reutiliza: circuló descargado.
+>
+> **Cambios respecto a v29:** dos citas, ninguna regla. (1) §2.2.15: la cita del
+> catálogo canónico pasa de `catalogo_patrones_errores_v4.md` a `_v5.md`. Origen:
+> la revisión de coherencia del kit (2026-08-16) emitió el v5, que agrega la
+> columna `n` (origen) al índice y salda la deuda que el v4 declaraba abierta.
+> (2) §2.1: la cita del instrumento de cierre pasa de
+> `cierre_sesion_autonomo_cc_v8.md` a `_v9.md`, y las de §1.3 y §4.5 pasan de
+> `auditoria_codigo_proyecto_md_v1.md` a `_v2.md`; las tres las emitió la misma
+> ola. Esta
+> segunda cita se detectó en la verificación del depósito (2026-08-17), no en la
+> redacción: la v30 se emitió actualizando la cita del catálogo y dejando colgada
+> la del instrumento de cierre, que es el mismo defecto que esa ola venía a
+> cerrar. Las menciones a `_v8` de los registros de cambios de v20 y v23 NO se
+> tocan: describen el pasado por diseño. Ninguna otra sección se edita. La edición viaja en la misma ola que
+> `POLITICA_PROYECTO.md` v5.7 y `CLAUDE.md` v3, para que la knowledge base y las
+> copias en `50_documentacion/activa/` se repropaguen una sola vez. El conjunto
+> válido del campo `patron` NO cambia (`PAT-01` a `PAT-13`). El 29 no se
+> reutiliza: circuló descargado.
+>
+> **Versión 29.**
+>
+> **Cambios respecto a v28:** dos salvaguardas de forma tras detectar que un
+> cierre omitió la compuerta de dudas sin dejar rastro y que la versión del
+> protocolo se declaró de memoria desde un fragmento del registro de cambios.
+> (1) Regla transversal nueva en §2.1: la versión de todo documento normativo
+> se cita **transcribiendo su línea de encabezado**, nunca con el número
+> suelto. (2) El paquete gana dos campos obligatorios de front matter
+> (`compuerta_dudas`, `settings_version`) que el ejecutor verifica contra el
+> traspaso y contra el archivo real; ausentes o falsos, detienen el cierre
+> (instrumento v8). Principio aplicado: para esta familia de fallas, lo único
+> que ha funcionado es un slot obligatorio cuya ausencia es visible, no una
+> regla en prosa. El 28 no se reutiliza: circuló descargado.
+>
+> **Versión 28.**
+>
+> **Cambios respecto a v27:** el `push_autorizado` del cierre pasa a default
+> **`si`** (instrumento v7). Fundamento: el commit de cierre contiene solo
+> documentación, su scope lo acota F7 y llega después de los siete
+> invariantes, de modo que retenerlo en local no agrega control y sí deja
+> repos con commits sin publicar. La autorización explícita sigue siendo
+> obligatoria para todo push que incluya código o reescriba historial; la
+> excepción es del commit de cierre y no se generaliza. El 27 no se
+> reutiliza: circuló descargado.
+>
+> **Versión 27.**
+>
+> **Cambios respecto a v26:** instrumento en v6, tras un cierre real que
+> consumió tres emisiones del paquete, dos detenciones y una reversión
+> completa del árbol, todas por defectos de cómputo y ninguna de autoría.
+> §2.1 sustituye la "regla del delta" por la **regla de oro del payload**: el
+> paquete lleva solo decisiones humanas y magnitudes; los rótulos, las
+> posiciones de inserción y toda cifra derivada las calcula el ejecutor desde
+> un catálogo canónico auditable. El instrumento suma copia de trabajo previa
+> (ninguna mutación del árbol hasta que todas las verificaciones pasan, con
+> lo que desaparecen la detención tardía y la reversión), inserción por
+> posición estructural, invariantes de coherencia post-aplicación (incluido
+> "ninguna magnitud vieja sobrevive fuera de contexto histórico") y el
+> principio de que nada destructivo ni no idempotente corre antes de la
+> compuerta. El 26 no se reutiliza: circuló descargado.
+>
+> **Versión 26.**
+>
+> **Cambios respecto a v25:** §2.1 incorpora la **compuerta de dudas**,
+> obligatoria y previa a la generación del paquete: inventario de lo que se
+> dio por bueno sin medirlo, con filtro de tres campos (supuesto, predicado
+> observable, medición), criterio estrecho para cerrar en sesión en vez de
+> registrar, declaración explícita de vacío, y segundo gatillo idéntico antes
+> de toda operación irreversible. Su salida aterriza en 2.2 punto 11, donde
+> el predicado observable sirve de criterio de éxito. Origen: una sesión larga
+> de preparación de una operación irreversible sobre historial de git, donde
+> la pregunta equivalente, hecha a mano por el titular con la preparación ya
+> declarada lista, destapó un defecto que ningún tramo podía encontrar porque
+> solo se manifiesta al ejecutar la operación completa. Redactada de forma
+> genérica y auditable, sin depender del proyecto de origen. Nace obligatoria
+> con período de observación declarado (30 cierres o 12 meses). El 25 no se
+> reutiliza: circuló descargado.
+>
+> **Versión 25.**
+>
+> **Cambios respecto a v24:** instrumento en v5, por evidencia del cierre v60
+> de `slep_reportes_modelo_resguardo_asistencia` (media docena de ciclos para
+> un cierre). Tres correcciones: la precondición de árbol limpio se acota a
+> los archivos que el cierre escribe (los encargos nuevos en `andamios/` ya
+> no detienen); nueva validación previa que comprueba TODAS las anclas del
+> BACKLOG_DELTA antes de mutar y reporta los fallos de una vez; y F4 queda
+> autorizada a normalizar el formato del delta a las convenciones del
+> destino, conservando contenido. Se agrega reversión obligatoria: una
+> detención tardía la deshace Claude Code, no el titular a mano. Regla nueva
+> para el redactor en §2.1. El 24 no se reutiliza: circuló descargado.
+>
+> **Versión 24.**
+>
+> **Cambios respecto a v23:** dos incrustaciones que eliminan peticiones
+> recurrentes de adjuntos. (1) 2.2.15 incorpora el **catálogo de patrones
+> vigente** en tabla compacta (`PAT-01` a `PAT-13`): el asistente clasifica
+> desde aquí y `catalogo_patrones_errores_v4.md` queda como insumo de Claude
+> Code y auditorías, no del registro en sesión. (2) §2.1 declara que el
+> instrumento `cierre_sesion_autonomo_cc_v8.md` **no es insumo del
+> redactor**. Motivo: ambos archivos viven en `herramientas_dev/`, fuera de
+> la knowledge base, y el asistente los pedía adjuntos en cada sesión;
+> subirlos a 23 KBs habría creado 23 copias a mantener por versión. El 23 no
+> se reutiliza: circuló descargado.
+>
+> **Versión 23.**
+>
+> **Cambios respecto a v22:** una sola línea, 2.2.15 campo `patron`: la cita
+> del catálogo canónico pasa de `catalogo_patrones_errores_v3.md` a `_v4.md`.
+> Origen: la ordenación de `herramientas_dev` (20260812) archivó el v3 por
+> regla de versiones y dejó la cita colgada; el propio v4 tenía esta
+> actualización inventariada como deuda. El 22 no se reutiliza: circuló
+> descargado. Las menciones a v1-v3 en registros de cambios anteriores son
+> históricas y quedan intactas.
+>
+> **Versión 22.**
+>
+> **Cambios respecto a v21:** instrumento en v4: el log del cierre pasa de
+> un archivo por sesión a **acumulativo único**
+> (`andamios/logs/cierres_log.md`, una sección anexada por cierre,
+> commiteada en F7). Motivo: proyectado a cientos de sesiones, un log por
+> cierre poblaba `andamios/logs/` sin límite; con esto el cierre deja cero
+> archivos netos en andamios. El 21 no se reutiliza: circuló descargado.
+>
+> **Versión 21.**
+>
+> **Cambios respecto a v20:** el gatillo por sesión desaparece; lo reemplaza
+> el comando global fijo `/cierre` de Claude Code
+> (`~/.claude/commands/cierre.md`, instalación por única vez), que descubre
+> el paquete en `andamios/` y lee TODOS los parámetros de su front matter,
+> que suma tres campos (`raiz_proyecto`, `push_autorizado`, `escaner`) y una
+> guardia de repo (front matter contra `pwd`). Instrumento
+> `cierre_sesion_autonomo_cc_v8.md`. Los pasos del titular siguen siendo
+> cuatro, pero el tercero pasa de pegar un bloque generado a escribir
+> `/cierre`. El 20 no se reutiliza: circuló descargado.
+>
+> **Versión 20.**
+>
+> **Cambios respecto a v19:** el canal delegado del cierre pasa a **forma
+> v2**, instrumento `cierre_sesion_autonomo_cc_v2.md`. Origen: el primer
+> cierre real por canal v1 (v116 de `slep_aprendizajes_ep`) produjo un
+> gatillo de más de 1000 líneas pegado en el chat, una parada evitable por
+> el escáner ya corrido en la sesión, y un turno extra para corregir el hash
+> de reapertura. Cuatro cambios: (1) el payload viaja en un **paquete de
+> cierre** descargable único que el titular guarda en
+> `50_documentacion/andamios/` (queda derogado el payload incrustado de
+> v19, y con él su prohibición del adjunto, que la nueva forma reemplaza);
+> (2) F1 **adopta** el escáner de la sesión cuando el `sello_escaner` del
+> paquete calza con el disco; (3) el traspaso cita `main` **previo** al
+> cierre y el hash definitivo lo agrega Claude Code al eco de reapertura;
+> (4) **apertura liviana**: el backlog y el escáner dejan de adjuntarse por
+> defecto (2.2.14, bloque 3). Los pasos manuales del titular quedan en
+> cuatro: instruir, guardar la descarga, pegar el gatillo, copiar la
+> reapertura.
+>
+> **Versión 19.**
+>
+> **Cambios respecto a v18:** la plantilla del gatillo de §2.1 suma una
+> **prohibición explícita** con tabla de racionalizaciones: el payload va
+> incrustado, nunca como adjunto o descarga aparte. Origen: primer uso real
+> del canal, donde una sesión entregó el payload como `.txt` descargable
+> citando fragilidad del pegado (falla de disciplina según §2.2.16, y la
+> forma correcta del arreglo es prohibición + racionalizaciones, no
+> reformular la receta). El número 18 no se reutiliza: esa versión ya
+> circuló descargada y editarla crearía dos v18 distintas (la lección del
+> salto v15→v16).
+>
+> **Versión 18.**
+>
+> **Cambios respecto a v17:** §2.1 **incrusta la plantilla del gatillo** del
+> cierre delegado. Motivo: la v17 la referenciaba solo por ruta de disco
+> (`herramientas_dev/prompts/`), accesible para Claude Code pero no para el
+> redactor, que opera desde la knowledge base; en el primer uso real el
+> redactor no pudo generar el gatillo sin pedir el archivo adjunto. La
+> división queda: la plantilla del gatillo (lo que el redactor produce) vive
+> aquí; las fases F0-F9 (lo que Claude Code ejecuta) viven solo en el
+> instrumento en disco. Si ambas divergen, manda este documento para el
+> gatillo y el instrumento para las fases.
+>
+> **Versión 17.**
+>
+> **Cambios respecto a v16:** §2.1 incorpora la **ejecución delegada del
+> cierre** como canal por defecto: al recibir la instrucción de cierre, el
+> asistente redacta el payload autoral completo (traspaso, delta del backlog,
+> ESTADO.md) y genera un gatillo único para Claude Code, que ejecuta todo el
+> housekeeping (escáner, archivado 1.3.1, escritura, verificaciones,
+> commits selectivos, push autorizado, eco de la reapertura) según el
+> instrumento `herramientas_dev/prompts/cierre_sesion_autonomo_cc_v1.md`.
+> El flujo manual anterior queda como fallback, no se elimina. §2.1bis y
+> §2.2.14 reciben una línea cada uno para el canal delegado. Motivo: el
+> cierre implicaba una cadena de pasos manuales del titular (correr escáner,
+> pegarlo al chat, sobreescribir estado y backlog, descargar el traspaso)
+> que son housekeeping mecánico, no decisión; la división correcta es
+> autoría al redactor, filesystem a Claude Code, decisión de push al titular.
 >
 > **Cambios respecto a v15:** nuevo paso **4ter** en §1.2.2, gatillo observable
 > del invariante de entorno (locale UTF-8) que la POLITICA v5.6 §5.2bis declara
@@ -290,6 +512,17 @@ la sesión correrá en Claude Code.
    en qué vamos, próximo paso, bloqueantes). Verificar sincronía: si
    `ultima_actividad` antecede al último traspaso, declararlo y confiar en
    el traspaso. ESTADO.md orienta; no sustituye ninguna lectura.
+0bis. **Verificación del candado (antes de leer nada).** Ejecutar
+   `git fetch` y comprobar tres cosas en `ESTADO.md`: que `sesion_abierta` sea
+   `false`, que `cierre_incompleto` sea `no`, y que `commit_cierre` coincida con
+   el `HEAD` de `origin`. Las tres se cumplen: se pone `sesion_abierta: true`
+   con la máquina actual, se commitea y se pushea de inmediato, y la sesión
+   abre normal. Alguna falla: **no se trabaja todavía**, se va a §1.2.8. Un
+   `sesion_abierta: true` con otra máquina significa que hay una sesión sin
+   cerrar en otra estación, y empezar encima es la forma de crear el conflicto
+   que este protocolo existe para evitar. Comprobar además la tabla de insumos
+   declarados del traspaso contra lo que hay en `20_insumos/`: una fecha
+   distinta se declara en el acuse, no se ignora.
 1. **Traspaso completo, de principio a fin.** No escanear, no resumir
    prematuramente, no saltar secciones. Sin cambio: es la lectura
    innegociable de la apertura.
@@ -613,6 +846,36 @@ por qué, categoría temática del backlog, causa raíz si hubo bug,
 alternativas si hubo decisión de diseño, tensiones entre principios y
 cómo se resolvieron. Es el insumo del traspaso (sección 2).
 
+#### 1.2.8 Apertura de emergencia (sesión anterior sin cerrar)
+
+Excepción declarada, no vía alternativa. Existe porque una máquina puede quedar
+apagada, en otro país o simplemente fuera de alcance, y una regla inaplicable se
+salta, que es peor que no tenerla. El hábito que el protocolo persigue es cerrar
+seguido, de modo que este procedimiento casi nunca corra.
+
+Se activa cuando el punto 0bis falla por cualquiera de sus tres causas.
+
+1. **No tocar el árbol.** Antes de escribir una línea, fotografiar el estado:
+   `git log --oneline -10`, `git status`, `git log origin/main..HEAD --oneline`
+   y la salida del verificador de cierre. Esa salida es la evidencia y va al
+   acuse literal.
+2. **Reconstruir qué quedó a medias**, desde los commits posteriores al
+   `commit_cierre` declarado y desde el traspaso vigente. Lo que no esté en
+   ninguno de los dos se declara perdido, no se supone.
+3. **Declarar en el acuse de recibo (Fase B)** una sección
+   `Apertura de emergencia`: causa detectada, último cierre válido, commits
+   huérfanos si los hay, y qué se da por perdido.
+4. **Cerrar el hueco antes de trabajar:** correr el verificador, resolver lo que
+   falle, y dejar `ESTADO.md` coherente con la realidad. Recién entonces se
+   marca `sesion_abierta: true` y se abre.
+5. **Registrar la fricción** (§2.2.17) en una línea. Si el mismo proyecto entra
+   dos veces en emergencia, el problema no es el olvido: es que las sesiones
+   duran más de lo que el cierre puede cubrir, y eso se corrige acortándolas.
+
+Nunca se resuelve una apertura de emergencia con `push --force` ni descartando
+commits ajenos: si hay divergencia real entre estaciones, se detiene y se
+consulta al titular.
+
 ### 1.3 NEW PROJECT
 
 Sin traspaso. Primera acción obligatoria: la pregunta de bifurcación
@@ -688,6 +951,256 @@ ruta (nunca solo como texto plano en el chat), acompañado en el mensaje
 de cierre del bloque de reapertura (2.2.14). Entregarlo sin archivo es
 una desviación registrable en 2.2.15.
 
+**Cita de versión de documento normativo (regla de forma, transversal).**
+Toda mención a la versión de un documento normativo (`POLITICA_PROYECTO.md`,
+este documento, catálogos, instrumentos) se hace **transcribiendo su línea de
+encabezado leída en el turno**, no con el número suelto: `Versión 28.` como
+aparece en el archivo, no "SETTINGS v28". Un número suelto es indistinguible
+de un número recordado o leído de un fragmento del registro de cambios, que
+es un modo de fallo observado: un registro de cambios menciona versiones
+viejas por diseño, así que una búsqueda dentro del documento devuelve números
+que no son el vigente. La transcripción hace visible la omisión; el número
+suelto no. Aplica al acuse de apertura, al traspaso y a cualquier encargo que
+dependa de la versión.
+
+**Compuerta de repositorio (bloqueante, PRIMERA de las dos compuertas).**
+
+*Qué es.* Antes de la compuerta de dudas y antes del paquete, se comprueba que
+el proyecto quede en un estado que otra máquina u otro integrante pueda retomar
+sin pedirle nada a quien cerró. Se ejecuta, no se recuerda:
+
+```bash
+Rscript "$HERRAMIENTAS_DEV_PATH/plantillas/95_verificar_cierre.R" <ruta_del_proyecto>
+```
+
+*Por qué existe.* El repositorio vive fuera de OneDrive y viaja solo por GitHub.
+Lo que no está pusheado no existe para la otra estación. Hasta la v30 el
+protocolo garantizaba la calidad del traspaso y nada más: el traspaso podía ser
+impecable y el código quedar sin commitear, o commiteado sin push, y la sesión
+siguiente lo descubría al abrir, en la otra máquina, sin forma de recuperarlo.
+
+*Los nueve invariantes.*
+
+| Id | Invariante | Falla significa |
+|---|---|---|
+| I1 | Árbol de trabajo limpio | Hay trabajo que no viajará |
+| I2 | Sin stash pendiente | Hay trabajo escondido que ni siquiera se ve en `status` |
+| I3 | `0 detrás, 0 adelante` contra `origin`, con `fetch` previo | Falta push, o falta integrar lo que otra estación ya subió |
+| I4 | Rama publicable | El trabajo está en una rama que la otra estación no espera |
+| I5 | Un solo traspaso vigente, versionado (POLITICA regla 1.3.1) | La otra sesión no sabrá cuál leer |
+| I6 | `ESTADO.md` con los campos de candado | La apertura no puede verificar el candado |
+| I7 | Escáner corrido en este cierre | El árbol documentado no es el árbol real |
+| I8 | Ningún archivo de datos versionado | Gobernanza (POLITICA §6) |
+| I9 | Insumos declarados | Ver el párrafo siguiente |
+
+*Salida única declarada.* Si algo impide cumplir un invariante (sin red al
+cerrar, permiso pendiente, bloqueo del remoto), el cierre procede **declarándolo**
+en `ESTADO.md`, campo `cierre_incompleto: <razón en una frase>`, y repitiéndolo
+en el traspaso. No hay salida silenciosa: una compuerta que se puede ignorar sin
+dejar rastro deja de medir a la segunda vez. La apertura siguiente trata ese
+campo como bloqueante y lo resuelve antes de trabajar.
+
+**Declaración de insumos (parte de la compuerta, I9).**
+
+El repositorio viaja por git; el data root vive en la carpeta institucional
+compartida de OneDrive y sincroniza por su cuenta, con su propio retraso. Es el
+único punto donde un traspaso perfecto puede fallar en la otra estación sin que
+nada lo advierta: el archivo puede estar bajándose todavía, o ser una versión
+distinta de la que corrió esta sesión.
+
+Por eso el cierre **declara** los insumos que la próxima sesión necesita
+encontrar, con huella verificable (nombre, fecha de modificación, tamaño),
+generada por el verificador en el mismo turno y nunca de memoria. No se copian
+datos, no se versiona nada y no se recorre el data root completo: solo el primer
+nivel de `20_insumos/`, con nombres relativos y jamás rutas absolutas
+(POLITICA §7.2). La apertura compara esa tabla contra lo que ve, y una
+diferencia de fecha es un hallazgo declarable, no un detalle.
+
+**Compuerta de dudas (obligatoria, PREVIA al paquete).**
+
+*Qué es.* Antes de generar el paquete de cierre, el asistente revisa la sesión
+completa (conversación, logs, tests, artefactos producidos) y enumera lo que
+quedó sin verificar. No es un resumen de lo hecho ni una lista de tareas
+futuras: es el inventario de lo que se dio por bueno sin medirlo.
+
+*Por qué existe.* Durante la ejecución, cada turno evalúa sus dudas contra un
+objetivo local, y los tramos están delimitados justamente para que así sea. Lo
+que ningún tramo revisa son las brechas ENTRE tramos, que por construcción no
+son responsabilidad de ninguno: superficies que ninguna tarea tenía asignadas,
+y modos de fallo que solo aparecen al ejecutar la operación completa y no en
+ninguna de sus partes probadas por separado. Esas brechas se vuelven visibles
+al final, cuando la sesión entera está a la vista de una vez, y no antes.
+
+*Cuándo corre (dos gatillos, un solo criterio).*
+
+1. Antes de generar el paquete de cierre. Va antes y no después porque su
+   salida puede cambiar el contenido del traspaso, y una compuerta que corre
+   después del artefacto que debería modificar no sirve.
+2. Antes de ejecutar cualquier operación irreversible o de efecto público:
+   aquellas cuyo retroceso no es un `git revert` (reescritura de historial,
+   `push --force`, escritura o sobreescritura en un canal compartido con
+   terceros, borrado de datos, publicación de cifras hacia fuera del equipo).
+
+Es la misma regla en ambos casos, con los mismos campos y el mismo criterio;
+no se redactan dos reglas parecidas que después divergen.
+
+*Forma de cada duda (filtro de tres campos, obligatorio).*
+
+| Campo | Contenido |
+|---|---|
+| `supuesto` | Qué se dio por bueno sin medirlo, en una frase |
+| `predicado` | El enunciado observable cuya verdad o falsedad lo decidiría |
+| `medicion` | El comando, consulta o inspección concreta que lo evalúa |
+
+Una duda que no puede escribirse con los tres campos **se descarta, no se
+registra**: la compuerta existe para encontrar huecos medibles, no para
+producir apariencia de escrutinio. Un `predicado` que no admite refutación
+("el código quedó robusto") o una `medicion` que no es ejecutable ("revisar
+con calma") invalidan la entrada.
+
+*Qué hacer con cada duda que pasa el filtro.* Se cierra en la sesión **solo
+si** descubrirla más tarde costaría una operación irreversible, una cifra ya
+publicada, o un ciclo de re-trabajo mayor que la propia verificación. En
+cualquier otro caso se registra como pendiente y el cierre continúa. El
+criterio es estrecho a propósito: la salida por defecto es registrar, no
+ejecutar.
+
+*Dónde aterriza la salida.*
+
+- Duda cerrada en sesión → registro detallado de cambios (2.2.4), como tramo
+  ejecutado con su verificación.
+- Duda registrada → inventario de pendientes (2.2 punto 11), con los tres
+  campos escritos; el `predicado` ES el "criterio de éxito sugerido" que esa
+  sección exige, y no se redacta de nuevo.
+- Ninguna duda pasa el filtro → se declara explícitamente en el traspaso. El
+  vacío es una afirmación verificable, igual que el de las secciones que ya
+  valen por su vacío, y su ausencia es la señal de que la compuerta no corrió.
+
+*Traza obligatoria (v29).* La declaración anterior no basta por sí sola: una
+omisión de la compuerta solo la nota quien ya sabe que la compuerta existe, y
+eso falló en la práctica. Por eso el paquete de cierre declara en su front
+matter `compuerta_dudas: <N registradas | vacio declarado>` y `settings_version`
+con la línea de encabezado transcrita, y el ejecutor verifica ambos contra el
+traspaso y contra el archivo real antes de tocar nada: sin ellos, o con cifra
+que no calza, el cierre se detiene. La compuerta deja así de depender de la
+memoria de quien cierra.
+
+*Lo que la compuerta NO hace (modos de degradación conocidos).*
+
+- **No reabre trabajo cerrado.** Su salida por defecto es un pendiente
+  registrado; el criterio de arriba es la única excepción.
+- **No sustituye la auditoría de cierre** (política 5.6, preguntas "Cierre"):
+  esa evalúa el proyecto contra una lista fija, esta busca lo que ninguna
+  lista fija cubre. Conviven y se ejecutan ambas.
+- **No genera dudas para llenar el casillero.** El filtro de tres campos es la
+  guarda; relajarlo la convierte en ruido justo cuando encuentre algo real.
+- **No depende de que el titular la pida.** Si dependiera, fallaría
+  precisamente en las sesiones largas, que son donde más rinde y donde nadie
+  se acuerda de preguntar.
+
+*Evidencia de origen y período de observación.* La regla nace de un caso único
+pero informativo: una sesión larga (del orden de nueve tramos autónomos) que
+preparaba una operación irreversible sobre historial de git, con compuertas,
+controles negativos y verificación adversaria en cada tramo. Una pregunta
+equivalente a esta compuerta, hecha a mano por el titular con la preparación
+ya declarada lista, destapó un defecto que abortaba la operación a mitad de
+camino y que ningún tramo podía haber encontrado, porque solo se manifiesta al
+ejecutar la operación completa. Repetida la pregunta, aparecieron cuatro
+huecos más, tres de ellos sobre superficies sin tramo asignado. Un caso no
+prueba rendimiento general: la regla nace obligatoria porque su costo con
+salida vacía es una línea, y queda en observación por 30 cierres o 12 meses,
+lo que ocurra primero. El juez es la tabla de errores del asistente (2.2.15)
+junto con el destino de los pendientes que produzca: si se acumulan sin
+resolverse, la compuerta degrada a recomendación y el cambio se registra aquí.
+
+**Ejecución delegada del cierre (canal por defecto; forma v2 desde SETTINGS
+v20).** Al recibir la instrucción de cierre, el asistente NO pide al titular
+correr el escáner, adjuntar el backlog ni sobreescribir archivos, y TAMPOCO
+pega el payload en el chat (la forma v1, de payload incrustado, queda
+derogada: sus gatillos superaban las 1000 líneas). Entrega exactamente dos
+cosas:
+
+1. **El paquete de cierre**, un único archivo descargable
+   `paquete_cierre_vNN.md` con front matter (`proyecto`, `raiz_proyecto`,
+   `traspaso_nuevo`, `sello_escaner`, `backlog_ultimo_previo`,
+   `push_autorizado`, `escaner`) y los tres bloques delimitados
+   (TRASPASO, BACKLOG_DELTA, ESTADO) con su destino declarado. El titular lo
+   guarda en `50_documentacion/andamios/` del repo. El paquete es un
+   vehículo: Claude Code lo distribuye, verifica por diff y lo elimina (única
+   eliminación sancionada del protocolo).
+2. Nada más: el gatillo por sesión no existe. El titular escribe el comando
+   global `/cierre` en Claude Code (abierto en la raíz del repo), que
+   descubre el único paquete de `andamios/` y toma todos los parámetros de
+   su front matter. La guardia de repo (raíz declarada contra `pwd`) detiene
+   el cierre lanzado en el proyecto equivocado.
+
+**Regla de oro del payload (redactor).** El paquete lleva **solo lo que
+únicamente un humano puede decidir**: las entradas nuevas del backlog, el
+traspaso, `ESTADO.md` y tres campos de narrativa (foco de la sesión, ajustes
+de taxonomía, lectura del movimiento temático). Todo lo derivable de una
+magnitud lo calcula el ejecutor. En consecuencia, el redactor **no** enumera
+rótulos stale, **no** escribe pares buscar→reemplazar, **no** declara la
+unicidad de ninguna ancla y **no** escribe cifras que un script puede contar
+(cuántas entradas trae, cuántas correcciones aplica, el total nuevo, las
+filas del resumen). Declara magnitudes en el front matter
+(`backlog_total_previo`, `backlog_entradas_nuevas`, `backlog_tramo`,
+`sesion_nueva`, `fecha_cierre`) y nada más; el ejecutor las verifica contra
+disco, deriva de ellas los rótulos desde su catálogo canónico, inserta por
+posición estructural (sección y tabla por encabezado, no por cadena) y
+comprueba invariantes de coherencia sobre el resultado.
+
+*Por qué la regla existe:* los defectos que hicieron falta tres emisiones de
+un paquete y una reversión de árbol fueron todos de cómputo (ancla ambigua
+porque el archivo repite colas de línea por diseño, rótulo omitido porque la
+oración cruzaba el envoltorio de ~90 columnas, cifra del propio delta escrita
+a mano y luego versionada), y ninguno de autoría: las entradas nuevas se
+aplicaron sin una sola objeción en las tres emisiones. Enumerar
+exhaustivamente una población dispersa es tarea que un script hace perfecto y
+un redactor hace mal, tenga o no el archivo delante. El diagnóstico de una
+falla del cierre empieza por esa pregunta: si el fallo fue de cómputo, la
+corrección va en el instrumento, nunca en pedirle más cuidado al redactor.
+
+El instrumento NO es insumo del redactor: todo lo que él produce (paquete,
+front matter, reglas de autoría) está aquí; sus fases son de Claude Code,
+que lo lee del disco. El asistente nunca lo pide adjunto.
+
+Claude Code ejecuta las fases del instrumento
+`herramientas_dev/prompts/cierre_sesion_autonomo_cc_v9.md`: precondiciones
+por triple origen y guardia de repo, escáner condicional (adopta la corrida de la sesión si el
+`sello_escaner` del paquete calza con el disco; `regenerar` lo corre; sello
+ausente del disco detiene), archivado 1.3.1, distribución de los tres
+bloques, verificaciones (`vigentes=1`, correlativos del backlog, greps de
+gobernanza), commits selectivos, push si está autorizado, sección nueva en el log acumulativo único de cierres, y eco de la
+reapertura seguido de la línea `Commit de cierre: <hash>`.
+
+Reglas de autoría que este canal impone al redactor: `main` se cita en el
+traspaso con el hash **previo** al cierre, rotulado "previo al commit de
+cierre", y el hash definitivo lo agrega Claude Code al eco (el commit de
+cierre no existe cuando el traspaso se redacta; citarlo obligaba a un turno
+de corrección); el BACKLOG_DELTA incluye también los ajustes de rótulos y
+prosa de sección que el delta deja stale, como pares buscar→reemplazar
+exactos; y `sello_escaner` lleva el sello real de la corrida de la sesión o
+la palabra `regenerar`, nunca un sello heredado.
+
+Los pasos manuales del titular son exactamente cuatro: instruir el cierre
+(con `push: no` si quiere retenerlo; sin declaración, `si`, y viaja en el front matter), guardar la descarga en
+`andamios/`, escribir `/cierre`, copiar la reapertura. El flujo manual del
+resto de esta sección queda como **fallback** (Claude Code no disponible,
+repo fuera de la cartera, emergencia) y toda la normativa de contenido sigue
+vigente para ambos canales.
+
+*Prohibición (disciplina).* Sin tercera forma: ni payload pegado en el chat
+(v1 derogada), ni más de un archivo de cierre, ni pedir al titular colocar
+contenido destino por destino. Racionalizaciones que NO habilitan excepción:
+"es más directo pegarlo", "son pocos cambios", "el paquete es muy corto para
+justificar descarga". Un cierre corto usa el mismo canal que uno largo.
+
+**Comando `/cierre` (fijo, global; reemplaza a toda plantilla de gatillo).**
+Vive en `~/.claude/commands/cierre.md`, instalado por única vez; su contenido
+canónico está en la sección 3 del instrumento v8. Si no está instalado, ese
+mismo bloque pegado a mano equivale. El redactor no genera gatillos: su única
+entrega de cierre es el paquete.
+
 > **Convención de nombre — no negociable.** El separador es SIEMPRE
 > guión bajo: `traspaso_cierre_vNN.md`. NUNCA con guión medio
 > (`traspaso-cierre-vNN.md` es no-canónico y no se versiona). Esto
@@ -758,6 +1271,12 @@ sesion_actual: vNN
 ultima_actividad: AAAA-MM-DD
 maneja_sensibles: true|false
 tipo_pendiente: bug|bloqueante|deuda_heredada|deuda_tecnica|nuevo|cosmetica|ninguno
+sesion_abierta: true|false
+maquina: <hostname de la estacion que la abrio o cerro>
+commit_cierre: <sha corto del commit de cierre>
+traspaso_vigente: traspaso_cierre_vNN.md
+cierre_incompleto: no|<razon en una frase>
+insumos_verificados: AAAA-MM-DD
 ---
 ## En que vamos
 <2-3 oraciones>
@@ -766,6 +1285,15 @@ tipo_pendiente: bug|bloqueante|deuda_heredada|deuda_tecnica|nuevo|cosmetica|ning
 ## Bloqueantes
 <lista o "ninguno">
 ```
+
+**Campos de candado (obligatorios en todo proyecto trabajado desde más de una
+máquina).** `sesion_abierta` se pone en `true` al abrir, en un commit propio que
+se pushea de inmediato (`chore(estado): abre sesion vNN en <maquina>`), y vuelve
+a `false` en el cierre. Ese flag es lo único que hace visible desde la otra
+estación que alguien está trabajando: sin él, el trabajo local sin commitear es
+indetectable de forma remota, y esa limitación es inherente, no un defecto del
+diseño. `commit_cierre` permite a la apertura comprobar que el remoto está en el
+punto donde el traspaso dice que quedó.
 
 **Origen de cada campo (mapeo de destilación):**
 
@@ -802,7 +1330,10 @@ la sesión que generó ese `ESTADO.md` (no es un error silencioso
 aceptable; es una ambigüedad a revisar por el titular).
 
 **Regla de generación:** `ESTADO.md` se escribe DESPUÉS del traspaso,
-nunca antes (el traspaso es la fuente; `ESTADO.md` es su destilación). Si
+nunca antes (el traspaso es la fuente; `ESTADO.md` es su destilación). En
+el canal delegado (§2.1), la destilación la redacta el asistente dentro
+del payload y la escritura en disco la ejecuta Claude Code en su fase F5,
+respetando este mismo orden. Si
 el cierre no alcanza a generarlo, no bloquea el cierre de sesión: el
 orquestador de cartera cae a PULL (lectura del traspaso/backlog) para ese
 proyecto, sin error.
@@ -871,6 +1402,8 @@ de la cual destilar): queda en PULL hasta su primer cierre formal.
       viola) y oportunidades de mejora.
     - Auditoría de cierre (política 5.6, preguntas "Cierre"); toda
       respuesta "no" se agrega como pendiente.
+    - Salida de la compuerta de dudas (2.1): las dudas registradas, con
+      sus tres campos, o la declaración explícita de vacío.
     - Ruta sugerida para la próxima sesión aplicando los criterios de
       priorización de 1.2.4, con justificación y criterio de éxito por
       ítem, más lo que conviene diferir.
@@ -929,9 +1462,14 @@ corrige con una entrada nueva.
 
 Esta sección aparece UNA sola vez dentro del traspaso (su sección final) y
 se replica **textualmente** al final del mensaje de chat con el que el
-asistente cierra la sesión, para copiar todo sin abrir el archivo. No se
-duplica dentro del propio traspaso. Con **valores reales, jamás
-placeholders**. El asistente no propone nombre para la nueva sesión.
+asistente cierra la sesión, para copiar todo sin abrir el archivo. En el
+canal delegado (§2.1) esa réplica la imprime Claude Code como último acto
+de su turno, extrayéndola del traspaso recién escrito y agregando debajo
+la línea `Commit de cierre: <hash>`, que por eso el traspaso nunca cita;
+el asistente no la duplica en su propio mensaje, que termina en
+el gatillo. No se duplica dentro del propio traspaso. Con **valores
+reales, jamás placeholders**. El asistente no propone nombre para la
+nueva sesión.
 
 - **Mensaje de apertura pre-armado:** declara tipo CONTINUATION, indica
   que el protocolo (política + este documento) vive en la knowledge base
@@ -948,13 +1486,18 @@ placeholders**. El asistente no propone nombre para la nueva sesión.
   2. *Opcionales según el foco real de la próxima sesión* (solo los
      que apliquen, no todos): `CLAUDE.md` si correrá en Claude Code;
      protocolos 4.1-4.6 de este documento según la tarea;
-     `auditoria_codigo_proyecto_md_v1.md` si habrá auditoría de cifras.
+     `auditoria_codigo_proyecto_md_v2.md` si habrá auditoría de cifras.
   3. *Específicos de la sesión* (SÍ se adjuntan): el traspaso
-     `traspaso_cierre_vNN.md`; el escáner `estructura_actual.md`; los
+     `traspaso_cierre_vNN.md`; los
      archivos críticos para retomar (solo los que la próxima sesión
      necesita, priorizando los del pendiente foco; los voluminosos
      pero críticos se mantienen anotados como tales); datos o
-     referencias externas si aplica, con su porqué.
+     referencias externas si aplica, con su porqué. El backlog NO se
+     adjunta (su último número viaja en el traspaso y el cierre lo
+     verificó contra disco); el escáner NO se adjunta por defecto (el
+     traspaso §10 trae su resumen) y se lista solo si la próxima
+     sesión trabajará estructura. Si la apertura necesita un dato de
+     cualquiera de los dos, se pide ese dato puntual, no el archivo.
 - **Nota final obligatoria:** si algún archivo listado cambió entre
   sesiones, adjuntar la versión más actualizada al abrir y avisarlo en
   el mensaje de apertura.
@@ -987,10 +1530,38 @@ código diluiría esa comparabilidad.
 | `regla_violada` | Documento + sección exacta de la regla que existía y no se siguió (p.ej. "userPreferences, edición de archivos: entregar completo, no fragmentos") |
 | `causa_raiz` | Por qué ocurrió pese a que la regla estaba disponible (nunca "no lo sabía": la regla existía; el análisis es de por qué no se aplicó en el momento) |
 | `salvaguarda_presente` | Qué documento(s) ya contenían la regla violada (POLITICA / SETTINGS / CLAUDE.md / userPreferences / más de uno) |
-| `patron` | Etiqueta `PAT-NN` del catálogo canónico (`herramientas_dev/gobernanza/catalogo_patrones_errores_v3.md`) más el matiz libre ("PAT-01, sobre firma de función"). Conjunto válido vigente: `PAT-01` a `PAT-13`. "Nuevo" se reserva para mecanismos que ningún `PAT-NN` cubre, se escribe `PAT-NUEVO-<slug>` y obliga a proponer la entrada nueva del catálogo en el mismo traspaso |
+| `patron` | Etiqueta `PAT-NN` de la tabla de abajo más el matiz libre ("PAT-01, sobre firma de función"). Conjunto válido vigente: `PAT-01` a `PAT-13`. "Nuevo" se reserva para mecanismos que ningún `PAT-NN` cubre, se escribe `PAT-NUEVO-<slug>` y obliga a proponer la entrada nueva del catálogo en el mismo traspaso |
 | `gatillo_observable` | El predicado que era observable en el momento del error, escrito como condición verificable y no como narración. Empieza con una etiqueta del vocabulario controlado, dos puntos, y la precisión libre del caso. Vocabulario: `afirmar-sin-leer`, `estado-git`, `cifras-datos`, `encargos-premisas`, `ausencia-adjuntos`, `comando-entorno`, `restriccion-no-propagada`, `confirmacion-redundante`, `entrega-sin-destino-o-nombre`, `costo-sobre-regla`, `iteracion-sin-criterio`, `otro`. Existe para que los grupos de gatillo sean un campo del registro y no una reconstrucción por expresión regular sobre prosa libre (el catálogo v2 documenta esa brecha en PAT-01) |
 | `intentos_previos` | Número de intentos fallidos contra el mismo objetivo antes del error (`0` si ocurrió al primer intento), más una frase de qué falló en cada uno. Es el dato que el retrospectivo no tenía y sin el cual las salvaguardas de escalada (dos fallos, segundo rechazo) no son medibles |
 | `costo` | Consecuencia real en unidad observable (turnos perdidos, ciclos de copy-paste, artefactos rehechos, fases detenidas, cifra publicada incorrecta) o `ninguno`. Nunca adjetivos. Existe porque la frecuencia sola no ordena las salvaguardas: hay patrones de un registro con costo alto por evento y patrones frecuentes de costo bajo |
+
+**Catálogo de patrones vigente (incrustado; el asistente clasifica desde
+aquí y NO necesita adjunto).** Trece patrones activos. Las fichas completas
+(evidencia, subfamilias, guardrails, salvaguardas) viven en
+`herramientas_dev/gobernanza/catalogo_patrones_errores_v5.md`, que es insumo
+de Claude Code y de las auditorías, no del registro de errores en sesión:
+para clasificar basta esta tabla.
+
+| ID | Patrón |
+|---|---|
+| `PAT-01` | Afirmar o emitir sin fuente primaria |
+| `PAT-02` | Consumar sin verificación intermedia |
+| `PAT-03` | Supuesto sobre el entorno de ejecución ajeno |
+| `PAT-04` | Ceder iniciativa o re-preguntar lo resuelto |
+| `PAT-05` | Clasificar mal la división titular/asistente |
+| `PAT-06` | Entregar sin archivo materializado, sin destino o con identidad no canónica |
+| `PAT-07` | Restricción leída no propagada al diseño |
+| `PAT-08` | Verbosidad sobre el requisito de brevedad |
+| `PAT-09` | Optimizar costo o esfuerzo por encima de regla o rigor |
+| `PAT-10` | Iteración a ciegas en cambios convergentes |
+| `PAT-11` | Ejecución mecánica por chat existiendo vía de encargo |
+| `PAT-12` | Encargo desfasado por contexto |
+| `PAT-13` | Precondición o criterio de aceptación que mide un proxy y no el riesgo |
+
+Si el patrón del caso no calza en ninguno, se usa `PAT-NUEVO-<slug>` y se
+propone la entrada en el mismo traspaso; no se pide el catálogo adjunto para
+decidirlo.
+
 
 **Regla de registro:** el error se anota en el momento en que se
 identifica dentro de la sesión (no se reconstruye de memoria al cerrar).
@@ -1220,8 +1791,10 @@ No es un refactor: no se toca código del proyecto.
 ### 4.5 Auditoría de cifras publicadas
 
 Patrón de tres scripts (helpers + orquestador de familias + spot-check)
-documentado en `herramientas_dev/prompts/auditoria_codigo_proyecto_md_v1.md`
-(vigente como documento independiente). Núcleo: cada cifra publicada se
+documentado en `herramientas_dev/prompts/auditoria_codigo_proyecto_md_v2.md`
+(vigente como documento independiente). Desde la v2, cada familia debe
+demostrar en la misma corrida que detecta una diferencia plantada: una
+familia que no lo prueba entrega sus OK sin haber medido nada. Núcleo: cada cifra publicada se
 calcula por dos caminos independientes (caché vs. recálculo desde el
 objeto crudo) y se comparan con tolerancias definidas como constantes
 nombradas. Llaves siempre `character`; patrón índice-primero en Excel
