@@ -118,3 +118,60 @@ Para activar Pages: Settings → Pages → Source: Deploy from a branch → Bran
 Código bajo licencia **MIT** (ver `LICENSE`). La licencia cubre el código del
 repositorio; **no** cubre los datos, que se rigen por las condiciones de uso de la
 información del DEMRE.
+
+<!-- portabilidad-cross-os: bloque generado, no editar a mano -->
+
+## Portabilidad cross-OS
+
+Este proyecto se clona, configura y ejecuta igual en macOS y en Windows. El contrato completo está en `herramientas_dev/gobernanza/portabilidad_os/protocolo_portabilidad_cross_os.md`.
+
+### Configuración de una máquina nueva
+
+1. Instalar Git, R y Positron.
+2. Clonar el repositorio **fuera de OneDrive** (por ejemplo `~/Projects/slep_paes`).
+3. Copiar `.Renviron.example` a `~/.Renviron` y declarar la raíz de datos. Basta **una línea**:
+
+   ```text
+   WORKSPACE_DATA_ROOT=<carpeta de proyectos en el OneDrive institucional>
+   ```
+
+   El proyecto se resuelve como `<WORKSPACE_DATA_ROOT>/slep_paes`. Si necesita otra ubicación, declarar `SLEP_PAES_DATA_ROOT`, que gana sobre la global. Reiniciar R después de editar.
+4. Verificar que la raíz de datos esté sincronizada y accesible.
+5. Restaurar el entorno de paquetes:
+
+   ```r
+   renv::restore()
+   ```
+
+   `renv.lock` es la única fuente de verdad de paquetes y versiones. No instalar con `install.packages()` a mano.
+
+### Validación del entorno
+
+Antes de ejecutar nada, con la sesión de R abierta en la raíz del repo:
+
+```r
+source(here::here("10_utils", "10_validar_portabilidad.R"))
+validar_portabilidad()
+```
+
+Debe quedar sin fallas críticas. Comprueba el ancla de `here`, la locale UTF-8, `renv.lock`, que `.Renviron` no esté versionado, que `.Renviron.example` exista, y que la raíz de datos resuelva y sea escribible. Para comprobar que el propio verificador detecta violaciones: `validar_portabilidad_autotest()`.
+
+### Ejecutar el proyecto
+
+```r
+source(here::here("00_run_all.R"))
+```
+
+### Matriz de dependencias de sistema
+
+Lo que `renv` no resuelve se instala en la máquina antes de ejecutar el pipeline.
+
+| Dependencia | macOS | Windows | Necesaria |
+|---|---|---|---|
+| Git | sí | sí | sí |
+| R (4.2 o superior) | sí | sí | sí |
+| Positron | sí | sí | recomendado |
+| OneDrive institucional | sí | sí | sí (raíz de datos) |
+
+Si el proyecto necesita binarios externos (ODBC, Java, Ghostscript, LibreOffice, Quarto, Typst), declararlos en esta tabla con su versión: el protocolo prohíbe depender de que un comando esté "casualmente" en el `PATH`.
+
