@@ -250,17 +250,34 @@
 
   config <- file.path(raiz, "10_utils", "10_configuracion.R")
   if (file.exists(config)) {
+    # Se sondean varios accesores: no todos los proyectos nombran igual la
+    # funcion publica, y reconocer solo uno daba FALLA a proyectos que
+    # resuelven bien (V3.3 de la verificacion). ruta_insumos() va al final
+    # porque devuelve <raiz>/20_insumos y hay que subir un nivel.
+    .via <- NA_character_
     data_root <- tryCatch({
       env <- new.env()
       sys.source(config, envir = env)
-      if (exists("obtener_data_root_proyecto", envir = env)) {
-        get("obtener_data_root_proyecto", envir = env)()
-      } else NA_character_
+      valor <- NA_character_
+      for (fn in c("obtener_data_root_proyecto", "obtener_root_resguardo",
+                   "ruta_insumos")) {
+        if (!exists(fn, envir = env, inherits = FALSE)) next
+        f <- get(fn, envir = env)
+        if (!is.function(f)) next
+        v <- tryCatch(suppressWarnings(f()), error = function(e) NULL)
+        if (is.character(v) && length(v) == 1L && nzchar(v)) {
+          valor <- if (identical(fn, "ruta_insumos")) dirname(v) else v
+          .via <- fn
+          break
+        }
+      }
+      valor
     }, error = function(e) NA_character_)
     resuelto <- !is.na(data_root) && nzchar(data_root) && dir.exists(data_root)
     checks[[length(checks) + 1L]] <- .vp_check(
       "data_root_resuelto", resuelto,
-      "Data root no resuelto o inaccesible; declarar <PROYECTO>_DATA_ROOT o WORKSPACE_DATA_ROOT en ~/.Renviron")
+      if (resuelto) paste0("Resuelto por ", .via, "()") else
+        "Data root no resuelto o inaccesible; declarar <PROYECTO>_DATA_ROOT o WORKSPACE_DATA_ROOT en ~/.Renviron")
     if (resuelto) {
       salidas <- file.path(data_root, "40_salidas")
       escribible <- dir.exists(salidas) &&
