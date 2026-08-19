@@ -23,11 +23,26 @@
 
 .vp_marcador_excepcion <- "# portabilidad: excepcion"
 
+# Marcadores de hueco a rellenar. Una linea que los trae no contiene el valor
+# literal de una maquina (protocolo §3) sino la plantilla de configuracion que
+# el propio protocolo §6.2 obliga a documentar: "C:/Users/<usuario>/..." es
+# instruccion de setup, no una ruta ejecutable. Cubre tambien las clases de
+# caracteres de un regex, propias de los scripts detectores.
+.vp_placeholder <- paste0(
+  "<[A-Za-z_ ]{2,20}>",        # <usuario>, <user>, <tenant>, <nombre>
+  "|\\$\\{[A-Za-z_]+\\}",      # ${VAR}
+  "|%[A-Za-z_]+%",             # %USERPROFILE%
+  "|\\[\\^",                   # clase negada de un regex
+  "|/ruta/a/"                  # marcador generico en castellano
+)
+
 # Patrones estáticos. Algunos regex se componen por partes para que este
 # propio archivo no contenga literales prohibidos completos.
 .vp_patrones <- function() {
-  u_mac <- paste0("/", "Users", "/")
-  u_win <- paste0("[A-Za-z]:[/\\\\]+", "Users")
+  # El segmento de usuario debe ser un nombre concreto: "/Users/" seguido de
+  # ")" o de "<" no es una ruta de maquina, es prosa o plantilla.
+  u_mac <- paste0("/", "Users", "/[A-Za-z0-9._-]")
+  u_win <- paste0("[A-Za-z]:[/\\\\]+", "Users", "[/\\\\]+[A-Za-z0-9._-]")
   list(
     list(id = "ruta_usuario_macos",  severidad = "critica",
          regex = u_mac,
@@ -46,17 +61,23 @@
     # compartido"). Se exige separador de ruta inmediatamente antes, o el
     # patron institucional "OneDrive - <tenant>/" seguido de separador.
     list(id = "onedrive_literal", severidad = "critica",
-         regex = paste0("[/\\\\]\\s*One", "Drive",
+         regex = paste0("[/\\\\]One", "Drive",
                         "|One", "Drive\\s*-\\s*[^\"']{1,40}[/\\\\]"),
          descripcion = "Ruta literal de OneDrive en codigo versionado"),
     list(id = "home_como_raiz", severidad = "critica",
          regex = "Sys\\.getenv\\(\\s*[\"']HOME[\"']",
          descripcion = "HOME usado como raiz (redirigible en Windows)"),
+    # "~$" es el prefijo de los archivos de bloqueo de Excel (~$libro.xlsx),
+    # no una raiz redirigible: se excluye para no confundir el filtro de locks
+    # con una ruta que arranca en HOME.
     list(id = "tilde_como_raiz", severidad = "critica",
-         regex = "[\"']~[/\\\\]",
+         regex = "[\"']~(?![\\\\]*\\$)[/\\\\]",
          descripcion = "Ruta iniciada en ~ (HOME redirigible)"),
+    # Nombrar setwd() en un comentario no es llamarlo: la prosa que explica
+    # por que NO se usa quedaba marcada como violacion. Si el comentario trae
+    # ademas una ruta de maquina, la detectan los patrones de ruta.
     list(id = "setwd", severidad = "critica",
-         regex = "\\bsetwd\\s*\\(",
+         regex = "^(?![ \\t]*#)(?:[^#\"']|\"[^\"]*\"|'[^']*')*\\bsetwd\\s*\\(",
          descripcion = "setwd() prohibido; usar here::here()"),
     list(id = "nbsp", severidad = "critica",
          regex = "\u00A0",
@@ -102,6 +123,8 @@
   for (i in seq_along(lineas)) {
     linea <- lineas[[i]]
     es_excepcion <- grepl(.vp_marcador_excepcion, linea, fixed = TRUE)
+    # Plantilla de configuracion (§6.2), no ruta de maquina: se audita aparte.
+    es_plantilla <- grepl(.vp_placeholder, linea, perl = TRUE)
     for (p in patrones) {
       if (grepl(p$regex, linea, perl = TRUE, useBytes = FALSE)) {
         registro <- data.frame(
@@ -109,7 +132,7 @@
           severidad = p$severidad, descripcion = p$descripcion,
           stringsAsFactors = FALSE
         )
-        if (es_excepcion) {
+        if (es_excepcion || (es_plantilla && p$severidad == "critica")) {
           excepciones[[length(excepciones) + 1L]] <- registro
         } else {
           hallazgos[[length(hallazgos) + 1L]] <- registro

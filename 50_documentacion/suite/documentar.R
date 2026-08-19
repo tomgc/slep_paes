@@ -7,7 +7,7 @@
 #  CLAUDE.md, decisiones, scripts 31/32/33, gobernanza_datos.md, contexto_paes.md).
 #
 #  Regenerar (desde la raiz del proyecto):
-#      Rscript -e 'setwd("/Users/tomgc/Projects/slep_paes"); source("50_documentacion/suite/documentar.R")'
+#      Rscript -e 'setwd("<raiz-del-repo>"); source("50_documentacion/suite/documentar.R")'
 #  o, en Positron:
 #      source("50_documentacion/suite/documentar.R")
 #
