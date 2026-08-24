@@ -1,80 +1,67 @@
 # POLITICA_PROYECTO.md
 
-> **Versión 5.6 — vigente.** Documento maestro único de arquitectura y
+> **Versión 5.8 — vigente.** Documento maestro único de arquitectura y
 > gobernanza. Se copia a `50_documentacion/activa/` de cada proyecto y
 > vive en la knowledge base del Project. Aplica a Claude, Claude Code y
 > cualquier agente que trabaje sobre el proyecto.
 >
-> **Cambios respecto a v5.5:** nueva **§5.2bis** (invariante de entorno:
-> locale UTF-8 garantizada por guarda de arranque, con la prohibición
-> explícita de envolver `Sys.setlocale()` en `try(..., silent = TRUE)` o
-> `suppressWarnings()`) y una línea nueva en el checklist común de inicio
-> (§8.4). Se numera "bis" a propósito: insertar un ítem numerado dentro de
-> §5.2 habría renumerado los principios 5 a 12 de §5.3 y roto todas las
-> referencias `C.N` de los traspasos de la cartera. El paso de apertura que
-> enciende el pendiente en cada proyecto vive en
-> `SETTINGS_Y_PROMPTS_OPERACIONALES.md` §1.2.2 (paso 4ter, v15). Origen:
-> sesión v108 de `slep_aprendizajes_ep` (decisión D034), donde un proceso de
-> R con locale no UTF-8 escribió escapado **todo** el texto acentuado de una
-> corrida, incluidas las glosas del catálogo curricular, y el defecto llevaba
-> tres ocurrencias con su propia lección ya escrita en un comentario del
-> proyecto.
+> **Cambios respecto a v5.7:** (a) §2 incorpora `documentacion_tecnica_vN.md`
+> como sexta excepción declarada al prefijo `50_`. La excepción ya se cumplía
+> de hecho (esta misma política lo fija por nombre en §2, viñeta "Documentos",
+> y en §10; SETTINGS lo fija en §2.2, puntos 9 y 13), pero no estaba listada,
+> de modo que el criterio general de la sección ordenaba conservar el nombre
+> mientras la tabla de excepciones lo dejaba fuera. Origen: la fila se escribió
+> el 2026-08-05 sobre la copia local de `slep_gestion_solicitudes_compras`
+> (commit `92f9343`) y nunca volvió al canónico; se recupera aquí con la cita
+> numerada, porque la redacción local invocaba "los §§ del acuse de apertura"
+> de SETTINGS sin número, que es la clase de cita colgada que SETTINGS v30 y
+> v31 vinieron a cerrar. (b) Se ejecuta la poda que v5.7 declaró en su punto
+> (b) y aplicó solo a medias: el encabezado conserva completos los dos
+> registros más recientes (v5.8 y v5.7) y colapsa a una línea los de v5.6,
+> v5.5 y v5.4, que hasta ahora convivían completos con su propio resumen en el
+> historial. Ninguna regla cambia en (b) y ningún texto se pierde: el
+> documento se versiona sobre sí mismo y los registros completos siguen en el
+> historial del repositorio del kit.
 >
-> **Cambios respecto a v5.4:** (a) nueva regla 1.3.1, la del traspaso
-> vigente: `traspasos/` mantiene un solo archivo a la vista y
-> `traspasos/archivo/` guarda los superados; (b) §2 fija el prefijo `50_`
-> para los archivos de `50_documentacion/activa/` y declara de una vez las
-> excepciones por contrato de cartera (`ESTADO.md`, `gobernanza_datos.md`,
-> `backlog_acumulativo.md`, `POLITICA_PROYECTO.md`,
-> `SETTINGS_Y_PROMPTS_OPERACIONALES.md`); (c) §7.2 excluye del escáner los
-> árboles de dependencias de terceros (`node_modules/` y análogos). Origen:
-> sesión v103 de `slep_aprendizajes_ep`, donde el renombre de `ESTADO.md`
-> se ejecutó y hubo que revertirlo por no estar declarada la excepción.
+> **Cambios respecto a v5.6:** (a) el checklist de auditoría §5.6 gana la
+> pregunta 9, que comprueba en apertura y en cierre que la guarda
+> `asegurar_locale_utf8()` sigue instalada y verificada. La v5.6 declaró el
+> invariante (§5.2bis) y lo puso en el checklist de inicio (§8.4), pero ninguna
+> pregunta del ciclo de vida lo revisa después: un proyecto podía perder la
+> guarda en un refactor y nadie se enteraba hasta la próxima corrida corrupta,
+> que es el mismo modo de fallo silencioso que §5.2bis existe para impedir.
+> (b) El encabezado se poda: conserva completos los dos registros de cambios
+> más recientes y colapsa los anteriores a una línea cada uno. Motivo: el
+> registro ocupaba 78 líneas antes de la primera regla y se relee entero en cada
+> apertura que detecta cambio de versión (§1.2.2 punto 3 de SETTINGS). Ninguna
+> regla cambia en (b), y ningún texto se pierde: este documento se versiona
+> sobre sí mismo, así que los registros completos siguen en el historial del
+> repositorio del kit.
 >
-> **Cambios respecto a v5.3:** nueva regla 0.6 (marcador de fuente en línea),
-> adoptada de la ficha S-01 de la auditoría de errores de la cartera, única
-> ficha que superó el criterio de adopción tras el backtest del 2026-07-25.
-> Sube a §0 porque rige a todo agente y no solo a las sesiones de proyecto;
-> su contrato completo vive en `SETTINGS_Y_PROMPTS_OPERACIONALES.md` §1.2.6
-> (v12).
+> **Historial anterior.** Texto literal de los registros de cambios de las
+> versiones 4 a 5.6:
+> `git -C <kit> log -p --follow gobernanza/POLITICA_PROYECTO.md`. Una línea por
+> versión, para citar sin abrir el historial:
 >
-> **Cambios respecto a v5.2:** sección 0.4 agrega el test de dos preguntas
-> antes de derivar cualquier tarea al usuario (guardrail GR-05, propuesta
-> P4 de la auditoría cruzada de errores del asistente, integrada junto con
-> `SETTINGS_Y_PROMPTS_OPERACIONALES.md` v8). Motivo: los dos errores de
-> patrón PAT-05 (clasificar como "mecánica del usuario" trabajo que exigía
-> producir o editar contenido) ocurrieron en la frontera entre operación
-> de plataforma y producción de contenido, que 0.4 no discriminaba por
-> criterio, solo por ejemplos. El titular pidió explícitamente una
-> solución estructural, no repetir la regla con más énfasis (registrado en
-> traspaso `slep_estado_proyectos_monitoreo` v05). El test es obligatorio,
-> respondido por escrito en una línea antes de derivar.
+> - **v5.6:** nueva §5.2bis, invariante de locale UTF-8 por guarda de arranque,
+>   más una línea en el checklist común de inicio (§8.4). Origen: sesión v108 de
+>   `slep_aprendizajes_ep` (decisión D034).
+> - **v5.5:** (a) nueva regla 1.3.1, traspaso vigente único a la vista y
+>   superados en `traspasos/archivo/`; (b) §2 fija el prefijo `50_` y declara
+>   las excepciones por contrato de cartera; (c) §7.2 excluye del escáner los
+>   árboles de dependencias de terceros.
+> - **v5.4:** nueva regla 0.6, marcador de fuente en línea (ficha S-01 de la
+>   auditoría de errores; contrato completo en SETTINGS §1.2.6).
+> - **v5.3:** §0.4 suma el test de dos preguntas antes de derivar una tarea al
+>   usuario (guardrail GR-05, patrón PAT-05).
+> - **v5.2:** nueva regla 0.5, registro obligatorio de errores del asistente.
+> - **v5.1:** §10 agrega `backlog_acumulativo.md` como documento canónico, con
+>   nombre, ubicación y momento de extracción.
+> - **v5:** absorbe `regla_estructura_proyectos.md` y los principios técnicos de
+>   `principios_desarrollo_v3.md`; la arquitectura de dos raíces pasa a modelo
+>   canónico; escáner con poda atómica; inicialización bifurcada por
+>   sensibilidad; migración consolidada.
 >
-> **Cambios respecto a v5.1:** nueva regla 0.5 (registro obligatorio de
-> errores del asistente): toda desviación de una regla canónica, detectada
-> por el asistente o por el usuario, se registra en el momento y se
-> consolida en la nueva tabla de errores del traspaso de cierre
-> (`SETTINGS_Y_PROMPTS_OPERACIONALES.md` v7 §2.2.15). Disparador
-> exhaustivo, no limitado a cuando el asistente dice explícitamente "me
-> equivoqué". Objetivo: hacer analizable en conjunto, entre los 16
-> proyectos de la cartera, un problema de errores repetidos que las
-> salvaguardas existentes no han prevenido por sí solas.
->
-> **Cambios respecto a v5:** §10 agrega `backlog_acumulativo.md` como
-> documento canónico obligatorio (nombre, ubicación y momento de
-> extracción). Complementa `SETTINGS_Y_PROMPTS_OPERACIONALES.md` v5
-> §2.2.5. Cierra la brecha que causó heterogeneidad de nombres y
-> ubicaciones en la cartera.
->
-> **Cambios respecto a v4:** (a) absorbe `regla_estructura_proyectos.md`
-> (archivo retirado); (b) absorbe los principios técnicos de
-> `principios_desarrollo_v3.md` como sección 5 (archivo retirado); (c) la
-> arquitectura de dos raíces (código en Git / datos en OneDrive) pasa a ser
-> el modelo canónico para proyectos con datos sensibles (sección 6); (d)
-> sección 7 del escáner reescrita con poda atómica de 2 snapshots; (e)
-> nueva sección 8 de inicialización de proyectos con bifurcación por
-> sensibilidad de datos; (f) migración consolidada (estructura + GitHub)
-> en sección 9.
 
 ---
 
@@ -336,7 +323,7 @@ cobertura inicial de tests.
 - **Archivos de `50_documentacion/activa/`:** prefijo `50_`, por la regla
   1.2.4 (modo "sin orden interno").
 
-  **Excepciones declaradas, cerradas:** cinco archivos conservan su nombre
+  **Excepciones declaradas, cerradas:** seis archivos conservan su nombre
   porque **otro documento los fija por nombre**, y renombrarlos rompe un
   contrato que excede al proyecto:
 
@@ -347,6 +334,7 @@ cobertura inicial de tests.
   | `backlog_acumulativo.md` | esta política, sección 10 |
   | `POLITICA_PROYECTO.md` | su nombre es su identificador en la knowledge base |
   | `SETTINGS_Y_PROMPTS_OPERACIONALES.md` | ídem |
+  | `documentacion_tecnica_vN.md` | esta política, §2 (viñeta "Documentos") y §10; `SETTINGS_Y_PROMPTS_OPERACIONALES.md` §2.2 (puntos 9 y 13) |
 
   **Criterio general, aplicable a casos futuros:** antes de renombrar un
   archivo de `activa/`, grep de su nombre en esta política y en SETTINGS.
@@ -555,6 +543,7 @@ no es legítimo saltarse la pregunta.
 | 6 | ¿Los outputs son reproducibles e idempotentes? | Cierre | Revisar escritura atómica y semillas |
 | 7 | ¿Decisiones metodológicas como constantes nombradas? | Cierre | Extraer números mágicos (5.3.10) |
 | 8 | ¿Nombres de archivos y carpetas sin tildes, ñ ni espacios? | Apertura y cierre | Renombrar y actualizar referencias |
+| 9 | ¿La guarda `asegurar_locale_utf8()` sigue instalada en el punto de arranque, idéntica a la plantilla, y se la vio fallar? | Apertura y cierre | Recopiar desde `herramientas_dev/plantillas/10_locale.R`, invocarla en la primera línea ejecutable de `10_configuracion.R` y verificarla rompiéndola a propósito (§5.2bis) |
 
 Toda respuesta "no" al cierre se convierte en pendiente del traspaso.
 
